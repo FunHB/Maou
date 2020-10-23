@@ -16,11 +16,13 @@ module.exports = {
 
         var reportChannel = msg.guild.channels.cache.get("769127666011602964");
 
-        const reported = parseInt(args[0]);
-        
-        if(isNaN(reported)) return msg.channel.send(new MessageEmbed().setColor("222222").setDescription("To nawet nie jest liczba! Musisz podać ID wiadomości, którą chcesz zgłosić."));
+        //769127666011602964 id kanału reporty
 
-        if(args[0].length!=18) return msg.channel.send(new MessageEmbed().setColor("222222").setDescription("Coś krótka ta wiadomość.. jak dla mnie ID to to nie jest :("));
+        const reported = args[0];
+        
+        if(isNaN(parseInt(reported))) return msg.channel.send(new MessageEmbed().setColor("222222").setDescription("To nawet nie jest liczba! Musisz podać ID wiadomości, którą chcesz zgłosić."));
+
+        if(reported.length!=18) return msg.channel.send(new MessageEmbed().setColor("222222").setDescription("Coś krótka ta wiadomość.. jak dla mnie ID to to nie jest :("));
 
         if(!args[1]) return msg.channel.send(new MessageEmbed().setColor("222222").setDescription('Musisz podać powód zgłoszenia!'));
 

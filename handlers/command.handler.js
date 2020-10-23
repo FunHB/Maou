@@ -31,10 +31,15 @@ module.exports = (client) => {
 
         // ignore message without prefix
         if (!msg.content.startsWith(prefix)) return; 
+
         //723113830464618556 id #polecenia-bota
-        // Check channel commands
-        //if (msg.channel.id !== "723113830464618556" && author.id !== owner && msg.content !== prefix && msg.content !== prefix+"report" && msg.content !== prefix+"raport" && msg.content !== prefix+"zglos" && msg.content !== prefix+"zgłoś" && msg.content !== prefix+"zgłos" && msg.content !== prefix+"zgloś") return msg.reply(`Poleceń możesz używać na kanele <#723113830464618556>!`);
-        if (msg.channel.id !== "723113830464618556" && author.id !== owner && msg.content !== prefix) return msg.reply(`Poleceń możesz używać na kanele <#723113830464618556>!`);
+
+        // Check channel commands and ignore report command
+
+        if(msg.content.startsWith(prefix+"report") || msg.content.startsWith(prefix+"raport") || msg.content.startsWith(prefix+"zglos") || msg.content.startsWith(prefix+"zgłoś") || msg.content.startsWith(prefix+"zgloś") || msg.content.startsWith(prefix+"zgłoś")) {} else {
+            if (msg.channel.id !== "723113830464618556" && author.id !== owner && msg.content !== prefix) return msg.reply(`Poleceń możesz używać na kanele <#723113830464618556>!`);
+        }
+        
     
         const args = msg.content.slice(prefix.length).trim().split(/ +/g);
         const cmdName = args.shift().toLowerCase();
