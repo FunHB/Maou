@@ -14,13 +14,14 @@ module.exports = {
         let member = msg.mentions.users.first() || msg.author;
 
         let avatar = member.displayAvatarURL({
+            dynamic: true,
             size: 128,
-            format: "jpg"
+            format: "png"
         })
 
 
         const embed = new Discord.MessageEmbed()
-            .setTitle(`${member.username}`)
+            .setDescription(`Awatar dla: ${member}`)
             .setImage(avatar)
             .setColor("222222")
         //.setDescription('Some description here')
