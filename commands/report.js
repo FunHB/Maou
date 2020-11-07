@@ -1,4 +1,7 @@
 const {MessageEmbed, Permissions: { FLAGS }} = require("discord.js");
+const {readdirSync} = require("fs");
+
+const {reportsChannel} = require(__dirname + "/../config.js");
 
 module.exports = {
     name: "report",
@@ -14,9 +17,7 @@ module.exports = {
 
         if (!args.length) return msg.channel.send(new MessageEmbed().setColor("222222").setDescription("Wydaje mi się, że nie podałeś wystarczająco dużo argumentów.\n\n Polecenie powinno wyglądać tak: \`!zgłoś <ID wiadomości> [powód zgłoszenia]\` \n\n Na przykład: \`!zgłoś 769249115443036162 Tak się nie robi!\`"));
 
-        var reportChannel = msg.guild.channels.cache.get("769127666011602964");
-
-        //769127666011602964 id kanału reporty
+        var reportChannel = msg.guild.channels.cache.get(reportsChannel);
 
         const reported = args[0];
         
