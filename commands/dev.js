@@ -13,10 +13,10 @@ module.exports = {
     userPermissions: [FLAGS.ADMINISTRATOR],
 
     run(msg, args) {
-        const {channel} = msg;
+        const {channel, guild, author, mentions} = msg;
 
-        let member = msg.mentions.users.first()
-        let msgAuthor =  msg.author
+        let member = mentions.users.first();
+        let msgAuthor =  author;
         const commands = ["clear", "kick", "ban", "mute", "unmute"];
 
         const data = [];
@@ -26,9 +26,9 @@ module.exports = {
             data.push(commands.map((command) => `\`${command}\``).join(", "));
             data.push(`\nAby użyć wpisz: \`${prefix}dev ${this.usage}\``);
 
-            return msg.channel.send(data, {slit: true}).catch(err => {
-                console.error(`Could not send help to ${msg.author.tag}.\n`, err)
-                msg.reply("O nie! Coś się stało i nie udało mi się wysłać wiadomości! Co teraz? :scream:")
+            return channel.send(data, {slit: true}).catch(err => {
+                console.error(`Could not send help to ${author.tag}.\n`, err);
+                msg.reply("O nie! Coś się stało i nie udało mi się wysłać wiadomości! Co teraz? :scream:");
             })
         } 
         
@@ -44,11 +44,34 @@ module.exports = {
                     data.push(`${msgAuthor} Możesz usunąć minimalnie 2 wiadomości, a maksymalnie 200!`);
                 } else {
                     channel.bulkDelete(amount);
-                    data.push(`${msgAuthor} Usunięto ${amount} wiadomości!`)
+                    data.push(`${msgAuthor} Usunięto ${amount} wiadomości!`);
                 }
                 break;
             case "kick":
-                data.push("nie ma jeszcze polecenia kick");
+                // const reasonArg = [...args].slice(2).join(" ");
+
+
+                // if(!member) {
+                //     data.push(`${msgAuthor} Musisz podać osobę którą chcesz wyrzucić oraz powód.`);
+                //     data.push(`\nAby użyć wpisz: \`${prefix}dev kick @osoba [powód]\``);
+                //     break;
+                // } else if (member.id === msgAuthor.id) {
+                //     data.push(`${msgAuthor} Nie możesz wyrzucić sam siebie! Przykro mi.`);
+                //     break;
+                // } 
+
+                // const memberToKick = guild.members.cache.get(member.id);                    
+                
+                // if (!memberToKick.kickable) {
+                //     data.push(`Nie masz wystarczających uprawnień aby użyć tego polecenia!`);
+                //     break;
+                // } else {
+                //     memberToKick.kick(reasonArg).then(kickedUser => {
+                //         channel.send(`Użytkownik \`${kickedUser.displayName}\` został wyrzucony.\n${reasonArg ? `Powód: ${reasonArg}` : "" }`);
+                //     });
+                // } 
+
+                data.push("nie ma jeszcze polecenia ban");
                 break;
             case "ban":
                 data.push("nie ma jeszcze polecenia ban");
@@ -64,7 +87,7 @@ module.exports = {
                 data.push(`\nSprawdź: \`${prefix}dev\` aby wyświetlić polecenia administratora.`);
         }
     
-        msg.channel.send(data, {split: true})
+        channel.send(data, {split: true});
 
     },
 }
