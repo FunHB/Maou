@@ -13,7 +13,7 @@ module.exports = {
 
     run(msg, args) {
 
-        const reportChannel = msg.guild.channels.cache.get("769186897523245116");
+        const reportChannel = msg.guild.channels.cache.get("769188348148711457");
 
         let reason = "";
 
