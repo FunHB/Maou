@@ -8,7 +8,7 @@ module.exports = {
     // !rekrutacja
     usage: "<wiadomość>",
     guildOnly: true,
-    cooldown: 1,
+    cooldown: 100000000,
     //aliases: [],
 
     run(msg, args) {
