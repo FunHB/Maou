@@ -43,9 +43,7 @@ module.exports = (client) => {
 
         // if (msg.content.startsWith(prefix+"art") && msg.channel.id !== "723107790393966594" && author.id !== owner) return msg.reply(`Poleceń możesz używać na kanele <#723107790393966594>!`);
 
-        if (msg.content.startsWith(prefix+"report") || msg.content.startsWith(prefix+"raport") || msg.content.startsWith(prefix+"zglos") || msg.content.startsWith(prefix+"zgłoś") || msg.content.startsWith(prefix+"zgloś") || msg.content.startsWith(prefix+"zgłoś")) {} else if (msg.content.startsWith(prefix+"art") && msg.channel.id !== "723107790393966594" && author.id !== owner) {return msg.reply(`Poleceń możesz używać na kanele <#723107790393966594>!`);} else {
-            if (msg.channel.id !== botCommandsChannel && author.id !== owner && msg.content !== prefix) return msg.reply(`Poleceń możesz używać na kanele <#${botCommandsChannel}>!`);
-        }
+        if (msg.content.startsWith(prefix+"report") || msg.content.startsWith(prefix+"raport") || msg.content.startsWith(prefix+"zglos") || msg.content.startsWith(prefix+"zgłoś") || msg.content.startsWith(prefix+"zgloś") || msg.content.startsWith(prefix+"zgłoś")) {} else if (msg.content.startsWith(prefix+"art") && msg.channel.id !== "723107790393966594" && author.id !== owner) {return msg.reply(`Poleceń możesz używać na kanele <#723107790393966594>!`);} else if (msg.channel.id !== botCommandsChannel && author.id !== owner && msg.content !== prefix) return msg.reply(`Poleceń możesz używać na kanele <#${botCommandsChannel}>!`);
         
     
         const args = msg.content.slice(prefix.length).trim().split(/ +/g);
