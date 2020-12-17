@@ -1,9 +1,6 @@
-const { Guild } = require("discord.js");
-
 const { prefix } = require("../config");
 
 // Wszystko do przerobienia na później...
-// i to w sumie pilne bo nie da się dodawać roli w wygodny sposób
 
 module.exports = {
     name: "role",
@@ -12,7 +9,7 @@ module.exports = {
     usage: "<pokaż/nadaj/zdejmij> [nazwa roli]",
     guildOnly: true,
     cooldown: 5,
-    aliases: ["rola", "rolę"],
+    aliases: ["rola"],
 
     run(msg, args) {
 
@@ -21,18 +18,8 @@ module.exports = {
         const commands = ["pokaż", "nadaj", "zdejmij"];
         const aliases = ["pokaz", "show", "add", "remove"];
         const roles = ["odcinki"];
-        //const rolesC = ["Youkai", "Ayakashi", "Mononoke", "Yousei", "Shiryou"];
 
-        const guildRoles = {ODCINKI: "768065437807542292",};
-
-        //const colorRoles = {YOUKAI: "",
-                            // AYAKASHI: "",
-                            // MONONOKE: "", 
-                            // YOUSEI: "",  
-                            // SHIRYOU: "",};
-
-
-        //// sprawdzić role czy ktoś ma 
+        const guildRoles ={ODCINKI: "768065437807542292",};
 
         const data = [];
 
@@ -59,8 +46,6 @@ module.exports = {
                 if (role == undefined) {
                     data.push(`Wszystkie role możliwe do samodzielnego nadania:`);
                     data.push(roles.map((r) => `\`${r}\``).join(", "));
-                    // data.push(`Rangi nadające kolor:`);
-                    // data.push(rolesC.map((r) => `\`${r}\``).join(", "));
                     data.push(`\nMożesz wyświetlić informacje o danej roli używająć polecenia: \`${prefix}role pokaż [rola]\``);
                 } else if ((role.toLowerCase()) == "odcinki") {
                     data.push("Dzięki roli \`odcinki\` będziesz otrzymywał powiadomienie o nowych odcinkach przetłumaczonych przez grupę Maou Subs!");
@@ -72,8 +57,6 @@ module.exports = {
                 if (role == undefined) {
                     data.push(`Wszystkie role możliwe do samodzielnego nadania:`);
                     data.push(roles.map((r) => `\`${r}\``).join(", "));
-                    // data.push(`Rangi nadające kolor:`);
-                    // data.push(rolesC.map((r) => `\`${r}\``).join(", "));
                     data.push(`\nMożesz wyświetlić informacje o danej roli używająć polecenia: \`${prefix}role pokaż [rola]\``);
                 } else if ((role.toLowerCase()) == "odcinki") {
                     data.push("Dzięki roli \`odcinki\` będziesz otrzymywał powiadomienie o nowych odcinkach przetłumaczonych przez grupę Maou Subs!");
@@ -85,8 +68,6 @@ module.exports = {
                 if (role == undefined) {
                     data.push(`Wszystkie role możliwe do samodzielnego nadania:`);
                     data.push(roles.map((r) => `\`${r}\``).join(", "));
-                    // data.push(`Rangi nadające kolor:`);
-                    // data.push(rolesC.map((r) => `\`${r}\``).join(", "));
                     data.push(`\nMożesz wyświetlić informacje o danej roli używająć polecenia: \`${prefix}role pokaż [rola]\``);
                 } else if ((role.toLowerCase()) == "odcinki") {
                     data.push("Dzięki roli \`odcinki\` będziesz otrzymywał powiadomienie o nowych odcinkach przetłumaczonych przez grupę Maou Subs!");
@@ -99,23 +80,13 @@ module.exports = {
                     data.push(`${msgAuthor} Nie podałeś roli którą chcesz sobie nadać!`);
                     data.push(`\nWszystkie role możliwe do samodzielnego nadania:`);
                     data.push(roles.map((r) => `\`${r}\``).join(", "));
-                    // data.push(`Rangi nadające kolor:`);
-                    // data.push(rolesC.map((r) => `\`${r}\``).join(", "));
                     data.push(`\nMożesz wyświetlić informacje o danej roli używająć polecenia: \`${prefix}role pokaż [rola]\``);
                 } else if ((role.toLowerCase()) == "odcinki") {
                     const member = msg.member
                     member.roles.add(guildRoles.ODCINKI)
                     data.push(`${msgAuthor} Nadano role \`odcinki\`!`);
                     data.push(`\nMożesz zdjąć sobie rolę, nadaną wcześniej używająć polecenia: \`${prefix}role zdejmij [rola]\``);
-                } 
-                // else if ((role.toLowerCase()) == "youkai") {
-                //     // YOUKAI
-                //     const member = msg.member
-                //     member.roles.add(guildRoles.YOUKAI)
-                //     data.push(`${msgAuthor} Nadano role \`Youkai\`!`);
-                //     data.push(`\nMożesz zdjąć sobie rolę, nadaną wcześniej używająć polecenia: \`${prefix}role zdejmij [rola]\``);
-                // } 
-                else {
+                } else {
                     return msg.reply("taka rola nie istnieje!");
                 }
                 break;
@@ -124,8 +95,6 @@ module.exports = {
                     data.push(`${msgAuthor} Nie podałeś roli którą chcesz sobie nadać!`);
                     data.push(`\nWszystkie role możliwe do samodzielnego nadania:`);
                     data.push(roles.map((r) => `\`${r}\``).join(", "));
-                    // data.push(`Rangi nadające kolor:`);
-                    // data.push(rolesC.map((r) => `\`${r}\``).join(", "));
                     data.push(`\nMożesz wyświetlić informacje o danej roli używająć polecenia: \`${prefix}role pokaż [rola]\``);
                 } else if ((role.toLowerCase()) == "odcinki") {
                     const member = msg.member
@@ -141,8 +110,6 @@ module.exports = {
                     data.push(`${msgAuthor} Nie podałeś roli którą chcesz zdjąć!`);
                     data.push(`\nSpis wszystkich roli:`);
                     data.push(roles.map((r) => `\`${r}\``).join(", "));
-                    // data.push(`Rangi nadające kolor:`);
-                    // data.push(rolesC.map((r) => `\`${r}\``).join(", "));
                     data.push(`\nMożesz wyświetlić informacje o danej roli używająć polecenia: \`${prefix}role pokaż [rola]\``);
                 } else if ((role.toLowerCase()) == "odcinki") {
                     const member = msg.member
@@ -157,8 +124,6 @@ module.exports = {
                     data.push(`${msgAuthor} Nie podałeś roli którą chcesz zdjąć!`);
                     data.push(`\nSpis wszystkich roli:`);
                     data.push(roles.map((r) => `\`${r}\``).join(", "));
-                    // data.push(`Rangi nadające kolor:`);
-                    // data.push(rolesC.map((r) => `\`${r}\``).join(", "));
                     data.push(`\nMożesz wyświetlić informacje o danej roli używająć polecenia: \`${prefix}role pokaż [rola]\``);
                 } else if ((role.toLowerCase()) == "odcinki") {
                     const member = msg.member
