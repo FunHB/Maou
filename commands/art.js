@@ -6,7 +6,7 @@ module.exports = {
     description: "Wyświetla losowy obrazke z anime!",
     args: false,
     guildOnly: true,
-    cooldown: 1,
+    cooldown: 15,
 
     async run(msg, args) {
         const animeRandom = () => {
@@ -17,7 +17,7 @@ module.exports = {
 
         const index = mathRandom(artDatabases.length);
 
-        let embed = new MessageEmbed().setDescription(`${msg.author} o to obrazek dla ciebie <3`).setImage(animeRandom()).setFooter(`Index: ${index}`).setColor("RANDOM");
+        let embed = new MessageEmbed().setDescription(`${msg.author} o to obrazek dla ciebie <3`).setImage(animeRandom()).setFooter(`Index: ${index+2}`).setColor("RANDOM");
 
         msg.channel.send(embed)
     },
