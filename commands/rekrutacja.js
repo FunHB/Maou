@@ -3,7 +3,7 @@ const {readdirSync} = require("fs");
 
 module.exports = {
     name: "rekrutacja",
-    description: "Dzięki temu poleceniu możesz wysłać swoje zgłoszenie odnośnie rekrutacji na tłumacza/korektora. [Rekrutacja zamknięta!]",
+    description: "Dzięki temu poleceniu możesz wysłać swoje zgłoszenie odnośnie rekrutacji na tłumacza/korektora. ",
     args: false,
     // !rekrutacja
     usage: "<wiadomość>",
@@ -13,30 +13,28 @@ module.exports = {
 
     run(msg, args) {
 
-        msg.channel.send(new MessageEmbed().setColor("b348ff").setDescription(`${msg.author} Nie można wysłać zgłoszenia! \n\n Aktualnie nie przyjmujemy już zgłoszeń dotyczących rekrutacji. W przypadku pytań proszę pisać na <#723108382663245885>`));
+        const reportChannel = msg.guild.channels.cache.get("769188348148711457");
 
-        // const reportChannel = msg.guild.channels.cache.get("769188348148711457");
+        let reason = "";
 
-        // let reason = "";
+        if(!args.length) {
+            reason = "Brak wiadomości.";
+        } else {
+            reason = args.join(" ");
+        }
 
-        // if(!args.length) {
-        //     reason = "Brak wiadomości.";
-        // } else {
-        //     reason = args.join(" ");
-        // }
+        if(msg.deletable) msg.delete();
+        msg.channel.send(new MessageEmbed().setColor("b348ff").setDescription(`${msg.author} Wiadomość została wysłana! \n Prosimy o cierpliwość, wkrótce zostaniesz poinformowany o dalszych czynnościach, jakie należy podjąć odnośnie rekrutacji.`).addField("Treść wiadomości:", reason));
 
-        // if(msg.deletable) msg.delete();
-        // msg.channel.send(new MessageEmbed().setColor("b348ff").setDescription(`${msg.author} Wiadomość została wysłana! \n Prosimy o cierpliwość, wkrótce zostaniesz poinformowany o dalszych czynnościach, jakie należy podjąć odnośnie rekrutacji.`).addField("Treść wiadomości:", reason));
+        const reportEmbed = new MessageEmbed()
+            .setColor("b348ff")
+            .setAuthor(msg.author.tag, msg.author.displayAvatarURL())
+            .setTitle("Zgłoszenie do rekrutacji:")
+            .setDescription(`**Treść:** ${reason}`)
+            .addField("Zgłoszone przez:", `Użytkownik: ${msg.author} ID: ${msg.author.id}`)
+            .addField("Zgłoszono na kanale:", msg.channel)
+            .addField("Czas:", `${msg.createdAt}`)
 
-        // const reportEmbed = new MessageEmbed()
-        //     .setColor("b348ff")
-        //     .setAuthor(msg.author.tag, msg.author.displayAvatarURL())
-        //     .setTitle("Zgłoszenie do rekrutacji:")
-        //     .setDescription(`**Treść:** ${reason}`)
-        //     .addField("Zgłoszone przez:", `Użytkownik: ${msg.author} ID: ${msg.author.id}`)
-        //     .addField("Zgłoszono na kanale:", msg.channel)
-        //     .addField("Czas:", `${msg.createdAt}`)
-
-        // reportChannel.send(reportEmbed);
+        reportChannel.send(reportEmbed);
     },
 }
