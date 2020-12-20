@@ -34,8 +34,11 @@ module.exports = (client) => {
 
         // Check channel commands and ignore report command
 
+        const artChannel = '723107790393966594';
+
         if(msg.content.startsWith(prefix+"report") || msg.content.startsWith(prefix+"raport") || msg.content.startsWith(prefix+"zglos") || msg.content.startsWith(prefix+"zgłoś") || msg.content.startsWith(prefix+"zgloś") || msg.content.startsWith(prefix+"zgłoś")) {} else {
-            if (msg.channel.id !== botCommandsChannel && author.id !== owner && msg.content !== prefix) return msg.reply(`Poleceń możesz używać na kanele <#${botCommandsChannel}>!`);
+            if(msg.channel.id !== artChannel && msg.content.toLowerCase().startsWith(prefix+"art") && author.id !== owner) return msg.reply(`Polecenia \`${prefix}art\` możesz używać na kanale <#${artChannel}>!`); 
+            if(msg.channel.id === artChannel && msg.content.toLowerCase().startsWith(prefix+"art")) {} else if (msg.channel.id !== botCommandsChannel && author.id !== owner && msg.content !== prefix) return msg.reply(`Poleceń możesz używać na kanele <#${botCommandsChannel}>!`);
         }
         
     
