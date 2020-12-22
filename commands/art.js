@@ -17,7 +17,7 @@ module.exports = {
 
         const index = mathRandom(artDatabases.length);
 
-        let embed = new MessageEmbed().setDescription(`${msg.author} o to obrazek dla ciebie <3`).setImage(animeRandom()).setFooter(`Index: ${index+2}`).setColor("RANDOM");
+        let embed = new MessageEmbed().setDescription(`${msg.author} o to obrazek dla ciebie <3`).setImage(animeRandom()).setFooter(`Index: ${index}`).setColor("RANDOM");
 
         msg.channel.send(embed)
     },
