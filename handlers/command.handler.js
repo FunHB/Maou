@@ -3,6 +3,8 @@ const {readdirSync} = require("fs");
 
 const {prefix, owner, botCommandsChannel} = require(__dirname + "/../config.js");
 
+const mod_commands = require(`./mod.handler.js`)
+
 module.exports = (client) => {
     client.commands = new Collection();
     const cooldowns = new Collection();
@@ -22,7 +24,6 @@ module.exports = (client) => {
 
     };
 
-
     client.on('message', (msg) => {
 
         const {author, guild, channel} = msg;
@@ -31,6 +32,9 @@ module.exports = (client) => {
 
         // ignore message without prefix
         if (!msg.content.startsWith(prefix)) return; 
+
+        // Mod commands
+        if(msg.content.toLowerCase().startsWith(mod_commands.mod_prefix)) return mod_commands.on(msg);
 
         // Check channel commands and ignore report command
 
