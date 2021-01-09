@@ -3,7 +3,7 @@ const {modLogsChannel} = require(__dirname + "/../config.js");
 
 module.exports = {
     name: "kick",
-    description: "Sprawdza opóźnienie między botem a serwerem!",
+    description: "Wyrzuca użytkownika z serwera!",
     guildOnly: true,
     aliases: ["wyrzuc", "wyrzuć"],
 
@@ -31,7 +31,7 @@ module.exports = {
         }
     
         const memberToKick = msg.guild.members.cache.get(userToKick.id);
-    
+
         if (!memberToKick.kickable) {
           return msg.channel.send(new MessageEmbed().setDescription(`Nie masz wystarczających uprawnień, aby wyrzucić tego użytkownika!`).setColor("ff0000"))
         }
