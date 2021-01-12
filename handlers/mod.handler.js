@@ -1,3 +1,4 @@
+const {MessageEmbed} = require('discord.js');
 const {prefix, owner, modRole} = require(__dirname + "/../config.js");
 const {readdirSync} = require("fs");
 
@@ -17,7 +18,7 @@ module.exports = {
         // Chcek mod role
         let role = msg.guild.roles.cache.get(modRole) || modRole;
         if(!msg.member.roles.cache.has(role.id) && msg.author.id !== owner) {
-            return msg.channel.send("to nie polecenie dla ciebie...");
+            return msg.channel.send(new MessageEmbed().setImage("https://i.giphy.com/RX3vhj311HKLe.gif").setColor("ff0000"));
         }
 
         // load commands
