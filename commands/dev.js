@@ -12,6 +12,8 @@ module.exports = {
     botPermiissions: [FLAGS.ADMINISTRATOR],
     userPermissions: [FLAGS.ADMINISTRATOR],
 
+
+    // Polecenie jest nie używane bo sa mod polecenia fun...
     run(msg, args) {
         const {channel, guild, author, mentions} = msg;
 

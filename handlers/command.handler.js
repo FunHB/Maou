@@ -38,6 +38,8 @@ module.exports = (client) => {
 
         // Check channel commands and ignore report command
 
+        // To co tu się dzieje to szkoda gadać kiedyś miałem to poprawić ale...
+
         const artChannel = '723107790393966594';
 
         if(msg.content.startsWith(prefix+"report") || msg.content.startsWith(prefix+"raport") || msg.content.startsWith(prefix+"zglos") || msg.content.startsWith(prefix+"zgłoś") || msg.content.startsWith(prefix+"zgloś") || msg.content.startsWith(prefix+"zgłoś")) {} else {

@@ -23,17 +23,17 @@ module.exports = {
         }
     
         if (userToBan.id === msg.author.id) {
-          return msg.channel.send(new MessageEmbed().setDescription(`Nie możesz zbanować samego siebie!`).setColor("ff0000"))
+          return msg.channel.send(new MessageEmbed().setDescription(`Nie możesz zbanować samego siebie!`).setColor("ff0000"));
         }
 
         if (userToBan.bot === true) {
-            return msg.channel.send(new MessageEmbed().setDescription(`Nie możesz zbanować bota!`).setColor("ff0000"))
+            return msg.channel.send(new MessageEmbed().setDescription(`Nie możesz zbanować bota!`).setColor("ff0000"));
         }
     
         const memberToBan = msg.guild.members.cache.get(userToBan.id);
 
         if (!memberToBan.bannable) {
-          return msg.channel.send(new MessageEmbed().setDescription(`Nie masz wystarczających uprawnień, aby zbanować tego użytkownika!`).setColor("ff0000"))
+          return msg.channel.send(new MessageEmbed().setDescription(`Nie masz wystarczających uprawnień, aby zbanować tego użytkownika!`).setColor("ff0000"));
         }
         
         const modlogChannel = msg.guild.channels.cache.get(modLogsChannel);
@@ -52,8 +52,8 @@ module.exports = {
         }
 
         memberToBan.ban(banOptions).then((res) => {
-            msg.channel.send(new MessageEmbed().setDescription(`:white_check_mark: <@!${memberToBan.id}> został zbanowany!`).setColor("00ff00"))
-            modlogChannel.send(logMsg)
+            msg.channel.send(new MessageEmbed().setDescription(`:white_check_mark: <@!${memberToBan.id}> został zbanowany!`).setColor("00ff00"));
+            modlogChannel.send(logMsg);
         });
 
       },

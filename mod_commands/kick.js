@@ -23,17 +23,17 @@ module.exports = {
         }
     
         if (userToKick.id === msg.author.id) {
-          return msg.channel.send(new MessageEmbed().setDescription(`Nie możesz wyrzucić samego siebie!`).setColor("ff0000"))
+          return msg.channel.send(new MessageEmbed().setDescription(`Nie możesz wyrzucić samego siebie!`).setColor("ff0000"));
         }
 
         if (userToKick.bot === true) {
-            return msg.channel.send(new MessageEmbed().setDescription(`Nie możesz wyrzucić bota!`).setColor("ff0000"))
+            return msg.channel.send(new MessageEmbed().setDescription(`Nie możesz wyrzucić bota!`).setColor("ff0000"));
         }
     
         const memberToKick = msg.guild.members.cache.get(userToKick.id);
 
         if (!memberToKick.kickable) {
-          return msg.channel.send(new MessageEmbed().setDescription(`Nie masz wystarczających uprawnień, aby wyrzucić tego użytkownika!`).setColor("ff0000"))
+          return msg.channel.send(new MessageEmbed().setDescription(`Nie masz wystarczających uprawnień, aby wyrzucić tego użytkownika!`).setColor("ff0000"));
         }
         
         const modlogChannel = msg.guild.channels.cache.get(modLogsChannel);
@@ -48,8 +48,8 @@ module.exports = {
             .setFooter(`Przez: ${msg.author.username}`);
 
         memberToKick.kick(reasonArg).then((res) => {
-            msg.channel.send(new MessageEmbed().setDescription(`:white_check_mark: <@!${memberToKick.id}> został wyrzucony!`).setColor("00ff00"))
-            modlogChannel.send(logMsg)
+            msg.channel.send(new MessageEmbed().setDescription(`:white_check_mark: <@!${memberToKick.id}> został wyrzucony!`).setColor("00ff00"));
+            modlogChannel.send(logMsg);
         });
 
       },

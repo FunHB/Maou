@@ -1,4 +1,4 @@
-const {MessageEmbed, Permissions: { FLAGS }} = require("discord.js");
+const {MessageEmbed} = require("discord.js");
 const {readdirSync} = require("fs");
 
 const {reportsChannel} = require(__dirname + "/../config.js");

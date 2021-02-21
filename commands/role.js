@@ -43,27 +43,7 @@ module.exports = {
 
         switch(name) {
             case "pokaż":
-                if (role == undefined) {
-                    data.push(`Wszystkie role możliwe do samodzielnego nadania:`);
-                    data.push(roles.map((r) => `\`${r}\``).join(", "));
-                    data.push(`\nMożesz wyświetlić informacje o danej roli używająć polecenia: \`${prefix}role pokaż [rola]\``);
-                } else if ((role.toLowerCase()) == "odcinki") {
-                    data.push("Dzięki roli \`odcinki\` będziesz otrzymywał powiadomienie o nowych odcinkach przetłumaczonych przez grupę Maou Subs!");
-                } else {
-                    return msg.reply("taka rola nie istnieje!");
-                }
-                break;
             case "pokaz":
-                if (role == undefined) {
-                    data.push(`Wszystkie role możliwe do samodzielnego nadania:`);
-                    data.push(roles.map((r) => `\`${r}\``).join(", "));
-                    data.push(`\nMożesz wyświetlić informacje o danej roli używająć polecenia: \`${prefix}role pokaż [rola]\``);
-                } else if ((role.toLowerCase()) == "odcinki") {
-                    data.push("Dzięki roli \`odcinki\` będziesz otrzymywał powiadomienie o nowych odcinkach przetłumaczonych przez grupę Maou Subs!");
-                } else {
-                    return msg.reply("taka rola nie istnieje!");
-                }
-                break;
             case "show":
                 if (role == undefined) {
                     data.push(`Wszystkie role możliwe do samodzielnego nadania:`);
@@ -76,20 +56,6 @@ module.exports = {
                 }
                 break;
             case "nadaj":
-                if (role == undefined) {
-                    data.push(`${msgAuthor} Nie podałeś roli którą chcesz sobie nadać!`);
-                    data.push(`\nWszystkie role możliwe do samodzielnego nadania:`);
-                    data.push(roles.map((r) => `\`${r}\``).join(", "));
-                    data.push(`\nMożesz wyświetlić informacje o danej roli używająć polecenia: \`${prefix}role pokaż [rola]\``);
-                } else if ((role.toLowerCase()) == "odcinki") {
-                    const member = msg.member
-                    member.roles.add(guildRoles.ODCINKI)
-                    data.push(`${msgAuthor} Nadano role \`odcinki\`!`);
-                    data.push(`\nMożesz zdjąć sobie rolę, nadaną wcześniej używająć polecenia: \`${prefix}role zdejmij [rola]\``);
-                } else {
-                    return msg.reply("taka rola nie istnieje!");
-                }
-                break;
             case "add":
                 if (role == undefined) {
                     data.push(`${msgAuthor} Nie podałeś roli którą chcesz sobie nadać!`);
@@ -106,19 +72,6 @@ module.exports = {
                 }
                 break;
             case "zdejmij":
-                if (role == undefined) {
-                    data.push(`${msgAuthor} Nie podałeś roli którą chcesz zdjąć!`);
-                    data.push(`\nSpis wszystkich roli:`);
-                    data.push(roles.map((r) => `\`${r}\``).join(", "));
-                    data.push(`\nMożesz wyświetlić informacje o danej roli używająć polecenia: \`${prefix}role pokaż [rola]\``);
-                } else if ((role.toLowerCase()) == "odcinki") {
-                    const member = msg.member
-                    member.roles.remove(guildRoles.ODCINKI)
-                    data.push(`${msgAuthor} Zdjęto role \`odcinki\`!`);
-                } else {
-                    return msg.reply("taka rola nie istnieje!");
-                }
-                break;
             case "remove":
                 if (role == undefined) {
                     data.push(`${msgAuthor} Nie podałeś roli którą chcesz zdjąć!`);

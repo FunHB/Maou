@@ -23,18 +23,18 @@ module.exports = {
         }
     
         if (userToMute.id === msg.author.id) {
-          return msg.channel.send(new MessageEmbed().setDescription(`Nie możesz wyciszyć samego siebie!`).setColor("ff0000"))
+          return msg.channel.send(new MessageEmbed().setDescription(`Nie możesz wyciszyć samego siebie!`).setColor("ff0000"));
         }
 
         if (userToMute.bot === true) {
-            return msg.channel.send(new MessageEmbed().setDescription(`Nie możesz wyciszyć bota!`).setColor("ff0000"))
+            return msg.channel.send(new MessageEmbed().setDescription(`Nie możesz wyciszyć bota!`).setColor("ff0000"));
         }
     
         const memberToMute = msg.guild.members.cache.get(userToMute.id);
         let role = msg.guild.roles.cache.get(muteRole)
 
         if(memberToMute.roles.cache.has(role.id)) {
-            return msg.channel.send(new MessageEmbed().setDescription(`Ta osoba jest już wyciszona!`).setColor("ff0000"))
+            return msg.channel.send(new MessageEmbed().setDescription(`Ta osoba jest już wyciszona!`).setColor("ff0000"));
         }
 
         const modlogChannel = msg.guild.channels.cache.get(modLogsChannel);
@@ -49,8 +49,8 @@ module.exports = {
             .setFooter(`Przez: ${msg.author.username}`);
 
         memberToMute.roles.add(role).then((res) => {
-            msg.channel.send(new MessageEmbed().setDescription(`:white_check_mark: <@!${memberToMute.id}> został wyciszony!`).setColor("00ff00"))
-            modlogChannel.send(logMsg)
+            msg.channel.send(new MessageEmbed().setDescription(`:white_check_mark: <@!${memberToMute.id}> został wyciszony!`).setColor("00ff00"));
+            modlogChannel.send(logMsg);
         });
     },
 }
