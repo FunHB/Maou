@@ -1,5 +1,6 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { channelType, Colors, Command } from '../api';
+import fs from 'fs';
+import { channelType, Colors, Command, Muted } from '../api';
 import { Config } from '../config'
 import { ModCommand } from './modCommand';
 const config = new Config()
@@ -18,6 +19,7 @@ export class MuteCommand implements Command {
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const user = message.mentions.users.first()
+        const duration = this.getDuration(args)
         const reasonArg = args.slice(1).join(' ') || 'Brak.'
         const modlogChannel = message.guild.channels.cache.get(config.modLogsChannel)
         const errorCode = modCommand.errorCode(message, user)
@@ -36,7 +38,28 @@ export class MuteCommand implements Command {
         await message.channel.send(modCommand.getMessageFromType(user, type))
 
         if (modlogChannel.isText()) {
-            await modlogChannel.send(modCommand.getEmbedFromType(message, user, reasonArg, type))
+            await modlogChannel.send(modCommand.getEmbedFromType(message, user, reasonArg, type).addField('Na ile:', `${this.getDurationString(duration)}`))
         }
+
+        const path = `./${__dirname}/data/muted.json`
+        const mutedUser: Muted = {
+            id: user.id,
+            guildID: message.guild.id,
+            reason: reasonArg
+        }
+        const mutedUsers = JSON.parse(fs.readFileSync(path).toString())
+        
+    }
+
+    private getDuration(args: string[]): number {
+        const duration = parseInt(args.pop())
+        if (!isNaN(duration)) return duration
+        return 24
+    }
+
+    private getDurationString(duration: number): string {
+        const days = Math.floor(duration / 24)
+        const hours = duration - (days * 24)
+        return `${days} dni ${hours} godzin`
     }
 }

@@ -1,6 +1,7 @@
 import { Client, Message } from 'discord.js'
 import { BotInterface, ConfigInterface } from './api'
 import { CommandHandler } from './command-handler'
+import { MutedManager } from './modules/mutedManager'
 
 export default class Bot implements BotInterface {
     public start(client: Client, config: ConfigInterface): void {
@@ -11,6 +12,17 @@ export default class Bot implements BotInterface {
         client.on('ready', () => {
             console.info(`Logged in as ${client.user.tag}!`);
             client.user.setActivity(`!pomoc`)
+
+            setInterval(() => {
+                const mutedManager = new MutedManager(`../${__dirname}/data/muted.json`)
+                mutedManager.muted.forEach(user => {
+                    if (!mutedManager.isStillMuted(user)) {
+                        client.guilds.cache.get(user.guildID).members.cache.get(user.id).roles.remove(config.muteRole);
+                    }
+                })
+            }, 
+                60000
+            )
         });
 
         client.on('message', (message: Message) => {
