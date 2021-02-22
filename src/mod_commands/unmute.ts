@@ -8,7 +8,6 @@ const modCommand = new ModCommand()
 export class UnmuteCommand implements Command {
     public name = 'unmute'
     public description = 'Zdejmuje role wyciszonego!'
-    public aliases: string[]
     public args = true
     public roles: string[] = ['786941554090049556']
     public usage = '<użytkownik>'
@@ -19,14 +18,13 @@ export class UnmuteCommand implements Command {
     public async execute(message: Message): Promise<void> {
         const user = message.mentions.users.first()
         const modlogChannel = message.guild.channels.cache.get(config.modLogsChannel)
-        const errorCode = modCommand.errorCode(message, user)
         const role = message.guild.roles.cache.get(config.muteRole)
         const type = this.name
 
-        if (errorCode) {
+        if (!message.guild.members.cache.get(user.id).roles.cache.has(config.muteRole)) {
             await message.channel.send(new MessageEmbed({
                 color: Colors.Error,
-                description: modCommand.getMessageFromErrorCode(errorCode, type)
+                description: 'Ta osoba nie jest wyciszona!'
             }))
             return
         }

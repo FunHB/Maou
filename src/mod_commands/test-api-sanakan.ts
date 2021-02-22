@@ -8,10 +8,9 @@ const config = new Config()
 export class TestApiSanakanCommand implements Command {
     public name = 't'
     public description = 'Testowe polecenie bota!'
-    public aliases: string[]
     public args = true
     public roles: string[] = [config.modRole]
-    public usage = '!mod t <tag> <id-osoby>'
+    public usage = '<tag> <id-osoby>'
     public channelType: channelType = channelType.normal
     public guildonly = true
     public cooldown = 0

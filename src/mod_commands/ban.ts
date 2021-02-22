@@ -8,7 +8,6 @@ const modCommand = new ModCommand()
 export class BanCommand implements Command {
     public name = 'ban'
     public description = 'Banuje użytkownika na serwerze!'
-    public aliases: string[]
     public args = true
     public roles: string[] = ['786941554090049556']
     public usage = '<użytkownik> [powód]'

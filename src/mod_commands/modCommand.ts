@@ -50,7 +50,7 @@ export class ModCommand {
 
     public getMessageFromType(user: User, type: string): MessageEmbed {
         return new MessageEmbed({
-            color: Colors.Error,
+            color: Colors.Success,
             description: `:white_check_mark: <@!${user.id}> został ${this.getTypeWord(type, 'ony')}!`
         })
     }
