@@ -1,4 +1,3 @@
 .env
-commands/test.js
-commands/testRekrutacja.js
-wids.txt
+data/wids.txt
+node_modules
