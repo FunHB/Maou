@@ -7,7 +7,6 @@ export class HelpCommand implements Command {
     public description = 'Wyświetla listę wszystkich poleceń lub informacje o danym poleceniu.'
     public aliases: string[] = ['pomoc', 'h']
     public args = false
-    public roles: string[]
     public usage = '<komenda>'
     public channelType: channelType = channelType.normal
     public guildonly = true
@@ -15,8 +14,8 @@ export class HelpCommand implements Command {
 
     private _commands: Command[]
 
-    constructor(commands: Command[]) {
-        this._commands = commands
+    constructor(commands: Command[], modCommands: Command[]) {
+        this._commands = commands.concat(modCommands)
     }
 
     public async execute(message: Message, args: string[]): Promise<void> {
@@ -26,7 +25,7 @@ export class HelpCommand implements Command {
 
         if (!args.length) {
             data.push({ name: 'Lista poleceń bota:\n', value: this._commands.map(command => command.name).join(", ") })
-            const footer = `\nAby wyświetlić informacje na temat pojedynczego polecenia użyj: ${prefix}${this.name}${this.usage}`
+            const footer = `\nAby wyświetlić informacje na temat pojedynczego polecenia użyj: ${prefix}${this.name} ${this.usage}`
 
             await message.channel.send(new MessageEmbed({
                 color: Colors.Info,
@@ -36,8 +35,8 @@ export class HelpCommand implements Command {
             return
         }
 
-        const name = args[0].toLowerCase();
-        const command = this._commands.find(cmd => cmd.name || (cmd.aliases && cmd.aliases.includes(name)))
+        const name = args.shift().toLowerCase()
+        const command = this._commands.find(cmd => cmd.name === name || (cmd.aliases && cmd.aliases.includes(name)))
 
         if (!command) {
             await message.channel.send(new MessageEmbed({
