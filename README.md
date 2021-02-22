@@ -16,8 +16,10 @@ ARTSCHANNEL={CHANNEL ID}
 
 #### Instalation
 1. ##### Instalation required modules
-`npm install`
-1. ##### Building Bot modules
-`npm run build`
-1. ##### Starting the Bot
-`npm start`
+    `npm install`
+    
+2. ##### Building Bot modules
+    `npm run build`
+    
+3. ##### Starting the Bot
+    `npm start`
