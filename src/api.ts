@@ -1,0 +1,57 @@
+import { Client, Message } from 'discord.js'
+
+// types
+
+export enum channelType {
+    normal,
+    botCommands,
+    artschannel,
+    reportCommands,
+    reports
+}
+
+export enum Colors {
+    Error = '#ff0000',
+    Info = '#007acc',
+    Success = '#33ff33',
+    Warning = '#ffff00',
+    Neutral = '#808080'
+}
+
+// main interfaces
+
+export interface ConfigInterface {
+    // main configs
+    token: string
+    prefix: string
+    botAuthor: string
+    botVersion: string
+    owner: string
+
+    // channels configs
+    botCommandsChannel: string
+    reportsChannel: string
+    modLogsChannel: string
+    artsChannel: string
+
+    // roles configs
+    modRole: string
+    muteRole: string
+}
+
+export interface BotInterface {
+    start(client: Client, config: ConfigInterface): void
+}
+
+export interface Command {
+    name: string
+    description: string
+    aliases: string[]
+    args: boolean
+    roles: string[]
+    usage: string
+    channelType: channelType
+    guildonly: boolean
+    cooldown: number
+    execute(message: Message, args: string[]): Promise<void>
+}
