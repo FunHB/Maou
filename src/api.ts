@@ -46,12 +46,12 @@ export interface BotInterface {
 export interface Command {
     name: string
     description: string
-    aliases: string[]
+    aliases?: string[]
     args: boolean
-    roles: string[]
-    usage: string
+    roles?: string[]
+    usage?: string
     channelType: channelType
     guildonly: boolean
-    cooldown: number
+    cooldown?: number
     execute(message: Message, args: string[]): Promise<void>
 }
