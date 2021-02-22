@@ -16,7 +16,6 @@ import { ServerinfoCommand } from './commands/serverinfo'
 
 // mod commands
 import { MuteCommand } from './mod_commands/mute'
-
 import { BanCommand } from './mod_commands/ban'
 import { KickCommand } from './mod_commands/kick'
 import { TestApiSanakanCommand } from './mod_commands/test-api-sanakan'
@@ -50,8 +49,8 @@ export class CommandHandler {
         ]
 
         this._commands = commandClasses.map(CommandClass => new CommandClass())
-        this._commands.push(new HelpCommand(this._commands))
         this._modCommands = modCommandClasses.map(modCommandClass => new modCommandClass())
+        this._commands.push(new HelpCommand(this._commands, this._modCommands))
         this._prefix = prefix
     }
 
@@ -86,17 +85,19 @@ export class CommandHandler {
         }
 
         // check if user has one of required roles for this command usage
-        if (command.roles && !message.member.roles.cache.array().filter(role => command.roles.includes(role.name))) {
+        if (commandBody.modCommand && !message.member.roles.cache.array().filter(role => command.roles.includes(role.name))) {
             await message.channel.send(new MessageEmbed({
                 color: Colors.Error,
-                description: `Nie masz uprawnień do użycia tej komendy!`
+                image: {
+                    url: `https://i.giphy.com/RX3vhj311HKLe.gif`
+                }
             }))
             return
         }
 
         // check arguments for this command
         if (command.args && !commandBody.args.length) {
-            this._commands.pop()!.execute(message, [command.name])
+            this._commands.pop().execute(message, [commandBody.commandName])
             return
         }
 
@@ -118,7 +119,7 @@ export class CommandHandler {
                 const timeLeft = (expirationTime - date.getTime()) / 1000;
                 await message.channel.send(new MessageEmbed({
                     color: Colors.Warning,
-                    description: `${message.author} Polecenia \`${commandBody.commandName}\` możesz uzyć dopiero za ${timeLeft.toFixed(1)} sekund.`
+                    description: `${message.author} Polecenia ${commandBody.commandName} możesz uzyć dopiero za ${timeLeft.toFixed(1)} sekund.`
                 }))
                 return
             }
