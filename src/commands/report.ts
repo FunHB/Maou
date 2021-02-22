@@ -8,7 +8,6 @@ export class ReportCommand implements Command {
     public description = 'Dzięki niej możesz zgłosić wiadomośc użytkownika.'
     public aliases: string[] = ['raport', 'zgłoś', 'zgloś', 'zgłos', 'zglos']
     public args = true
-    public roles: string[]
     public usage = '<id wiadomości> [powód zgłoszenia]'
     public channelType: channelType = channelType.normal
     public guildonly = true

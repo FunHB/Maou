@@ -7,8 +7,6 @@ export class ArtCommand implements Command {
     public description = 'Wyświetla losowy obrazke z anime!'
     public aliases: string[] = ['obrazek', 'fanart']
     public args = false
-    public roles: string[]
-    public usage: string
     public channelType: channelType = channelType.artschannel
     public guildonly = true
     public cooldown = 15
@@ -18,7 +16,7 @@ export class ArtCommand implements Command {
 
         await message.channel.send(new MessageEmbed({
             color: 'RANDOM',
-            description: `${message.author} o to obrazek dla ciebie <3`,
+            description: `<@!${message.author.id}> o to obrazek dla ciebie <3`,
             image: { url: arts[index] },
             footer: { text: `Index: ${index}`}
         }))

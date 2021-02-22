@@ -6,7 +6,6 @@ export class AvatarCommand implements Command {
     public description = 'Wyświetla twój lub czyjś avatar.'
     public aliases: string[] = ['awatar']
     public args = false
-    public roles: string[]
     public usage = '<osoba>'
     public channelType: channelType = channelType.normal
     public guildonly = true

@@ -4,10 +4,7 @@ import { channelType, Colors, Command } from '../api';
 export class PingCommand implements Command {
     public name = 'ping'
     public description = 'Sprawdza opóźnienie między botem a serwerem!'
-    public aliases: string[]
     public args = false
-    public roles: string[]
-    public usage: string
     public channelType: channelType = channelType.normal
     public guildonly = true
     public cooldown = 10

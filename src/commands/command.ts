@@ -8,6 +8,7 @@ export class CommandBody {
   readonly _commandName: string;
   readonly _args: string[] = [];
   private _modCommand = false
+  private _modPrefix = 'mod'
 
   constructor(message: Message, prefix: string) {
     const regex = new RegExp('"[^"]+"|[\\S]+', 'g');
@@ -17,7 +18,7 @@ export class CommandBody {
     });
 
     this._commandName = this._args.shift()
-    if (this._commandName === 'mod') {
+    if (this._commandName === this._modPrefix) {
       this._commandName = this._args.shift()
       this._modCommand = true
     }

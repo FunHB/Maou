@@ -8,7 +8,6 @@ export class InfoCommand implements Command {
     public description = 'Wyświetla informacje o bocie!'
     public aliases: string[] = ['informacje']
     public args = false
-    public roles: string[]
     public usage = 'template'
     public channelType: channelType = channelType.normal
     public guildonly = true
