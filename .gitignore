@@ -1,3 +1,5 @@
 .env
 data/wids.txt
 node_modules
+dist
+LICENSE
