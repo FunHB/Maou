@@ -39,7 +39,7 @@ export interface ConfigInterface {
 }
 
 export interface BotInterface {
-    start(client: Client, config: ConfigInterface): void
+    start(client: Client): void
 }
 
 export interface Command {

@@ -1,13 +1,14 @@
 import { Client, Message } from 'discord.js'
-import { BotInterface, ConfigInterface } from './api'
+import { BotInterface } from './api'
 import { CommandHandler } from './command-handler'
+import { Config } from './config'
 // import { MutedManager } from './modules/mutedManager'
 
 export default class Bot implements BotInterface {
-    public start(client: Client, config: ConfigInterface): void {
-        const commandHandler = new CommandHandler(config.prefix)
+    public start(client: Client): void {
+        const commandHandler = new CommandHandler(Config.prefix)
 
-        if (!config.token) { throw new Error('invalid discord token') }
+        if (!Config.token) { throw new Error('invalid discord token') }
 
         client.on('ready', () => {
             console.info(`Logged in as ${client.user.tag}!`)
@@ -35,7 +36,7 @@ export default class Bot implements BotInterface {
             commandHandler.handleMessage(message)
         })
 
-        client.login(config.token)
+        client.login(Config.token)
     }
 }
 
