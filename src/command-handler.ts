@@ -12,6 +12,7 @@ import { InfoCommand } from './commands/info'
 import { PingCommand } from './commands/ping'
 import { ReportCommand } from './commands/report'
 import { ServerinfoCommand } from './commands/serverinfo'
+import { WhoisCommand } from './commands/whois'
 //
 
 // mod commands
@@ -37,7 +38,8 @@ export class CommandHandler {
             InfoCommand,
             PingCommand,
             ReportCommand,
-            ServerinfoCommand
+            ServerinfoCommand,
+            WhoisCommand
         ]
 
         const modCommandClasses = [
