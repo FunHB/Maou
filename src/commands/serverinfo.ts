@@ -7,7 +7,7 @@ export class ServerinfoCommand implements Command {
     public description = 'Wyświetla informacje o serwerze!'
     public aliases: string[] = ['sinfo']
     public args = false
-    public channelType: channelType = channelType.normal
+    public channelType: channelType = channelType.botCommands
     public guildonly = true
     public cooldown = 10
 

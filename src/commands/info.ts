@@ -9,7 +9,7 @@ export class InfoCommand implements Command {
     public aliases: string[] = ['informacje']
     public args = false
     public usage = 'template'
-    public channelType: channelType = channelType.normal
+    public channelType: channelType = channelType.botCommands
     public guildonly = true
     public cooldown = 10
 

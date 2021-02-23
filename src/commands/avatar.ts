@@ -7,7 +7,7 @@ export class AvatarCommand implements Command {
     public aliases: string[] = ['awatar']
     public args = false
     public usage = '<osoba>'
-    public channelType: channelType = channelType.normal
+    public channelType: channelType = channelType.botCommands
     public guildonly = true
     public cooldown = 10
 

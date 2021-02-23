@@ -10,7 +10,7 @@ export class HelpCommand implements Command {
     public args = false
     public roles: string[] = [config.modRole]
     public usage = '<komenda>'
-    public channelType: channelType = channelType.normal
+    public channelType: channelType = channelType.botCommands
     public guildonly = true
     public cooldown = 2
 
