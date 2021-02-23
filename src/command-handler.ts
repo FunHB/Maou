@@ -76,7 +76,7 @@ export class CommandHandler {
         }
 
         // log of command
-        console.info(`Wywołane polecenie: ${command.name} przez: ${message.author.tag} na: ${message.channel}`)
+        console.info(`Wywołane polecenie: ${command.name} przez: ${message.author.tag}`)
 
         // check if channel is valid for this command usage
         if (!this.validChannel(message, command.channelType)) {
