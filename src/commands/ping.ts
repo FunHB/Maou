@@ -11,8 +11,8 @@ export class PingCommand implements Command {
 
     public async execute(message: Message): Promise<void> {
         await message.channel.send(new MessageEmbed({
-            color: Colors.Neutral,
-            description: `Ping **<@!${message.member.id}>** wynosi - ${new Date().getTime() - message.createdTimestamp}`
+            color: Colors.Success,
+            description: `Ping **<@!${message.member.id}>** wynosi - ${new Date().getTime() - message.createdTimestamp}ms`
         }))
     }
 }
