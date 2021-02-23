@@ -3,15 +3,13 @@ import { channelType, Colors, Command, Muted } from '../api';
 import { Config } from '../config'
 import { MutedManager } from '../modules/mutedManager';
 import { ModCommand } from './modCommand';
-const config = new Config()
-const modCommand = new ModCommand()
 
 export class MuteCommand implements Command {
     public name = 'mute'
     public description = 'Wycisza użytkownika na serwerze!'
     public aliases: string[] = ['wycisz']
     public args = true
-    public roles: string[] = [config.modRole]
+    public roles: string[] = [Config.modRole]
     public usage = '<użytkownik> [czas trwania] [powód]'
     public channelType: channelType = channelType.normal
     public guildonly = true
@@ -21,24 +19,24 @@ export class MuteCommand implements Command {
         const user = message.mentions.users.first()
         const duration = this.getDuration(args)
         const reasonArg = args.slice(1).join(' ') || 'Brak.'
-        const modlogChannel = message.guild.channels.cache.get(config.modLogsChannel)
-        const errorCode = modCommand.errorCode(message, user)
-        const role = message.guild.roles.cache.get(config.muteRole)
+        const modlogChannel = message.guild.channels.cache.get(Config.modLogsChannel)
+        const errorCode = ModCommand.errorCode(message, user)
+        const role = message.guild.roles.cache.get(Config.muteRole)
         const type = this.name
 
         if (errorCode) {
             await message.channel.send(new MessageEmbed({
                 color: Colors.Error,
-                description: modCommand.getMessageFromErrorCode(errorCode, type)
+                description: ModCommand.getMessageFromErrorCode(errorCode, type)
             }))
             return
         }
 
         await message.guild.members.cache.get(user.id).roles.add(role)
-        await message.channel.send(modCommand.getMessageFromType(user, type))
+        await message.channel.send(ModCommand.getMessageFromType(user, type))
 
         if (modlogChannel.isText()) {
-            await modlogChannel.send(modCommand.getEmbedFromType(message, user, reasonArg, type).addField('Na ile:', `${this.getDurationString(duration)}`))
+            await modlogChannel.send(ModCommand.getEmbedFromType(message, user, reasonArg, type).addField('Na ile:', `${this.getDurationString(duration)}`))
         }
 
         const mutedUsers = new MutedManager()

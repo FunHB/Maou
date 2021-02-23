@@ -11,42 +11,37 @@ export class WhoisCommand implements Command {
     public channelType: channelType = channelType.botCommands
     public guildonly = true
 
-    public async execute(message: Message, args: string[]): Promise<void> {
+    public async execute(message: Message): Promise<void> {
+        const member = this.getUser(message)
 
-        const user = this.getUser(message, args.shift())
-        const member = message.guild.members.cache.array().find(member => member.id === user.id)
+        if (!member) return
+
+        const { user } = member
 
         await message.channel.send(new MessageEmbed({
             color: Colors.Info,
             author: {
-                name: `${user}`,
-                iconURL: user.avatarURL({
-                    size: 128,
-                    format: "jpg"
-                })
+                name: `${user.username}`,
+                iconURL: this.getAvatar(user)
             },
             thumbnail: {
-                url: user.avatarURL({
-                    size: 128,
-                    format: "jpg"
-                })
+                url: this.getAvatar(user)
             },
             fields: [
-                { name: 'id', value: user.id, inline: true },
-                { name: 'Pseudo', value: member.nickname, inline: true },
+                { name: 'id', value: member.id, inline: true },
+                { name: 'Pseudo', value: member.nickname || 'Brak', inline: true },
                 { name: 'Status', value: user.presence.status, inline: true },
-                { name: 'Status', value: this.isBot(user), inline: true },
-                { name: 'Utworzono', value: Utils.dateToString(user.createdAt), inline: true },
-                { name: 'Dołączono', value: Utils.dateToString(member.joinedAt), inline: true },
-                { name: `Role:[${member.roles.cache.array().length}]`, value: this.getRoles(member), inline: true }
+                { name: 'Bot', value: this.isBot(user), inline: true },
+                { name: 'Utworzono', value: Utils.dateToString(user.createdAt) },
+                { name: 'Dołączono', value: Utils.dateToString(member.joinedAt) },
+                { name: `Role:[${member.roles.cache.array().length}]`, value: this.getRoles(member) }
             ]
         }))
     }
 
-    private getUser(message: Message, username: string): User {
-        if (message.mentions.users.first()) return message.mentions.users.first()
-        if (username) return message.client.users.cache.get(message.guild.members.cache.find(user => user.nickname === username || user.id === username).id)
-        return message.author
+    private getUser(message: Message): GuildMember { 
+        if (message.mentions.users.first()) return message.guild.members.cache.get(message.mentions.users.first().id)
+        return message.member
     }
 
     private isBot(user: User): string {
@@ -54,6 +49,10 @@ export class WhoisCommand implements Command {
     }
 
     private getRoles(member: GuildMember): string {
-        return member.roles.cache.array().map(role => `<@&${role.id}>`).join('\n')
+        return member.roles.cache.array().filter(role => role.name !== '@everyone').map(role => `<@&${role.id}>`).join('\n')
+    }
+
+    private getAvatar(user: User): string {
+        return user.avatarURL({ size: 128, format: "jpg" }) || user.defaultAvatarURL
     }
 }

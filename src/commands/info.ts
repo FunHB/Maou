@@ -1,7 +1,6 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { channelType, Colors, Command } from '../api';
 import { Config } from '../config';
-const config = new Config()
 
 export class InfoCommand implements Command {
     public name = 'info'
@@ -32,8 +31,8 @@ export class InfoCommand implements Command {
                 })
             },
             fields: [
-                { name: 'Autor', value: config.botAuthor, inline: true },
-                { name: 'Wersja', value: config.botVersion, inline: true }
+                { name: 'Autor', value: Config.botAuthor, inline: true },
+                { name: 'Wersja', value: Config.botVersion, inline: true }
             ],
             footer: { text: `Aktualny czas ${Date().toLocaleString().slice(16, 21)}` }
         }))

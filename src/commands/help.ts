@@ -1,14 +1,13 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { channelType, Colors, Command } from '../api';
 import { Config } from '../config';
-const config = new Config()
 
 export class HelpCommand implements Command {
     public name = 'help'
     public description = 'Wyświetla listę wszystkich poleceń lub informacje o danym poleceniu.'
     public aliases: string[] = ['pomoc', 'h']
     public args = false
-    public roles: string[] = [config.modRole]
+    public roles: string[] = [Config.modRole]
     public usage = '<komenda>'
     public channelType: channelType = channelType.botCommands
     public guildonly = true
@@ -25,7 +24,7 @@ export class HelpCommand implements Command {
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const { channel } = message
-        const prefix = config.prefix
+        const prefix = Config.prefix
         const data = []
 
         if (!args.length) {

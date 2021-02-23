@@ -2,20 +2,19 @@ import { Message, MessageEmbed, User } from "discord.js";
 import { Colors } from "../api";
 import { Config } from '../config'
 import { Utils } from "../modules/utils";
-const config = new Config()
 
 export class ModCommand {
-    public errorCode(message: Message, user: User): number {
-        if (config.modLogsChannel === undefined) return 1
+    public static errorCode(message: Message, user: User): number {
+        if (Config.modLogsChannel === undefined) return 1
         if (!user) return 2
         if (user.id === message.author.id) return 3
         if (user.bot === true) return 4
         if (!message.guild.members.cache.get(user.id).bannable) return 5
-        if (message.guild.members.cache.get(user.id).roles.cache.has(config.muteRole)) return 6
+        if (message.guild.members.cache.get(user.id).roles.cache.has(Config.muteRole)) return 6
         return 0
     }
 
-    public getMessageFromErrorCode(errorCode: number, type: string): string {
+    public static getMessageFromErrorCode(errorCode: number, type: string): string {
         const errorMessages = [
             'Serwer dla bota nie jest poprawnie skonfigurowany!',
             `Musisz podać osobę, którą chcesz ${this.getTypeWord(type)}!`,
@@ -28,7 +27,7 @@ export class ModCommand {
         return errorMessages[errorCode - 1]
     }
 
-    public getEmbedFromType(message: Message, user: User, reason: string, type: string): MessageEmbed {
+    public static getEmbedFromType(message: Message, user: User, reason: string, type: string): MessageEmbed {
         return new MessageEmbed({
             color: this.getColorFromType(type),
             author: {
@@ -49,14 +48,14 @@ export class ModCommand {
         })
     }
 
-    public getMessageFromType(user: User, type: string): MessageEmbed {
+    public static getMessageFromType(user: User, type: string): MessageEmbed {
         return new MessageEmbed({
             color: Colors.Success,
             description: `:white_check_mark: <@!${user.id}> został ${this.getTypeWord(type, 'ony')}!`
         })
     }
 
-    private getTypeWord(type: string, suffix?: string): string {
+    private static getTypeWord(type: string, suffix?: string): string {
         switch (type) {
             case 'ban':
                 if (suffix === 'ony') suffix = 'ny'
@@ -72,7 +71,7 @@ export class ModCommand {
         }
     }
 
-    private getColorFromType(type: string): Colors {
+    private static getColorFromType(type: string): Colors {
         switch (type) {
             case 'ban':
                 return Colors.Error

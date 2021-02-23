@@ -2,7 +2,6 @@ import { Channel, Guild, Message, MessageEmbed } from 'discord.js';
 import { channelType, Colors, Command } from '../api';
 import { Config } from '../config';
 import { Utils } from '../modules/utils';
-const config = new Config()
 
 export class ReportCommand implements Command {
     public name = 'report'
@@ -16,7 +15,7 @@ export class ReportCommand implements Command {
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const { channel, author, guild } = message
-        const reportChannel = message.guild.channels.cache.get(config.reportsChannel);
+        const reportChannel = message.guild.channels.cache.get(Config.reportsChannel);
         const reported = args.shift()
         const reason = args.join(' ')
 

@@ -3,14 +3,12 @@ import { channelType, Colors, Command } from '../api';
 import { Config } from '../config'
 import { MutedManager } from '../modules/mutedManager';
 import { ModCommand } from './modCommand';
-const config = new Config()
-const modCommand = new ModCommand()
 
 export class UnmuteCommand implements Command {
     public name = 'unmute'
     public description = 'Zdejmuje role wyciszonego!'
     public args = true
-    public roles: string[] = [config.modRole]
+    public roles: string[] = [Config.modRole]
     public usage = '<użytkownik>'
     public channelType: channelType = channelType.normal
     public guildonly = true
@@ -19,11 +17,11 @@ export class UnmuteCommand implements Command {
     public async execute(message: Message): Promise<void> {
         const { guild } = message
         const user = message.mentions.users.first()
-        const modlogChannel = guild.channels.cache.get(config.modLogsChannel)
-        const role = guild.roles.cache.get(config.muteRole)
+        const modlogChannel = guild.channels.cache.get(Config.modLogsChannel)
+        const role = guild.roles.cache.get(Config.muteRole)
         const type = this.name
 
-        if (!guild.members.cache.get(user.id).roles.cache.has(config.muteRole)) {
+        if (!guild.members.cache.get(user.id).roles.cache.has(Config.muteRole)) {
             await message.channel.send(new MessageEmbed({
                 color: Colors.Error,
                 description: 'Ta osoba nie jest wyciszona!'
@@ -32,10 +30,10 @@ export class UnmuteCommand implements Command {
         }
 
         await guild.members.cache.get(user.id).roles.remove(role)
-        await message.channel.send(modCommand.getMessageFromType(user, type))
+        await message.channel.send(ModCommand.getMessageFromType(user, type))
 
         if (modlogChannel.isText()) {
-            await modlogChannel.send(modCommand.getEmbedFromType(message, user, 'Ułaskawiony', type))
+            await modlogChannel.send(ModCommand.getEmbedFromType(message, user, 'Ułaskawiony', type))
         }
 
         const mutedUsers = new MutedManager()

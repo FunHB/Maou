@@ -1,27 +1,26 @@
 
 import { load } from 'ts-dotenv'
-import { ConfigInterface } from './api'
 
-export class Config implements ConfigInterface {
+export class Config {
 
     // main configs
-    public get token(): string { return this.env.TOKEN }
-    public get prefix(): string { return this.env.PREFIX }
-    public get botAuthor(): string { return 'FunHB' }
-    public get botVersion(): string { return '1.0.6' }
-    public get owner(): string { return '324612588677627904' }
+    public static get token(): string { return this.env.TOKEN }
+    public static get prefix(): string { return this.env.PREFIX }
+    public static get botAuthor(): string { return 'FunHB' }
+    public static get botVersion(): string { return '1.0.6' }
+    public static get owner(): string { return '324612588677627904' }
 
     // channels configs
-    public get botCommandsChannel(): string { return this.env.BOTCOMMANDSCHANNEL }
-    public get reportsChannel(): string { return this.env.REPORTSCHANNEL }
-    public get modLogsChannel(): string { return this.env.MODLOGSCHANNEL }
-    public get artsChannel(): string { return this.env.ARTSCHANNEL }
+    public static get botCommandsChannel(): string { return this.env.BOTCOMMANDSCHANNEL }
+    public static get reportsChannel(): string { return this.env.REPORTSCHANNEL }
+    public static get modLogsChannel(): string { return this.env.MODLOGSCHANNEL }
+    public static get artsChannel(): string { return this.env.ARTSCHANNEL }
 
     // roles configs
-    public get modRole(): string { return this.env.MODROLE }
-    public get muteRole(): string { return this.env.MUTEROLE }
+    public static get modRole(): string { return this.env.MODROLE }
+    public static get muteRole(): string { return this.env.MUTEROLE }
 
-    private env = load({
+    private static env = load({
         TOKEN: String,
         BOTCOMMANDSCHANNEL: String,
         REPORTSCHANNEL: String,

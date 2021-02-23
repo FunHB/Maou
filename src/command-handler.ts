@@ -2,7 +2,6 @@ import { Collection, Message, MessageEmbed } from 'discord.js'
 import { Command, channelType, Colors } from './api'
 import { CommandBody } from './commands/command'
 import { Config } from './config'
-const config = new Config()
 
 // commands
 import { ArtCommand } from './commands/art'
@@ -163,13 +162,13 @@ export class CommandHandler {
     private getChannelByChannelType(type: channelType): string {
         switch(type) {
             case channelType.botCommands:
-                return config.botCommandsChannel
+                return Config.botCommandsChannel
 
             case channelType.reports:
-                return config.reportsChannel
+                return Config.reportsChannel
 
             case channelType.artschannel:
-                return config.artsChannel
+                return Config.artsChannel
 
             case channelType.normal:
             default:
