@@ -10,24 +10,28 @@ export default class Bot implements BotInterface {
         if (!config.token) { throw new Error('invalid discord token') }
 
         client.on('ready', () => {
-            console.info(`Logged in as ${client.user.tag}!`);
+            console.info(`Logged in as ${client.user.tag}!`)
             client.user.setActivity(`!pomoc`)
 
             setInterval(() => {
-                const mutedManager = new MutedManager(`../${__dirname}/data/muted.json`)
+                const path = `../${__dirname}/data/muted.json`
+                const mutedManager = new MutedManager(path)
                 mutedManager.muted.forEach(user => {
                     if (!mutedManager.isStillMuted(user)) {
-                        client.guilds.cache.get(user.guildID).members.cache.get(user.id).roles.remove(config.muteRole);
+                        client.guilds.cache.get(user.guildID).members.cache.get(user.id).roles.remove(config.muteRole)
+                        mutedManager.removeMuted(user.id)
+                        mutedManager.saveChanges(path)
                     }
                 })
+
             }, 
                 60000
             )
-        });
+        })
 
         client.on('message', (message: Message) => {
-            commandHandler.handleMessage(message);
-        });
+            commandHandler.handleMessage(message)
+        })
 
         client.login(config.token)
     }

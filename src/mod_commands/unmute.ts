@@ -1,6 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { channelType, Colors, Command } from '../api';
 import { Config } from '../config'
+import { MutedManager } from '../modules/mutedManager';
 import { ModCommand } from './modCommand';
 const config = new Config()
 const modCommand = new ModCommand()
@@ -35,5 +36,11 @@ export class UnmuteCommand implements Command {
         if (modlogChannel.isText()) {
             await modlogChannel.send(modCommand.getEmbedFromType(message, user, 'Ułaskawiony', type))
         }
+
+        const path = `./${__dirname}/data/muted.json`
+        const mutedUsers = new MutedManager(path)
+
+        mutedUsers.removeMuted(user.id)
+        mutedUsers.saveChanges(path)
     }
 }

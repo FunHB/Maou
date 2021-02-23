@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
-import fs from 'fs';
 import { channelType, Colors, Command, Muted } from '../api';
 import { Config } from '../config'
+import { MutedManager } from '../modules/mutedManager';
 import { ModCommand } from './modCommand';
 const config = new Config()
 const modCommand = new ModCommand()
@@ -42,13 +42,17 @@ export class MuteCommand implements Command {
         }
 
         const path = `./${__dirname}/data/muted.json`
-        const mutedUser: Muted = {
+        const mutedUsers = new MutedManager(path)
+        const muteUser: Muted = {
             id: user.id,
             guildID: message.guild.id,
-            reason: reasonArg
+            reason: reasonArg,
+            start: message.createdAt,
+            duration: (duration * 60 * 60 * 1000) 
         }
-        const mutedUsers = JSON.parse(fs.readFileSync(path).toString())
-        
+
+        mutedUsers.addMuted(muteUser)
+        mutedUsers.saveChanges(path)
     }
 
     private getDuration(args: string[]): number {
