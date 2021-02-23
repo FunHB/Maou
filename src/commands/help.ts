@@ -1,30 +1,35 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { channelType, Colors, Command } from '../api';
 import { Config } from '../config';
+const config = new Config()
 
 export class HelpCommand implements Command {
     public name = 'help'
     public description = 'Wyświetla listę wszystkich poleceń lub informacje o danym poleceniu.'
     public aliases: string[] = ['pomoc', 'h']
     public args = false
+    public roles: string[] = [config.modRole]
     public usage = '<komenda>'
     public channelType: channelType = channelType.normal
     public guildonly = true
     public cooldown = 2
 
     private _commands: Command[]
+    private _modCommands: Command[]
+    private _isForMods: boolean
 
-    constructor(commands: Command[], modCommands: Command[]) {
-        this._commands = commands.concat(modCommands)
+    constructor(commands: Command[], modCommands: Command[], isForMods = false) {
+        this._commands = commands
+        this._modCommands = modCommands
+        this._isForMods = isForMods
     }
 
     public async execute(message: Message, args: string[]): Promise<void> {
-        const prefix = new Config().prefix
-
+        const prefix = config.prefix
         const data = []
 
         if (!args.length) {
-            data.push({ name: 'Lista poleceń bota:\n', value: this._commands.map(command => command.name).join(", ") })
+            data.push({ name: 'Lista poleceń bota:\n', value: this.getCommands().map(command => command.name).join(", ") })
             const footer = `\nAby wyświetlić informacje na temat pojedynczego polecenia użyj: ${prefix}${this.name} ${this.usage}`
 
             await message.channel.send(new MessageEmbed({
@@ -36,7 +41,7 @@ export class HelpCommand implements Command {
         }
 
         const name = args.shift().toLowerCase()
-        const command = this._commands.find(cmd => cmd.name === name || (cmd.aliases && cmd.aliases.includes(name)))
+        const command = this.getCommands().find(cmd => cmd.name === name || (cmd.aliases && cmd.aliases.includes(name)))
 
         if (!command) {
             await message.channel.send(new MessageEmbed({
@@ -57,5 +62,9 @@ export class HelpCommand implements Command {
             title: title,
             fields: data,
         }));
+    }
+
+    private getCommands(): Command[] {
+        return this._isForMods ? this._modCommands : this._commands
     }
 }

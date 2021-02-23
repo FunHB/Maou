@@ -51,6 +51,7 @@ export class CommandHandler {
         this._commands = commandClasses.map(CommandClass => new CommandClass())
         this._modCommands = modCommandClasses.map(modCommandClass => new modCommandClass())
         this._commands.push(new HelpCommand(this._commands, this._modCommands))
+        this._modCommands.push(new HelpCommand(this._commands, this._modCommands, true))
         this._prefix = prefix
     }
 
@@ -73,7 +74,7 @@ export class CommandHandler {
         }
 
         // log of command
-        console.info(`Wywołane polecenie: ${command.name} przez: ${message.author.tag} na: ${message.channel.id}`)
+        console.info(`Wywołane polecenie: ${command.name} przez: ${message.author.tag} na: ${message.channel}`)
 
         // check if channel is valid for this command usage
         if (!this.validChannel(message, command.channelType)) {
@@ -97,7 +98,7 @@ export class CommandHandler {
 
         // check arguments for this command
         if (command.args && !commandBody.args.length) {
-            this._commands.pop().execute(message, [commandBody.commandName])
+            this._commands.pop().execute(message, [command.name])
             return
         }
 
