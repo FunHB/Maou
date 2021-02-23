@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
-import { channelType, Colors, Command, Muted } from '../api';
+import { channelType, Colors, Command } from '../api';
 import { Config } from '../config'
-import { MutedManager } from '../modules/mutedManager';
+// import { MutedManager } from '../modules/mutedManager';
 import { ModCommand } from './modCommand';
 
 export class MuteCommand implements Command {
@@ -39,6 +39,7 @@ export class MuteCommand implements Command {
             await modlogChannel.send(ModCommand.getEmbedFromType(message, user, reasonArg, type).addField('Na ile:', `${this.getDurationString(duration)}`))
         }
 
+        /* Database is required
         const mutedUsers = new MutedManager()
         const muteUser: Muted = {
             id: user.id,
@@ -50,6 +51,7 @@ export class MuteCommand implements Command {
 
         mutedUsers.addMuted(muteUser)
         mutedUsers.saveChanges()
+        */
     }
 
     private getDuration(args: string[]): number {

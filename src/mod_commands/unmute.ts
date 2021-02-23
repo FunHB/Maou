@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { channelType, Colors, Command } from '../api';
 import { Config } from '../config'
-import { MutedManager } from '../modules/mutedManager';
+// import { MutedManager } from '../modules/mutedManager';
 import { ModCommand } from './modCommand';
 
 export class UnmuteCommand implements Command {
@@ -36,9 +36,11 @@ export class UnmuteCommand implements Command {
             await modlogChannel.send(ModCommand.getEmbedFromType(message, user, 'Ułaskawiony', type))
         }
 
+        /* Database is required
         const mutedUsers = new MutedManager()
 
         mutedUsers.removeMuted(user.id)
         mutedUsers.saveChanges()
+        */
     }
 }

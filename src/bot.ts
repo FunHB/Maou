@@ -1,7 +1,7 @@
 import { Client, Message } from 'discord.js'
 import { BotInterface, ConfigInterface } from './api'
 import { CommandHandler } from './command-handler'
-import { MutedManager } from './modules/mutedManager'
+// import { MutedManager } from './modules/mutedManager'
 
 export default class Bot implements BotInterface {
     public start(client: Client, config: ConfigInterface): void {
@@ -13,6 +13,7 @@ export default class Bot implements BotInterface {
             console.info(`Logged in as ${client.user.tag}!`)
             client.user.setActivity(`!pomoc`)
 
+            /* Database is required
             setInterval(() => {
                 const mutedManager = new MutedManager()
                 if (mutedManager.muted) {
@@ -27,6 +28,7 @@ export default class Bot implements BotInterface {
             },
                 60000
             )
+            */
         })
 
         client.on('message', (message: Message) => {
