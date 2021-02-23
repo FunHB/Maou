@@ -6,6 +6,7 @@
 Create a `.env` file in the root directory and enter the following information into it:
 ```
 TOKEN={YOUR DISCORD TOKEN}
+PREFIX={BOT PREFIX}
 BOTCOMMANDSCHANNEL={CHANNEL ID}
 REPORTSCHANNEL={CHANNEL ID}
 MODLOGSCHANNEL={CHANNEL ID}
