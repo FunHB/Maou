@@ -10,9 +10,11 @@ export class PingCommand implements Command {
     public cooldown = 10
 
     public async execute(message: Message): Promise<void> {
+        const pingMessage = await message.channel.send('Ping?')
+        await pingMessage.delete()
         await message.channel.send(new MessageEmbed({
             color: Colors.Success,
-            description: `Ping **<@!${message.member.id}>** wynosi - ${new Date().getTime() - message.createdTimestamp}ms`
+            description: `Ping **<@!${message.member.id}>** wynosi - ${pingMessage.createdTimestamp - message.createdTimestamp}ms`
         }))
     }
 }
