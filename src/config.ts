@@ -6,9 +6,9 @@ export class Config implements ConfigInterface {
 
     // main configs
     public get token(): string { return this.env.TOKEN }
-    public get prefix(): string { return '!' }
-    public get botAuthor(): string { return 'ZYGl' }
-    public get botVersion(): string { return '1.13.0' }
+    public get prefix(): string { return this.env.PREFIX }
+    public get botAuthor(): string { return 'FunHB' }
+    public get botVersion(): string { return '1.0.5' }
     public get owner(): string { return '324612588677627904' }
 
     // channels configs
@@ -28,6 +28,7 @@ export class Config implements ConfigInterface {
         MODROLE: String,
         MODLOGSCHANNEL: String,
         MUTEROLE: String,
-        ARTSCHANNEL: String
+        ARTSCHANNEL: String,
+        PREFIX: String
     })
 }
