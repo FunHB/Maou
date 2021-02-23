@@ -1,6 +1,7 @@
 import { Message, MessageEmbed, User } from "discord.js";
 import { Colors } from "../api";
 import { Config } from '../config'
+import { Utils } from "../modules/utils";
 const config = new Config()
 
 export class ModCommand {
@@ -42,7 +43,7 @@ export class ModCommand {
             fields: [
                 { name: 'UserId:', value: `${user.id}`, inline: true },
                 { name: 'Typ:', value: type, inline: true },
-                { name: 'Kiedy:', value: `${message.createdAt.getUTCDate()}.${message.createdAt.getUTCMonth() + 1}.${message.createdAt.getUTCFullYear()} ${message.createdAt.getUTCHours() + 1}:${message.createdAt.getUTCMinutes()}`, inline: true }
+                { name: 'Kiedy:', value: Utils.dateToString(message.createdAt, true), inline: true }
             ],
             footer: { text: `Przez: ${message.author.username}` }
         })
