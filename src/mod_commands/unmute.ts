@@ -10,7 +10,7 @@ export class UnmuteCommand implements Command {
     public name = 'unmute'
     public description = 'Zdejmuje role wyciszonego!'
     public args = true
-    public roles: string[] = ['786941554090049556']
+    public roles: string[] = [config.modRole]
     public usage = '<użytkownik>'
     public channelType: channelType = channelType.normal
     public guildonly = true
@@ -37,10 +37,9 @@ export class UnmuteCommand implements Command {
             await modlogChannel.send(modCommand.getEmbedFromType(message, user, 'Ułaskawiony', type))
         }
 
-        const path = `./${__dirname}/data/muted.json`
-        const mutedUsers = new MutedManager(path)
+        const mutedUsers = new MutedManager()
 
         mutedUsers.removeMuted(user.id)
-        mutedUsers.saveChanges(path)
+        mutedUsers.saveChanges()
     }
 }

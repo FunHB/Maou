@@ -5,22 +5,19 @@ export class MutedManager {
     public get muted(): Muted[] { return this._muted }
 
     private _muted: Muted[]
+    private _path = './data/muted.json'
 
-    constructor(path: string) {
-        this._muted = this.getMutedUsers(path)
-    }
-
-    private getMutedUsers(path: string): Muted[] {
-        return JSON.parse(fs.readFileSync(path).toString())
+    constructor() {
+        this._muted = JSON.parse(fs.readFileSync(this._path).toLocaleString())
     }
 
     public isStillMuted(user: Muted): boolean {
         const time = new Date().getTime()
-        return time <= (user.start.getTime() + user.duration)
+        return time <= (new Date(user.start).getTime() + user.duration)
     }
 
-    public saveChanges(path: string): void {
-        fs.writeFileSync(path, JSON.stringify(this._muted))
+    public saveChanges(): void {
+        fs.writeFileSync(this._path, JSON.stringify(this._muted))
     }
 
     public addMuted(user: Muted): void {

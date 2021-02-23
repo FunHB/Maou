@@ -5,21 +5,21 @@ export class CommandBody {
   public get args(): string[] { return this._args }
   public get modCommand(): boolean { return this._modCommand }
 
-  readonly _commandName: string;
-  readonly _args: string[] = [];
+  readonly _commandName: string
+  readonly _args: string[] = []
   private _modCommand = false
   private _modPrefix = 'mod'
 
   constructor(message: Message, prefix: string) {
-    const regex = new RegExp('"[^"]+"|[\\S]+', 'g');
+    const regex = new RegExp('"[^"]+"|[\\S]+', 'g')
 
     message.content.slice(prefix.length).match(regex).forEach(element => {
-      return this._args.push(element.replace(/"/g, ''));
-    });
+      return this._args.push(element.replace(/"/g, '').toLowerCase())
+    })
 
     this._commandName = this._args.shift()
     if (this._commandName === this._modPrefix) {
-      this._commandName = this._args.shift()
+      this._commandName = this._args.shift() || 'h'
       this._modCommand = true
     }
   }

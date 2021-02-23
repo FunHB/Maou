@@ -14,17 +14,17 @@ export default class Bot implements BotInterface {
             client.user.setActivity(`!pomoc`)
 
             setInterval(() => {
-                const path = `../${__dirname}/data/muted.json`
-                const mutedManager = new MutedManager(path)
-                mutedManager.muted.forEach(user => {
-                    if (!mutedManager.isStillMuted(user)) {
-                        client.guilds.cache.get(user.guildID).members.cache.get(user.id).roles.remove(config.muteRole)
-                        mutedManager.removeMuted(user.id)
-                        mutedManager.saveChanges(path)
-                    }
-                })
-
-            }, 
+                const mutedManager = new MutedManager()
+                if (mutedManager.muted) {
+                    mutedManager.muted.forEach(user => {
+                        if (!mutedManager.isStillMuted(user)) {
+                            client.guilds.cache.get(user.guildID).members.cache.get(user.id).roles.remove(config.muteRole)
+                            mutedManager.removeMuted(user.id)
+                            mutedManager.saveChanges()
+                        }
+                    })
+                }
+            },
                 60000
             )
         })
