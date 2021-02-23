@@ -1,5 +1,5 @@
 {
-  "version": "1.0.2",
+  "version": "1.0.4",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -8,13 +8,14 @@
     "src"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=14.15.2",
+    "npm": ">=6.14.9"
   },
   "scripts": {
     "start": "node ./dist/index.js",
-    "build": "tsc build",
-    "test": "tsc test",
-    "lint": "tsc lint",
+    "build": "tsdx build",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
     "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why"
@@ -32,7 +33,7 @@
     "trailingComma": "es5"
   },
   "name": "maou-bot",
-  "author": "Zygl",
+  "author": "FunHB",
   "module": "commonjs",
   "size-limit": [
     {
@@ -54,11 +55,8 @@
     "typescript": "^4.1.5"
   },
   "dependencies": {
-    "async": "^3.2.0",
     "axios": "^0.21.1",
     "discord.js": "^12.5.1",
-    "mongoose": "^5.11.17",
-    "ts-dotenv": "^0.8.3",
-    "tsc": "^1.20150623.0"
+    "ts-dotenv": "^0.8.3"
   }
 }
