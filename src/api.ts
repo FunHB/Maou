@@ -6,7 +6,6 @@ export enum channelType {
     normal,
     botCommands,
     artschannel,
-    reportCommands,
     reports
 }
 
