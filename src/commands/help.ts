@@ -12,7 +12,6 @@ export class HelpCommand implements Command {
     public usage = '<komenda>'
     public channelType: channelType = channelType.botCommands
     public guildonly = true
-    public cooldown = 2
 
     private _commands: Command[]
     private _modCommands: Command[]
