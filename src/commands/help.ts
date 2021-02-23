@@ -25,6 +25,7 @@ export class HelpCommand implements Command {
     }
 
     public async execute(message: Message, args: string[]): Promise<void> {
+        const { channel } = message
         const prefix = config.prefix
         const data = []
 
@@ -32,7 +33,7 @@ export class HelpCommand implements Command {
             data.push({ name: 'Lista poleceń bota:\n', value: this.getCommands().map(command => command.name).join(", ") })
             const footer = `\nAby wyświetlić informacje na temat pojedynczego polecenia użyj: ${prefix}${this.name} ${this.usage}`
 
-            await message.channel.send(new MessageEmbed({
+            await channel.send(new MessageEmbed({
                 color: Colors.Info,
                 fields: data,
                 footer: { text: footer },
@@ -44,7 +45,7 @@ export class HelpCommand implements Command {
         const command = this.getCommands().find(cmd => cmd.name === name || (cmd.aliases && cmd.aliases.includes(name)))
 
         if (!command) {
-            await message.channel.send(new MessageEmbed({
+            await channel.send(new MessageEmbed({
                 color: Colors.Error,
                 description: 'Taka komenda nie istnieje!',
             }))
@@ -57,7 +58,7 @@ export class HelpCommand implements Command {
         if (command.description) data.push({ name: "**Opis:**", value: `${command.description}` })
         if (command.usage) data.push({ name: "**Użycie:**", value: `${prefix}${command.name} ${command.usage}` })
 
-        await message.channel.send(new MessageEmbed({
+        await channel.send(new MessageEmbed({
             color: Colors.Info,
             title: title,
             fields: data,

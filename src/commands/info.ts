@@ -14,18 +14,19 @@ export class InfoCommand implements Command {
     public cooldown = 10
 
     public async execute(message: Message): Promise<void> {
+        const { client } = message
         await message.channel.send(new MessageEmbed({
             color: Colors.Info,
             author: {
-                name: `${message.client.user.tag}`,
-                iconURL: message.client.user.avatarURL({
+                name: `${client.user.tag}`,
+                iconURL: client.user.avatarURL({
                     size: 128,
                     format: "jpg"
                 })
             },
             description: 'Bot stworzony dla grupy tłumaczy Maou Subs!',
             thumbnail: {
-                url: message.client.user.avatarURL({
+                url: client.user.avatarURL({
                     size: 128,
                     format: "jpg"
                 })

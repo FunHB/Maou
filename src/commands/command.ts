@@ -11,7 +11,7 @@ export class CommandBody {
   private _modPrefix = 'mod'
 
   constructor(message: Message, prefix: string) {
-    const regex = new RegExp('"[^"]+"|[\\S]+', 'g')
+    const regex = new RegExp('"[^"]+"|[^\\ ]+', 'g')
 
     message.content.slice(prefix.length).match(regex).forEach(element => {
       return this._args.push(element.replace(/"/g, '').toLowerCase())

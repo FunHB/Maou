@@ -17,12 +17,13 @@ export class UnmuteCommand implements Command {
     public cooldown = 0
 
     public async execute(message: Message): Promise<void> {
+        const { guild } = message
         const user = message.mentions.users.first()
-        const modlogChannel = message.guild.channels.cache.get(config.modLogsChannel)
-        const role = message.guild.roles.cache.get(config.muteRole)
+        const modlogChannel = guild.channels.cache.get(config.modLogsChannel)
+        const role = guild.roles.cache.get(config.muteRole)
         const type = this.name
 
-        if (!message.guild.members.cache.get(user.id).roles.cache.has(config.muteRole)) {
+        if (!guild.members.cache.get(user.id).roles.cache.has(config.muteRole)) {
             await message.channel.send(new MessageEmbed({
                 color: Colors.Error,
                 description: 'Ta osoba nie jest wyciszona!'
@@ -30,7 +31,7 @@ export class UnmuteCommand implements Command {
             return
         }
 
-        await message.guild.members.cache.get(user.id).roles.remove(role)
+        await guild.members.cache.get(user.id).roles.remove(role)
         await message.channel.send(modCommand.getMessageFromType(user, type))
 
         if (modlogChannel.isText()) {
