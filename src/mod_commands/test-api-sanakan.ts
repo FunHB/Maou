@@ -3,13 +3,12 @@ import axios from 'axios'
 import fs from 'fs'
 import { channelType, Command } from '../api'
 import { Config } from '../config'
-const config = new Config()
 
 export class TestApiSanakanCommand implements Command {
     public name = 't'
     public description = 'Testowe polecenie bota!'
     public args = true
-    public roles: string[] = [config.modRole]
+    public roles: string[] = [Config.modRole]
     public usage = '<tag> <id-osoby>'
     public channelType: channelType = channelType.normal
     public guildonly = true
