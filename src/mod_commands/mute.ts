@@ -12,7 +12,7 @@ export class MuteCommand implements Command {
     public aliases: string[] = ['wycisz']
     public args = true
     public roles: string[] = [config.modRole]
-    public usage = '<użytkownik> [powód]'
+    public usage = '<użytkownik> [czas trwania] [powód]'
     public channelType: channelType = channelType.normal
     public guildonly = true
     public cooldown = 0
@@ -55,8 +55,10 @@ export class MuteCommand implements Command {
     }
 
     private getDuration(args: string[]): number {
-        const duration = parseInt(args.pop())
+        const tmp = args.shift()
+        const duration = parseInt(tmp)
         if (!isNaN(duration)) return duration
+        args.unshift(tmp)
         return 24
     }
 
