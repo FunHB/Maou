@@ -18,7 +18,7 @@ export class AvatarCommand implements Command {
         if (!member) return
 
         await message.channel.send(new MessageEmbed({
-            color: Colors.Neutral,
+            color: Colors.Info,
             description: `Awatar dla: <@!${member.id}>`,
             image: {
                 url: member.user.displayAvatarURL({
