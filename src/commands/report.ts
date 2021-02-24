@@ -1,4 +1,4 @@
-import { Channel, Guild, Message, MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import { channelType, Colors, Command } from '../api';
 import { Config } from '../config';
 import { Utils } from '../modules/utils';
@@ -18,27 +18,14 @@ export class ReportCommand implements Command {
         const reportChannel = message.guild.channels.cache.get(Config.reportsChannel);
         const reported = args.shift()
         const reason = args.join(' ')
+        await channel.messages.fetch()
+        const reportedMessage = channel.messages.cache.get(reported)
+        const errorCode = this.errorCode(reported, reason, reportedMessage)
 
-        if (isNaN(parseInt(reported))) {
+        if (errorCode) {
             await channel.send(new MessageEmbed({
                 color: Colors.Error,
-                description: 'To nawet nie jest liczba! Musisz podać ID wiadomości, którą chcesz zgłosić.'
-            }))
-            return
-        }
-
-        if (reported.length != 18) {
-            await channel.send(new MessageEmbed({
-                color: Colors.Error,
-                description: 'Coś krótka ta wiadomość.. jak dla mnie ID to to nie jest :('
-            }))
-            return
-        }
-
-        if (!args[0]) {
-            await channel.send(new MessageEmbed({
-                color: Colors.Error,
-                description: 'Musisz podać powód zgłoszenia!'
+                description: this.getMessageFromErrorCode(errorCode)
             }))
             return
         }
@@ -52,7 +39,6 @@ export class ReportCommand implements Command {
             description: 'Wiadomość została zgłoszona!'
         }))
 
-        // link to repair - report from other channel
         if (reportChannel.isText()) {
             await reportChannel.send(new MessageEmbed({
                 color: Colors.Info,
@@ -61,7 +47,7 @@ export class ReportCommand implements Command {
                     { name: 'Zgłoszone przez:', value: `Użytkownik: <@!${author.id}> ID: ${author.id}` },
                     { name: 'Zgłoszono na kanale:', value: `<#${channel.id}>` },
                     { name: 'Id zgłoszonej wiadmości:', value: reported },
-                    { name: 'Link do zgłoszonej wiadomości:', value: `https://discord.com/channels/${guild.id}/${this.getChannel(guild, reported)}/${reported}` },
+                    { name: 'Link do zgłoszonej wiadomości:', value: `https://discord.com/channels/${guild.id}/${channel.id}/${reported}` },
                     { name: 'Czas:', value: Utils.dateToString(message.createdAt) },
                     { name: 'Powód:', value: reason }
                 ]
@@ -69,7 +55,19 @@ export class ReportCommand implements Command {
         }
     }
 
-    private getChannel(guild: Guild, channelID: string): Channel {
-        return guild.channels.cache.get(channelID)
+    private errorCode(reported: string, reason: string, message: Message): number {
+        if (!reported.match(/[0-9]{18}/)) return 1
+        if (!reason) return 2
+        if (!message) return 3
+        return 0
+    }
+
+    private getMessageFromErrorCode(errorCode: number): string {
+        const messages = [
+            'Id wiadomości się nie zgadza!',
+            'Musisz podać powód zgłoszenia!',
+            'upłynął limit czasu na zgłoszenie bądź wiadomosć nie znajduje się na tym kanale'
+        ]
+        return messages[errorCode-1]
     }
 }
