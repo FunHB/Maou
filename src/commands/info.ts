@@ -1,6 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { channelType, Colors, Command } from '../api';
 import { Config } from '../config';
+import { Utils } from '../modules/utils';
 
 export class InfoCommand implements Command {
     public name = 'info'
@@ -18,17 +19,11 @@ export class InfoCommand implements Command {
             color: Colors.Info,
             author: {
                 name: `${client.user.tag}`,
-                iconURL: client.user.avatarURL({
-                    size: 128,
-                    format: "jpg"
-                })
+                iconURL: Utils.getAvatar(client.user)
             },
             description: 'Bot stworzony dla grupy tłumaczy Maou Subs!',
             thumbnail: {
-                url: client.user.avatarURL({
-                    size: 128,
-                    format: "jpg"
-                })
+                url: Utils.getAvatar(client.user)
             },
             fields: [
                 { name: 'Autor', value: Config.botAuthor, inline: true },
