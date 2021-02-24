@@ -57,7 +57,9 @@ export class CommandHandler {
     }
 
     async handleMessage(message: Message): Promise<void> {
-        if (message.author.bot || !message.content.startsWith(this._prefix)) return
+        const { member, channel, guild, author } = message
+
+        if (author.bot || !message.content.startsWith(this._prefix)) return
 
         const commandBody = new CommandBody(message, this._prefix)
         const command = this.getCommand(commandBody)
@@ -66,8 +68,8 @@ export class CommandHandler {
         if (!command) return
 
         // check guild only 
-        if (command.guildonly && !message.guild) {
-            await message.channel.send(new MessageEmbed({
+        if (command.guildonly && !guild) {
+            await channel.send(new MessageEmbed({
                 color: Colors.Error,
                 description: 'Polecenia można używać jedynie na serwerze Maou-subs'
             }))
@@ -75,20 +77,23 @@ export class CommandHandler {
         }
 
         // log of command
-        console.info(`Wywołane polecenie: ${command.name} przez: ${message.author.tag}`)
+        console.info(`Wywołane polecenie: ${command.name} przez: ${author.tag}`)
 
         // check if channel is valid for this command usage
-        if (!this.validChannel(message, command.channelType)) {
-            await message.channel.send(new MessageEmbed({
-                color: Colors.Error,
-                description: `Polecenia można używać jedynie na kanale <#${this.getChannelByChannelType(command.channelType)}>`
-            }))
-            return
+        // skip for moderators
+        if (!member.roles.cache.get(Config.modRole) || member === guild.owner) {
+            if (!this.validChannel(message, command.channelType)) {
+                await channel.send(new MessageEmbed({
+                    color: Colors.Error,
+                    description: `Polecenia można używać jedynie na kanale <#${this.getChannelByChannelType(command.channelType)}>`
+                }))
+                return
+            }
         }
 
         // check if user has one of required roles for this command usage
-        if (commandBody.modCommand && !message.member.roles.cache.array().filter(role => command.roles.includes(role.name))) {
-            await message.channel.send(new MessageEmbed({
+        if (commandBody.modCommand && !member.roles.cache.array().filter(role => command.roles.includes(role.name))) {
+            await channel.send(new MessageEmbed({
                 color: Colors.Error,
                 image: {
                     url: `https://i.giphy.com/RX3vhj311HKLe.gif`
@@ -106,7 +111,7 @@ export class CommandHandler {
         // Check cooldowns
         const cooldowns: Collection<string, Collection<string, Date>> = new Collection();
 
-        if(!cooldowns.has(commandBody.commandName)) {
+        if (!cooldowns.has(commandBody.commandName)) {
             cooldowns.set(commandBody.commandName, new Collection());
         }
 
@@ -114,40 +119,39 @@ export class CommandHandler {
         const timestamps = cooldowns.get(commandBody.commandName)
         const cooldownAmount = (command.cooldown || 3) * 1000;
 
-        if (timestamps.has(message.author.id)) {
-            const expirationTime = timestamps.get(message.author.id).getTime() + cooldownAmount;
+        if (timestamps.has(author.id)) {
+            const expirationTime = timestamps.get(author.id).getTime() + cooldownAmount;
 
             if (date.getTime() < expirationTime) {
                 const timeLeft = (expirationTime - date.getTime()) / 1000;
-                await message.channel.send(new MessageEmbed({
+                await channel.send(new MessageEmbed({
                     color: Colors.Warning,
-                    description: `${message.author} Polecenia ${commandBody.commandName} możesz uzyć dopiero za ${timeLeft.toFixed(1)} sekund.`
+                    description: `<@!${member.id}> Polecenia ${commandBody.commandName} możesz uzyć dopiero za ${timeLeft.toFixed(1)} sekund.`
                 }))
                 return
             }
         }
 
-        timestamps.set(message.author.id, date);
+        timestamps.set(member.id, date);
 
         setTimeout(() => {
-            timestamps.delete(message.author.id);
-        }, cooldownAmount);
+            timestamps.delete(member.id);
+        }, cooldownAmount)
         //
 
         try {
             command.execute(message, commandBody.args)
         } catch (error) {
-            console.error(error)
-
             await message.reply(new MessageEmbed({
                 color: Colors.Error,
                 description: 'Nie wywołano polecenia! Zygluś popsuł <:uuuu:723131980849479781>'
             }));
+            throw error
         }
     }
 
     private validChannel(message: Message, type: channelType): boolean {
-        switch(type) {
+        switch (type) {
             case channelType.botCommands:
             case channelType.reports:
             case channelType.artschannel:
@@ -160,7 +164,7 @@ export class CommandHandler {
     }
 
     private getChannelByChannelType(type: channelType): string {
-        switch(type) {
+        switch (type) {
             case channelType.botCommands:
                 return Config.botCommandsChannel
 
