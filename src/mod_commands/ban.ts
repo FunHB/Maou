@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { channelType, Colors, Command } from '../api';
 import { Config } from '../config'
-import { ModCommand } from './modCommand';
+import { Utils } from '../modules/utils';
 
 export class BanCommand implements Command {
     public name = 'ban'
@@ -14,25 +14,25 @@ export class BanCommand implements Command {
     public cooldown = 0
 
     public async execute(message: Message, args: string[]): Promise<void> {
-        const user = message.mentions.users.first()
-        const reasonArg = args.slice(1).join(' ') || 'Brak.'
+        const member = await Utils.getUser(message, args.shift())
+        const reasonArg = args.join(' ') || 'Brak.'
         const modlogChannel = message.guild.channels.cache.get(Config.modLogsChannel)
-        const errorCode = ModCommand.errorCode(message, user)
+        const errorCode = Utils.errorCode(message, member)
         const type = this.name
 
         if (errorCode) {
             await message.channel.send(new MessageEmbed({
                 color: Colors.Error,
-                description: ModCommand.getMessageFromErrorCode(errorCode, type)
+                description: Utils.getMessageFromErrorCode(errorCode, type)
             }))
             return
         }
 
-        await message.guild.members.cache.get(user.id).ban({ reason: reasonArg })
-        await message.channel.send(ModCommand.getMessageFromType(user, type))
+        await member.ban({ reason: reasonArg })
+        await message.channel.send(Utils.getMessageFromType(member, type))
 
         if (modlogChannel.isText()) {
-            await modlogChannel.send(ModCommand.getEmbedFromType(message, user, reasonArg, type))
+            await modlogChannel.send(Utils.getEmbedFromType(message, member.user, reasonArg, type))
         }
     }
 }

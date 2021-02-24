@@ -1,8 +1,8 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { channelType, Colors, Command } from '../api';
 import { Config } from '../config'
-// import { MutedManager } from '../modules/mutedManager';
-import { ModCommand } from './modCommand';
+import { Utils } from '../modules/utils'
+// import { MutedManager } from '../modules/mutedManager'
 
 export class UnmuteCommand implements Command {
     public name = 'unmute'
@@ -14,14 +14,16 @@ export class UnmuteCommand implements Command {
     public guildonly = true
     public cooldown = 0
 
-    public async execute(message: Message): Promise<void> {
+    public async execute(message: Message, args: string[]): Promise<void> {
         const { guild } = message
-        const user = message.mentions.users.first()
+        const member = await Utils.getUser(message, args.join(' '))
         const modlogChannel = guild.channels.cache.get(Config.modLogsChannel)
         const role = guild.roles.cache.get(Config.muteRole)
         const type = this.name
 
-        if (!guild.members.cache.get(user.id).roles.cache.has(Config.muteRole)) {
+        if (!member) return
+
+        if (!member.roles.cache.has(Config.muteRole)) {
             await message.channel.send(new MessageEmbed({
                 color: Colors.Error,
                 description: 'Ta osoba nie jest wyciszona!'
@@ -29,11 +31,11 @@ export class UnmuteCommand implements Command {
             return
         }
 
-        await guild.members.cache.get(user.id).roles.remove(role)
-        await message.channel.send(ModCommand.getMessageFromType(user, type))
+        await member.roles.remove(role)
+        await message.channel.send(Utils.getMessageFromType(member, type))
 
         if (modlogChannel.isText()) {
-            await modlogChannel.send(ModCommand.getEmbedFromType(message, user, 'Ułaskawiony', type))
+            await modlogChannel.send(Utils.getEmbedFromType(message, member.user, 'Ułaskawiony', type))
         }
 
         /* Database is required

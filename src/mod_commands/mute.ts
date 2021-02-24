@@ -1,8 +1,8 @@
 import { Message, MessageEmbed } from 'discord.js';
 import { channelType, Colors, Command } from '../api';
 import { Config } from '../config'
-// import { MutedManager } from '../modules/mutedManager';
-import { ModCommand } from './modCommand';
+import { Utils } from '../modules/utils'
+// import { MutedManager } from '../modules/mutedManager'
 
 export class MuteCommand implements Command {
     public name = 'mute'
@@ -10,33 +10,43 @@ export class MuteCommand implements Command {
     public aliases: string[] = ['wycisz']
     public args = true
     public roles: string[] = [Config.modRole]
-    public usage = '<użytkownik> [czas trwania] [powód]'
+    public usage = '<użytkownik> <czas trwania> [powód]'
     public channelType: channelType = channelType.normal
     public guildonly = true
     public cooldown = 0
 
     public async execute(message: Message, args: string[]): Promise<void> {
-        const user = message.mentions.users.first()
-        const duration = this.getDuration(args)
-        const reasonArg = args.slice(1).join(' ') || 'Brak.'
+        const { channel } = message
+
+        const member = await Utils.getUser(message, args.shift())
+        const duration = parseInt(args.shift())
+        const reasonArg = args.join(' ') || 'Brak.'
         const modlogChannel = message.guild.channels.cache.get(Config.modLogsChannel)
-        const errorCode = ModCommand.errorCode(message, user)
+        const errorCode = Utils.errorCode(message, member)
         const role = message.guild.roles.cache.get(Config.muteRole)
         const type = this.name
 
-        if (errorCode) {
-            await message.channel.send(new MessageEmbed({
+        if (isNaN(duration)) {
+            await channel.send(new MessageEmbed({
                 color: Colors.Error,
-                description: ModCommand.getMessageFromErrorCode(errorCode, type)
+                description: 'Musisz podać czas trwania wyciszenia!'
             }))
             return
         }
 
-        await message.guild.members.cache.get(user.id).roles.add(role)
-        await message.channel.send(ModCommand.getMessageFromType(user, type))
+        if (errorCode) {
+            await channel.send(new MessageEmbed({
+                color: Colors.Error,
+                description: Utils.getMessageFromErrorCode(errorCode, type)
+            }))
+            return
+        }
+
+        await member.roles.add(role)
+        await channel.send(Utils.getMessageFromType(member, type))
 
         if (modlogChannel.isText()) {
-            await modlogChannel.send(ModCommand.getEmbedFromType(message, user, reasonArg, type).addField('Na ile:', `${this.getDurationString(duration)}`))
+            await modlogChannel.send(Utils.getEmbedFromType(message, member.user, reasonArg, type).addField('Na ile:', `${this.getDurationString(duration)}`))
         }
 
         /* Database is required
@@ -52,14 +62,6 @@ export class MuteCommand implements Command {
         mutedUsers.addMuted(muteUser)
         mutedUsers.saveChanges()
         */
-    }
-
-    private getDuration(args: string[]): number {
-        const tmp = args.shift()
-        const duration = parseInt(tmp)
-        if (!isNaN(duration)) return duration
-        args.unshift(tmp)
-        return 24
     }
 
     private getDurationString(duration: number): string {

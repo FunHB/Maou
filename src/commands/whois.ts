@@ -11,8 +11,8 @@ export class WhoisCommand implements Command {
     public channelType: channelType = channelType.botCommands
     public guildonly = true
 
-    public async execute(message: Message): Promise<void> {
-        const member = this.getUser(message)
+    public async execute(message: Message, args: string[]): Promise<void> {
+        const member = await Utils.getUser(message, args.join(' '))
 
         if (!member) return
 
@@ -22,10 +22,10 @@ export class WhoisCommand implements Command {
             color: Colors.Info,
             author: {
                 name: `${user.username}`,
-                iconURL: this.getAvatar(user)
+                iconURL: Utils.getAvatar(user)
             },
             thumbnail: {
-                url: this.getAvatar(user)
+                url: Utils.getAvatar(user)
             },
             fields: [
                 { name: 'id', value: member.id, inline: true },
@@ -39,20 +39,11 @@ export class WhoisCommand implements Command {
         }))
     }
 
-    private getUser(message: Message): GuildMember { 
-        if (message.mentions.users.first()) return message.guild.members.cache.get(message.mentions.users.first().id)
-        return message.member
-    }
-
     private isBot(user: User): string {
         return user.bot ? 'Tak' : 'Nie'
     }
 
     private getRoles(member: GuildMember): string {
         return member.roles.cache.array().filter(role => role.name !== '@everyone').map(role => `<@&${role.id}>`).join('\n')
-    }
-
-    private getAvatar(user: User): string {
-        return user.avatarURL({ size: 128, format: "jpg" }) || user.defaultAvatarURL
     }
 }
