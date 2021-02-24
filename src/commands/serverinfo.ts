@@ -36,14 +36,16 @@ export class ServerinfoCommand implements Command {
                 { name: 'Liczba użytkowników', value: guild.memberCount, inline: true },
                 { name: 'Kanały tekstowe', value: this.getChannelCount(guild, 'text'), inline: true },
                 { name: 'Kanały głosowe', value: this.getChannelCount(guild, 'voice'), inline: true },
-                { name: `Role:[${guild.roles.cache.array().length}]`, value: `@everyone, ${this.getRoles(guild)}`, inline: true }
+                { name: `Role:[${guild.roles.cache.array().length}]`, value: this.getRoles(guild), inline: true }
             ]
         }))
     }
 
-    private getRoles(guild: Guild): string {
+    private getRoles(guild: Guild, max = 10): string {
         let index = 0
-        return guild.roles.cache.filter(role => role.name !== '@everyone' && ++index <= 10 ).map(role => `<@&${role.id}>`).join(", ")
+        const roles = guild.roles.cache.filter(() => ++index <= max ).map(role => role.name === '@everyone' ? role.name : `<@&${role.id}>`)
+        if (roles.length < max) roles.push('...')
+        return roles.join(', ')
     }
 
     private getChannelCount(guild: Guild, type: string): number {

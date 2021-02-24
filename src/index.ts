@@ -1,6 +1,11 @@
-import { Client } from 'discord.js'
+import { Client, Intents } from 'discord.js'
 import Bot from './bot'
 
-const client = new Client()
+const intents = new Intents([
+    Intents.NON_PRIVILEGED,
+    "GUILD_MEMBERS",
+]);
+
+const client = new Client({ ws: { intents } });
 
 new Bot().start(client)
