@@ -17,8 +17,8 @@ export class TestApiSanakanCommand implements Command {
     public async execute(message: Message, args: string[]): Promise<void> {
         if (!args.length) return
 
-        const tagUser = args.shift();
-        const waifuUserID = args.shift();
+        const tagUser = args.shift()
+        const waifuUserID = args.shift()
 
         const waifuProfile = await axios.get(`https://api.sanakan.pl/api/waifu/user/${waifuUserID}/profile`).then(({ data }) => data)
 
@@ -28,12 +28,12 @@ export class TestApiSanakanCommand implements Command {
         waifu.forEach((card: { id: string, tags: string[] }) => {
             let tag = card.tags.filter(tag => tag === tagUser)
             if (tag.length) idArray.push(card.id)
-        });
+        })
 
         fs.writeFileSync('./data/wids.txt', idArray.join(' '))
-        const buffer = fs.readFileSync('./data/wids.txt');
+        const buffer = fs.readFileSync('./data/wids.txt')
 
-        await message.channel.send(`Liczba kart w tagu: ${idArray.length}`, new MessageAttachment(buffer, 'wids.txt'));
+        await message.channel.send(`Liczba kart w tagu: ${idArray.length}`, new MessageAttachment(buffer, 'wids.txt'))
     }
 
     private cardsCount( cards: { sssCount: number, ssCount: number, sCount: number, aCount: number, bCount: number, cCount: number, dCount: number, eCount: number }): number {

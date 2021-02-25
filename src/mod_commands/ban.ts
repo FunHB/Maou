@@ -1,7 +1,7 @@
-import { Message, MessageEmbed } from 'discord.js';
-import { channelType, Colors, Command } from '../api';
+import { Message, MessageEmbed } from 'discord.js'
+import { channelType, Colors, Command } from '../api'
 import { Config } from '../config'
-import { Utils } from '../modules/utils';
+import { Utils } from '../modules/utils'
 
 export class BanCommand implements Command {
     public name = 'ban'
@@ -14,7 +14,7 @@ export class BanCommand implements Command {
     public cooldown = 0
 
     public async execute(message: Message, args: string[]): Promise<void> {
-        const member = await Utils.getUser(message, args.shift())
+        const member = await Utils.getMember(message, args.shift())
         const reasonArg = args.join(' ') || 'Brak.'
         const modlogChannel = message.guild.channels.cache.get(Config.modLogsChannel)
         const errorCode = Utils.errorCode(message, member)
