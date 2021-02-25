@@ -1,7 +1,7 @@
-import { Message, MessageEmbed } from 'discord.js';
-import { channelType, Colors, Command } from '../api';
-import { Config } from '../config';
-import { Utils } from '../modules/utils';
+import { Message, MessageEmbed } from 'discord.js'
+import { channelType, Colors, Command } from '../api'
+import { Config } from '../config'
+import { Utils } from '../modules/utils'
 
 export class InfoCommand implements Command {
     public name = 'info'

@@ -1,6 +1,6 @@
-import { GuildMember, Message, MessageEmbed, User } from 'discord.js';
-import { channelType, Colors, Command } from '../api';
-import { Utils } from '../modules/utils';
+import { GuildMember, Message, MessageEmbed, User } from 'discord.js'
+import { channelType, Colors, Command } from '../api'
+import { Utils } from '../modules/utils'
 
 export class WhoisCommand implements Command {
     public name = 'whois'
@@ -12,7 +12,7 @@ export class WhoisCommand implements Command {
     public guildonly = true
 
     public async execute(message: Message, args: string[]): Promise<void> {
-        const member = await Utils.getUser(message, args.join(' '))
+        const member = await Utils.getMember(message, args.join(' '))
 
         if (!member) return
 

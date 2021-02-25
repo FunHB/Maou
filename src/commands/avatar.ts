@@ -1,6 +1,6 @@
-import { Message, MessageEmbed } from 'discord.js';
-import { channelType, Colors, Command } from '../api';
-import { Utils } from '../modules/utils';
+import { Message, MessageEmbed } from 'discord.js'
+import { channelType, Colors, Command } from '../api'
+import { Utils } from '../modules/utils'
 
 export class AvatarCommand implements Command {
     public name = 'avatar'
@@ -13,7 +13,7 @@ export class AvatarCommand implements Command {
     public cooldown = 10
 
     public async execute(message: Message, args: string[]): Promise<void> {
-        const member = await Utils.getUser(message, args.join(' '))
+        const member = await Utils.getMember(message, args.join(' '))
 
         if (!member) return
 

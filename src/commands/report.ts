@@ -1,7 +1,7 @@
-import { Message, MessageEmbed } from 'discord.js';
-import { channelType, Colors, Command } from '../api';
-import { Config } from '../config';
-import { Utils } from '../modules/utils';
+import { Message, MessageEmbed } from 'discord.js'
+import { channelType, Colors, Command } from '../api'
+import { Config } from '../config'
+import { Utils } from '../modules/utils'
 
 export class ReportCommand implements Command {
     public name = 'report'
@@ -15,7 +15,7 @@ export class ReportCommand implements Command {
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const { channel, author, guild } = message
-        const reportChannel = message.guild.channels.cache.get(Config.reportsChannel);
+        const reportChannel = message.guild.channels.cache.get(Config.reportsChannel)
         const reported = args.shift()
         const reason = args.join(' ')
         await channel.messages.fetch()
@@ -40,7 +40,7 @@ export class ReportCommand implements Command {
         }))
 
         if (reportChannel.isText()) {
-            await reportChannel.send(new MessageEmbed({
+            const reportMessage = await reportChannel.send(new MessageEmbed({
                 color: Colors.Info,
                 description: 'Report',
                 fields: [
@@ -51,7 +51,8 @@ export class ReportCommand implements Command {
                     { name: 'Czas:', value: Utils.dateToString(message.createdAt) },
                     { name: 'Powód:', value: reason }
                 ]
-            }));
+            }))
+            Utils.setReports(reportedMessage, reportMessage)
         }
     }
 

@@ -1,5 +1,5 @@
-import { Message, MessageEmbed } from 'discord.js';
-import { channelType, Command } from '../api';
+import { Message, MessageEmbed } from 'discord.js'
+import { channelType, Command } from '../api'
 import arts from '../data/artdatabase.json'
 
 export class ArtCommand implements Command {

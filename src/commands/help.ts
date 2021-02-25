@@ -1,6 +1,6 @@
-import { Message, MessageEmbed } from 'discord.js';
-import { channelType, Colors, Command } from '../api';
-import { Config } from '../config';
+import { Message, MessageEmbed } from 'discord.js'
+import { channelType, Colors, Command } from '../api'
+import { Config } from '../config'
 
 export class HelpCommand implements Command {
     public name = 'help'
@@ -60,7 +60,7 @@ export class HelpCommand implements Command {
             color: Colors.Info,
             title: title,
             fields: data,
-        }));
+        }))
     }
 
     private getCommands(): Command[] {

@@ -1,6 +1,6 @@
-import { Guild, Message, MessageEmbed } from 'discord.js';
-import { channelType, Colors, Command } from '../api';
-import { Utils } from '../modules/utils';
+import { Guild, Message, MessageEmbed } from 'discord.js'
+import { channelType, Colors, Command } from '../api'
+import { Utils } from '../modules/utils'
 
 export class ServerinfoCommand implements Command {
     public name = 'serverinfo'

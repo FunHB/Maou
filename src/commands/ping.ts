@@ -1,5 +1,5 @@
-import { Message, MessageEmbed } from 'discord.js';
-import { channelType, Colors, Command } from '../api';
+import { Message, MessageEmbed } from 'discord.js'
+import { channelType, Colors, Command } from '../api'
 
 export class PingCommand implements Command {
     public name = 'ping'

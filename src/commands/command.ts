@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { Message } from 'discord.js'
 
 export class CommandBody {
   public get commandName(): string { return this._commandName }
