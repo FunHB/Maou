@@ -29,9 +29,9 @@ export class MutedManager {
     }
 
     public static setMuted(guildID: string): void {
+        if (!fs.existsSync(this.path)) this.saveChanges()
         const object = JSON.parse(fs.readFileSync(this.path).toString() || '{}')
         this.mutedUsers = new Collection(Object.keys(object).map(key => [key, object[key]]))
-        if (!this.mutedUsers) this.saveChanges()
         if (!this.mutedUsers.get(guildID)) this.mutedUsers.set(guildID, [])
     }
 
