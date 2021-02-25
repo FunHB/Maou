@@ -84,8 +84,8 @@ export class CommandHandler {
         console.info(`Wywołane polecenie: ${command.name} przez: ${author.tag}`)
 
         // check if channel is valid for this command usage
-        // skip for moderators
-        if (!member.roles.cache.get(Config.modRole) || member === guild.owner) {
+        // skip for admins and moderators
+        if (!member.roles.cache.get(Config.modRole) || !member.hasPermission('ADMINISTRATOR')|| !(member === guild.owner)) {
             if (!this.validChannel(message, command.channelType)) {
                 await channel.send(new MessageEmbed({
                     color: Colors.Error,
