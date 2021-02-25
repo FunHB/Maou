@@ -57,7 +57,6 @@ export interface Command {
 
 export interface Muted {
     id: string
-    guildID: string
     reason: string
     start: Date
     duration: number

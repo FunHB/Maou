@@ -1,8 +1,8 @@
-import { Message, MessageEmbed } from 'discord.js';
-import { channelType, Colors, Command } from '../api';
+import { Message, MessageEmbed } from 'discord.js'
+import { channelType, Colors, Command, Muted } from '../api'
 import { Config } from '../config'
+import { MutedManager } from '../modules/mutedManager'
 import { Utils } from '../modules/utils'
-// import { MutedManager } from '../modules/mutedManager'
 
 export class MuteCommand implements Command {
     public name = 'mute'
@@ -16,14 +16,13 @@ export class MuteCommand implements Command {
     public cooldown = 0
 
     public async execute(message: Message, args: string[]): Promise<void> {
-        const { channel } = message
+        const { channel, guild } = message
 
-        const member = await Utils.getUser(message, args.shift())
+        const member = await Utils.getMember(message, args.shift())
         const duration = parseInt(args.shift())
         const reasonArg = args.join(' ') || 'Brak.'
-        const modlogChannel = message.guild.channels.cache.get(Config.modLogsChannel)
+        const modlogChannel = guild.channels.cache.get(Config.modLogsChannel)
         const errorCode = Utils.errorCode(message, member)
-        const role = message.guild.roles.cache.get(Config.muteRole)
         const type = this.name
 
         if (isNaN(duration)) {
@@ -34,6 +33,13 @@ export class MuteCommand implements Command {
             return
         }
 
+        if (duration < 1) {
+            await channel.send(new MessageEmbed({
+                color: Colors.Error,
+                description: 'Czas wyciszenia nie może wynosić mniej niż jedna godzina!'
+            }))
+        }
+
         if (errorCode) {
             await channel.send(new MessageEmbed({
                 color: Colors.Error,
@@ -42,26 +48,22 @@ export class MuteCommand implements Command {
             return
         }
 
-        await member.roles.add(role)
+        await member.roles.add(Config.muteRole)
         await channel.send(Utils.getMessageFromType(member, type))
 
         if (modlogChannel.isText()) {
             await modlogChannel.send(Utils.getEmbedFromType(message, member.user, reasonArg, type).addField('Na ile:', `${this.getDurationString(duration)}`))
         }
 
-        /* Database is required
-        const mutedUsers = new MutedManager()
         const muteUser: Muted = {
-            id: user.id,
-            guildID: message.guild.id,
+            id: member.id,
             reason: reasonArg,
             start: message.createdAt,
             duration: (duration * 60 * 60 * 1000) 
         }
-
-        mutedUsers.addMuted(muteUser)
-        mutedUsers.saveChanges()
-        */
+        
+        MutedManager.setMuted(guild.id)
+        MutedManager.addMuted(guild.id, muteUser)
     }
 
     private getDurationString(duration: number): string {

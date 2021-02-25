@@ -1,8 +1,8 @@
-import { Message, MessageEmbed } from 'discord.js';
-import { channelType, Colors, Command } from '../api';
+import { Message, MessageEmbed } from 'discord.js'
+import { channelType, Colors, Command } from '../api'
 import { Config } from '../config'
 import { Utils } from '../modules/utils'
-// import { MutedManager } from '../modules/mutedManager'
+import { MutedManager } from '../modules/mutedManager'
 
 export class UnmuteCommand implements Command {
     public name = 'unmute'
@@ -16,7 +16,7 @@ export class UnmuteCommand implements Command {
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const { guild } = message
-        const member = await Utils.getUser(message, args.join(' '))
+        const member = await Utils.getMember(message, args.join(' '))
         const modlogChannel = guild.channels.cache.get(Config.modLogsChannel)
         const role = guild.roles.cache.get(Config.muteRole)
         const type = this.name
@@ -38,11 +38,7 @@ export class UnmuteCommand implements Command {
             await modlogChannel.send(Utils.getEmbedFromType(message, member.user, 'Ułaskawiony', type))
         }
 
-        /* Database is required
-        const mutedUsers = new MutedManager()
-
-        mutedUsers.removeMuted(user.id)
-        mutedUsers.saveChanges()
-        */
+        MutedManager.setMuted(guild.id)
+        MutedManager.removeMuted(guild.id, member.id)
     }
 }

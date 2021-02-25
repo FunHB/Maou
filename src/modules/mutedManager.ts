@@ -1,30 +1,68 @@
+import { Collection, Message } from 'discord.js'
 import fs from 'fs'
-import { Muted } from "../api";
+import { Muted } from "../api"
+import { Config } from '../config'
 
 export class MutedManager {
-    public get muted(): Muted[] { return this._muted }
+    public static mutedUsers: Collection<string, Muted[]> = new Collection()
+    public static path = `./data/muted.json`
+    public static isRunning = false
 
-    private _muted: Muted[]
-    private _path = './data/muted.json'
-
-    constructor() {
-        this._muted = JSON.parse(fs.readFileSync(this._path).toLocaleString())
-    }
-
-    public isStillMuted(user: Muted): boolean {
+    public static isStillMuted(user: Muted): boolean {
         const time = new Date().getTime()
         return time <= (new Date(user.start).getTime() + user.duration)
     }
 
-    public saveChanges(): void {
-        fs.writeFileSync(this._path, JSON.stringify(this._muted))
+    public static saveChanges(): void {
+        fs.writeFileSync(this.path, JSON.stringify(Object.fromEntries(this.mutedUsers)))
     }
 
-    public addMuted(user: Muted): void {
-        this._muted.push(user)
+    public static addMuted(guildID: string, user: Muted): void {
+        this.mutedUsers.get(guildID).push(user)
+        MutedManager.saveChanges()
     }
 
-    public removeMuted(userID: string): void {
-        this._muted.splice(this._muted.indexOf(this._muted.find(user => user.id === userID)), 1)
+    public static removeMuted(guildID: string, userID: string): void {
+        const muted = this.mutedUsers.get(guildID)
+        muted.splice(muted.indexOf(muted.find(user => user.id === userID)))
+        MutedManager.saveChanges()
+    }
+
+    public static setMuted(guildID: string): void {
+        const object = JSON.parse(fs.readFileSync(this.path).toString() || '{}')
+        this.mutedUsers = new Collection(Object.keys(object).map(key => [key, object[key]]))
+        if (!this.mutedUsers.get(guildID)) this.mutedUsers.set(guildID, [])
+    }
+
+    public static async checkMuted(message: Message): Promise<void> {
+        const { guild } = message
+        this.isRunning = true
+
+        setInterval(() => {
+            this.setMuted(guild.id)
+
+            if (this.mutedUsers.get(guild.id)) {
+                this.mutedUsers.get(guild.id).forEach(async user => {
+                    await guild.members.fetch()
+                    const mutedUser = guild.members.cache.get(user.id)
+
+                    if (!mutedUser) return
+
+                    if (mutedUser.roles.cache.has(Config.muteRole)) {
+                        if (!this.isStillMuted(user)) {
+                            await mutedUser.roles.remove(Config.muteRole)
+                            this.removeMuted(guild.id, user.id)
+                            return
+                        }
+                    }
+
+                    if (this.isStillMuted(user)) {
+                        await mutedUser.roles.add(Config.muteRole)
+                    }
+                })
+            }
+        },
+            60000
+        )
     }
 }
