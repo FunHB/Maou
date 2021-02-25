@@ -85,7 +85,7 @@ export class CommandHandler {
 
         // check if channel is valid for this command usage
         // skip for admins and moderators
-        if (!member.roles.cache.get(Config.modRole) || !member.hasPermission(Permissions.FLAGS.ADMINISTRATOR)|| !(member === guild.owner)) {
+        if (!member.roles.cache.get(Config.modRole) && !member.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && !(member === guild.owner)) {
             if (!this.validChannel(message, command.channelType)) {
                 await channel.send(new MessageEmbed({
                     color: Colors.Error,
