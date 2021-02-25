@@ -18,7 +18,7 @@ export class KickCommand implements Command {
         const member = await Utils.getMember(message, args.shift())
         const reasonArg = args.join(' ') || 'Brak.'
         const modlogChannel = message.guild.channels.cache.get(Config.modLogsChannel)
-        const errorCode = Utils.errorCode(message, member)
+        const errorCode = Utils.errorCode(message, member, true)
         const type = this.name
 
         if (errorCode) {
