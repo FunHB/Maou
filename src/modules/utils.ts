@@ -1,22 +1,37 @@
-import { GuildMember, Message, MessageEmbed, User } from "discord.js"
+import { Collection, GuildMember, Message, MessageEmbed, User } from "discord.js"
 import { Colors } from "../api"
 import { Config } from "../config"
 
 export class Utils {
     // main methods
     public static dateToString(date: Date, noSeconds = false): string {
-        const out = `${('0' + date.getUTCDate()).slice(-2)}.${('0' + (date.getUTCMonth() + 1)).slice(-2)}.${date.getUTCFullYear()} ${('0' + (date.getUTCHours() + 1)).slice(-2)}:${('0' + date.getUTCMinutes()).slice(-2)}`
+        const out = `${('0' + date.getUTCDate()).slice(-2)}.${('0' + (date.getUTCMonth() + 1)).slice(-2)}.${date.getUTCFullYear()} ${date.getUTCHours() === 24 ? ('0' + (date.getUTCHours() + 1)).slice(-2) : '00'}:${('0' + date.getUTCMinutes()).slice(-2)}`
         if (noSeconds) return out
         return `${out}:${('0' + date.getUTCSeconds()).slice(-2)}`
     }
 
-    public static async getUser(message: Message, identificator: string): Promise<GuildMember> {
+    public static async getMember(message: Message, identificator: string): Promise<GuildMember> {
         await message.guild.members.fetch()
         return message.guild.members.cache.find(member => member.user === message.mentions.users.first() || member.id === identificator || member.user.username.toLowerCase() === identificator || (member.nickname && member.nickname.toLowerCase() === identificator))
     }
 
     public static getAvatar(user: User): string {
         return user.avatarURL({ size: 128, format: "jpg" }) || user.defaultAvatarURL
+    }
+
+    // reports
+    private static _reports: Collection<string, { reported: Message, report: Message }> = new Collection()
+
+    public static getReports(): Collection<string, { reported: Message, report: Message }> {
+        return this._reports
+    }
+
+    public static setReports(reported: Message, report: Message): void {
+        this._reports.set(report.id, { reported: reported, report: report })
+    }
+
+    public static deleteReport(id: string) {
+        this._reports.delete(id)
     }
 
     // mod commands methods
