@@ -12,7 +12,7 @@ export class Utils {
 
     public static async getMember(message: Message, identificator: string): Promise<GuildMember> {
         await message.guild.members.fetch()
-        return message.guild.members.cache.find(member => member.user === message.mentions.users.first() || member.id === identificator || member.user.username.toLowerCase() === identificator || (member.nickname && member.nickname.toLowerCase() === identificator))
+        return message.guild.members.cache.find(member => member.user === message.mentions.users.first() || member.id === identificator || member.user.username.toLowerCase() === identificator || (member.nickname && member.nickname.toLowerCase() === identificator)) || message.member
     }
 
     public static getAvatar(user: User): string {
