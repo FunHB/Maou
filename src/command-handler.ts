@@ -20,6 +20,7 @@ import { BanCommand } from './mod_commands/ban'
 import { KickCommand } from './mod_commands/kick'
 import { TestApiSanakanCommand } from './mod_commands/test-api-sanakan'
 import { UnmuteCommand } from './mod_commands/unmute'
+import { ResolveCommand } from './mod_commands/resolve'
 //
 
 export class CommandHandler {
@@ -46,7 +47,8 @@ export class CommandHandler {
             KickCommand,
             MuteCommand,
             TestApiSanakanCommand,
-            UnmuteCommand
+            UnmuteCommand,
+            ResolveCommand
         ]
 
         this._commands = commandClasses.map(CommandClass => new CommandClass())
@@ -109,21 +111,21 @@ export class CommandHandler {
         }
 
         // Check cooldowns
-        const cooldowns: Collection<string, Collection<string, Date>> = new Collection();
+        const cooldowns: Collection<string, Collection<string, Date>> = new Collection()
 
         if (!cooldowns.has(commandBody.commandName)) {
-            cooldowns.set(commandBody.commandName, new Collection());
+            cooldowns.set(commandBody.commandName, new Collection())
         }
 
-        const date = new Date();
+        const date = new Date()
         const timestamps = cooldowns.get(commandBody.commandName)
-        const cooldownAmount = (command.cooldown || 3) * 1000;
+        const cooldownAmount = (command.cooldown || 3) * 1000
 
         if (timestamps.has(author.id)) {
-            const expirationTime = timestamps.get(author.id).getTime() + cooldownAmount;
+            const expirationTime = timestamps.get(author.id).getTime() + cooldownAmount
 
             if (date.getTime() < expirationTime) {
-                const timeLeft = (expirationTime - date.getTime()) / 1000;
+                const timeLeft = (expirationTime - date.getTime()) / 1000
                 await channel.send(new MessageEmbed({
                     color: Colors.Warning,
                     description: `<@!${member.id}> Polecenia ${commandBody.commandName} możesz uzyć dopiero za ${timeLeft.toFixed(1)} sekund.`
@@ -132,10 +134,10 @@ export class CommandHandler {
             }
         }
 
-        timestamps.set(member.id, date);
+        timestamps.set(member.id, date)
 
         setTimeout(() => {
-            timestamps.delete(member.id);
+            timestamps.delete(member.id)
         }, cooldownAmount)
         //
 
@@ -145,7 +147,7 @@ export class CommandHandler {
             await message.reply(new MessageEmbed({
                 color: Colors.Error,
                 description: 'Nie wywołano polecenia! Zygluś popsuł <:uuuu:723131980849479781>'
-            }));
+            }))
             throw error
         }
     }
