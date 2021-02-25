@@ -35,12 +35,12 @@ export class Utils {
     }
 
     // mod commands methods
-    public static errorCode(message: Message, member: GuildMember): number {
+    public static errorCode(message: Message, member: GuildMember, type: string): number {
         if (Config.modLogsChannel === undefined) return 1
         if (!member) return 2
         if (member.id === message.author.id) return 3
         if (member.user.bot === true) return 4
-        if (!member.bannable) return 5
+        if (type === 'ban' || type === 'kick' && !member.bannable) return 5
         if (member.roles.cache.has(Config.muteRole)) return 6
         return 0
     }
