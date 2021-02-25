@@ -21,6 +21,7 @@ import { KickCommand } from './mod_commands/kick'
 import { TestApiSanakanCommand } from './mod_commands/test-api-sanakan'
 import { UnmuteCommand } from './mod_commands/unmute'
 import { ResolveCommand } from './mod_commands/resolve'
+import { ShowmutedCommand } from './mod_commands/showmuted'
 //
 
 export class CommandHandler {
@@ -48,7 +49,8 @@ export class CommandHandler {
             MuteCommand,
             TestApiSanakanCommand,
             UnmuteCommand,
-            ResolveCommand
+            ResolveCommand,
+            ShowmutedCommand
         ]
 
         this._commands = commandClasses.map(CommandClass => new CommandClass())

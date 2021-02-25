@@ -4,7 +4,7 @@ import { Muted } from "../api"
 import { Config } from '../config'
 
 export class MutedManager {
-    public static mutedUsers: Collection<string, Muted[]> = new Collection()
+    private static mutedUsers: Collection<string, Muted[]> = new Collection()
     public static path = `./data/muted.json`
     public static isRunning = false
 
@@ -31,7 +31,12 @@ export class MutedManager {
     public static setMuted(guildID: string): void {
         const object = JSON.parse(fs.readFileSync(this.path).toString() || '{}')
         this.mutedUsers = new Collection(Object.keys(object).map(key => [key, object[key]]))
+        if (!this.mutedUsers) this.saveChanges()
         if (!this.mutedUsers.get(guildID)) this.mutedUsers.set(guildID, [])
+    }
+
+    public static getMuted(guildID: string): Muted[] {
+        return this.mutedUsers.get(guildID)
     }
 
     public static async checkMuted(message: Message): Promise<void> {
