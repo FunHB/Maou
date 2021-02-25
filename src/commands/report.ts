@@ -45,11 +45,13 @@ export class ReportCommand implements Command {
                 description: 'Report',
                 fields: [
                     { name: 'Zgłoszone przez:', value: `Użytkownik: <@!${author.id}> ID: ${author.id}` },
+                    { name: 'Zgłoszona osoba:', value: `Użytkownik: <@!${reportedMessage.author.id}> ID: ${reportedMessage.author.id}` },
                     { name: 'Zgłoszono na kanale:', value: `<#${channel.id}>` },
                     { name: 'Id zgłoszonej wiadmości:', value: reported },
                     { name: 'Link do zgłoszonej wiadomości:', value: `https://discord.com/channels/${guild.id}/${channel.id}/${reported}` },
                     { name: 'Czas:', value: Utils.dateToString(message.createdAt) },
-                    { name: 'Powód:', value: reason }
+                    { name: 'Powód:', value: reason },
+                    { name: 'Wiadomość:', value: reportedMessage.content }
                 ]
             }))
             Utils.setReports(reportedMessage, reportMessage)
