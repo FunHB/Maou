@@ -24,10 +24,7 @@ export class ServerinfoCommand implements Command {
                 })
             },
             thumbnail: {
-                url: guild.iconURL({
-                    size: 128,
-                    format: "jpg"
-                })
+                url: 'https://i.imgur.com/VNpcKCA.png'
             },
             fields: [
                 { name: 'ID serwera', value: guild.id, inline: true },
