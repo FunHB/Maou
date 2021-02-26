@@ -12,7 +12,7 @@ export default class Bot implements BotInterface {
 
         client.on('ready', () => {
             console.info(`Logged in as ${client.user.tag}!`)
-            client.user.setActivity(`!pomoc`)
+            client.user.setActivity(`${Config.prefix}pomoc`)
         })
 
         client.on('message', async (message: Message) => {
