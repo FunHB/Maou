@@ -34,7 +34,7 @@ export class WhoisCommand implements Command {
                 { name: 'Bot', value: this.isBot(user), inline: true },
                 { name: 'Utworzono', value: Utils.dateToString(user.createdAt) },
                 { name: 'Dołączono', value: Utils.dateToString(member.joinedAt) },
-                { name: `Role:[${member.roles.cache.array().length}]`, value: this.getRoles(member) }
+                { name: `Role:[${member.roles.cache.array().length - 1}]`, value: this.getRoles(member) }
             ]
         }))
     }
@@ -44,6 +44,6 @@ export class WhoisCommand implements Command {
     }
 
     private getRoles(member: GuildMember): string {
-        return member.roles.cache.array().filter(role => role.name !== '@everyone').map(role => `<@&${role.id}>`).join('\n')
+        return member.roles.cache.array().filter(role => role.name !== '@everyone').map(role => `<@&${role.id}>`).join('\n') || 'Brak'
     }
 }
