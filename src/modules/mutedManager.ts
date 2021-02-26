@@ -19,13 +19,13 @@ export class MutedManager {
 
     public static addMuted(guildID: string, user: Muted): void {
         this.mutedUsers.get(guildID).push(user)
-        MutedManager.saveChanges()
+        this.saveChanges()
     }
 
     public static removeMuted(guildID: string, userID: string): void {
         const muted = this.mutedUsers.get(guildID)
         muted.splice(muted.indexOf(muted.find(user => user.id === userID)))
-        MutedManager.saveChanges()
+        this.saveChanges()
     }
 
     public static setMuted(guildID: string): void {
