@@ -41,7 +41,7 @@ export class ServerinfoCommand implements Command {
     private getRoles(guild: Guild, max = 10): string {
         let index = 0
         const roles = guild.roles.cache.filter(() => ++index <= max ).map(role => role.name === '@everyone' ? role.name : `<@&${role.id}>`)
-        if (roles.length < max) roles.push('...')
+        if (guild.roles.cache.array().length > max) roles.push('...')
         return roles.join(', ')
     }
 
