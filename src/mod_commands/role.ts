@@ -1,6 +1,7 @@
 import { Collection, Guild, GuildMember, Message, MessageEmbed, MessageReaction, Role } from 'discord.js'
 import fs from 'fs'
 import { channelType, Colors, Command } from '../api'
+import { Config } from '../config'
 import { Utils } from '../modules/utils'
 
 export class RoleCommand implements Command {
@@ -8,6 +9,7 @@ export class RoleCommand implements Command {
     public description = 'pozwala na przypisanie, bądź usunięcie sobie roli'
     public aliases: string[] = ['rola']
     public args = false
+    public roles: string[] = [Config.modRole]
     public channelType: channelType = channelType.botCommands
     public guildonly = true
     public cooldown = 10

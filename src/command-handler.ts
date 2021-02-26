@@ -12,7 +12,6 @@ import { PingCommand } from './commands/ping'
 import { ReportCommand } from './commands/report'
 import { ServerinfoCommand } from './commands/serverinfo'
 import { WhoisCommand } from './commands/whois'
-import { RoleCommand } from './commands/role'
 //
 
 // mod commands
@@ -23,6 +22,7 @@ import { TestApiSanakanCommand } from './mod_commands/test-api-sanakan'
 import { UnmuteCommand } from './mod_commands/unmute'
 import { ResolveCommand } from './mod_commands/resolve'
 import { ShowmutedCommand } from './mod_commands/showmuted'
+import { RoleCommand } from './mod_commands/role'
 //
 
 export class CommandHandler {
@@ -41,8 +41,7 @@ export class CommandHandler {
             PingCommand,
             ReportCommand,
             ServerinfoCommand,
-            WhoisCommand,
-            RoleCommand
+            WhoisCommand
         ]
 
         const modCommandClasses = [
@@ -52,7 +51,8 @@ export class CommandHandler {
             TestApiSanakanCommand,
             UnmuteCommand,
             ResolveCommand,
-            ShowmutedCommand
+            ShowmutedCommand,
+            RoleCommand
         ]
 
         this._commands = commandClasses.map(CommandClass => new CommandClass())
