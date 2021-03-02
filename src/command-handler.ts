@@ -85,27 +85,30 @@ export class CommandHandler {
         // log of command
         console.info(`Wywołane polecenie: ${command.name} przez: ${author.tag}`)
 
-        // check if channel is valid for this command usage
+        
         // skip for admins and moderators
-        if (!member.roles.cache.get(Config.modRole) && !member.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && !(member === guild.owner)) {
-            if (!this.validChannel(message, command.channelType)) {
+        if (!member.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && !(member === guild.owner)) {
+            // check if user has one of required roles for this command usage
+            if (commandBody.modCommand && !member.roles.cache.find(role => command.roles.includes(role.id))) {
                 await channel.send(new MessageEmbed({
                     color: Colors.Error,
-                    description: `Polecenia można używać jedynie na kanale <#${this.getChannelByChannelType(command.channelType)}>`
+                    image: {
+                        url: `https://i.giphy.com/RX3vhj311HKLe.gif`
+                    }
                 }))
                 return
             }
-        }
 
-        // check if user has one of required roles for this command usage
-        if (commandBody.modCommand && !member.roles.cache.array().filter(role => command.roles.includes(role.name))) {
-            await channel.send(new MessageEmbed({
-                color: Colors.Error,
-                image: {
-                    url: `https://i.giphy.com/RX3vhj311HKLe.gif`
+            // check if channel is valid for this command usage
+            if (!member.roles.cache.get(Config.modRole)) {
+                if (!this.validChannel(message, command.channelType)) {
+                    await channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: `Polecenia można używać jedynie na kanale <#${this.getChannelByChannelType(command.channelType)}>`
+                    }))
+                    return
                 }
-            }))
-            return
+            }
         }
 
         // check arguments for this command
