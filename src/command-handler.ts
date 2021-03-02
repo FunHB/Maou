@@ -18,7 +18,6 @@ import { WhoisCommand } from './commands/whois'
 import { MuteCommand } from './mod_commands/mute'
 import { BanCommand } from './mod_commands/ban'
 import { KickCommand } from './mod_commands/kick'
-import { TestApiSanakanCommand } from './mod_commands/test-api-sanakan'
 import { UnmuteCommand } from './mod_commands/unmute'
 import { ResolveCommand } from './mod_commands/resolve'
 import { ShowmutedCommand } from './mod_commands/showmuted'
@@ -48,7 +47,6 @@ export class CommandHandler {
             BanCommand,
             KickCommand,
             MuteCommand,
-            TestApiSanakanCommand,
             UnmuteCommand,
             ResolveCommand,
             ShowmutedCommand,
@@ -68,7 +66,7 @@ export class CommandHandler {
         if (author.bot || !message.content.startsWith(this._prefix)) return
 
         const commandBody = new CommandBody(message, this._prefix)
-        const command = this.getCommand(commandBody)
+        const command = this.getCommands(commandBody).find(command => this.validCommand(command, commandBody))
 
         // check if command exist
         if (!command) return
@@ -85,7 +83,7 @@ export class CommandHandler {
         // log of command
         console.info(`Wywołane polecenie: ${command.name} przez: ${author.tag}`)
 
-        
+
         // skip for admins and moderators
         if (!member.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && !(member === guild.owner)) {
             // check if user has one of required roles for this command usage
@@ -113,7 +111,7 @@ export class CommandHandler {
 
         // check arguments for this command
         if (command.args && !commandBody.args.length) {
-            this._commands.pop().execute(message, [command.name])
+            this.getCommands(commandBody).find(command => command.name === 'help').execute(message, [command.name])
             return
         }
 
@@ -189,8 +187,8 @@ export class CommandHandler {
         }
     }
 
-    private getCommand(commandBody: CommandBody): Command {
-        return commandBody.modCommand ? this._modCommands.find(command => this.validCommand(command, commandBody)) : this._commands.find(command => this.validCommand(command, commandBody))
+    private getCommands(commandBody: CommandBody): Command[] {
+        return commandBody.modCommand ? this._modCommands : this._commands
     }
 
     private validCommand(command: Command, commandBody: CommandBody): boolean {
