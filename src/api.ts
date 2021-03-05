@@ -32,6 +32,7 @@ export interface ConfigInterface {
     reportsChannel: string
     modLogsChannel: string
     artsChannel: string
+    messageDeleteLogChannel: string
 
     // roles configs
     modRole: string

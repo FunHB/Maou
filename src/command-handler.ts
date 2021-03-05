@@ -71,7 +71,7 @@ export class CommandHandler {
         // check if command exist
         if (!command) return
 
-        // check guild only 
+        // check guild only
         if (command.guildonly && !guild) {
             await channel.send(new MessageEmbed({
                 color: Colors.Error,

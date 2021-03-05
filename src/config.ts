@@ -7,14 +7,15 @@ export class Config {
     public static get token(): string { return this.env.TOKEN }
     public static get prefix(): string { return this.env.PREFIX }
     public static get botAuthor(): string { return 'FunHB' }
-    public static get botVersion(): string { return '1.0.10' }
+    public static get botVersion(): string { return '1.0.11' }
     public static get owner(): string { return '324612588677627904' }
 
     // channels configs
-    public static get botCommandsChannel(): string { return this.env.BOTCOMMANDSCHANNEL }
+    public static get artsChannel(): string { return this.env.ARTSCHANNEL }
     public static get reportsChannel(): string { return this.env.REPORTSCHANNEL }
     public static get modLogsChannel(): string { return this.env.MODLOGSCHANNEL }
-    public static get artsChannel(): string { return this.env.ARTSCHANNEL }
+    public static get botCommandsChannel(): string { return this.env.BOTCOMMANDSCHANNEL }
+    public static get messageDeleteLogChannel(): string { return this.env.MESSAGEDELETELOGCHANNEL }
 
     // roles configs
     public static get modRole(): string { return this.env.MODROLE }
@@ -28,6 +29,7 @@ export class Config {
         MODLOGSCHANNEL: String,
         MUTEROLE: String,
         ARTSCHANNEL: String,
-        PREFIX: String
+        PREFIX: String,
+        MESSAGEDELETELOGCHANNEL: String,
     })
 }
