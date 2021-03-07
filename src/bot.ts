@@ -29,9 +29,10 @@ export default class Bot implements BotInterface {
 
         client.on('messageDelete', async (message) => {
             const { guild, member, channel } = message
+            const { user } = member
             const messageDeleteLogChannel = guild.channels.cache.get(Config.messageDeleteLogChannel)
 
-            const { user } = member
+            if (user.bot) return
 
             console.error("Message Delete: ", user.id, message.content)
 
@@ -42,18 +43,17 @@ export default class Bot implements BotInterface {
                         name: `${user.username}`,
                         iconURL: Utils.getAvatar(user)
                     },
-                    title: "Wiadomość skasowana",
-                    description: message.content,
                     fields: [
+                        { name: 'Skasowana wiadomość', value: message.content },
                         { name: 'ID użytkownika', value: user.id, inline: true },
-                        { name: 'Nazwa', value: user.username || 'Brak', inline: true },
-                        { name: 'Bot', value: user.bot ? 'Tak' : 'Nie', inline: true },
+                        { name: 'Nazwa użytkownika', value: user.username || 'Brak', inline: true },
+                        { name: '\u200b', value: '\u200b', inline: true },
                         { name: 'ID kanału', value: channel.id, inline: true },
                         { name: 'Nazwa kanału', value: guild.channels.cache.get(channel.id).name, inline: true },
+                        { name: '\u200b', value: '\u200b', inline: true }
                     ]
                 })))
             }
-
         })
 
         client.login(Config.token)
