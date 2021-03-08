@@ -24,7 +24,7 @@ export class MutedManager {
 
     public static removeMuted(guildID: string, userID: string): void {
         const muted = this.mutedUsers.get(guildID)
-        muted.splice(muted.indexOf(muted.find(user => user.id === userID)))
+        muted.splice(muted.indexOf(muted.find(user => user.id == userID)), 1)
         this.saveChanges()
     }
 
