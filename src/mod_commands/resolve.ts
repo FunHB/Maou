@@ -27,7 +27,7 @@ export class ResolveCommand implements Command {
 
         if (decision) {
             await new MuteCommand().execute(message, [member.id, ...args])
-            if (Utils.errorCode(message, member)) return
+            if (Utils.errorCode(message, member) && Utils.errorCode(message, member) != 6) return
         }
         
         await message.delete()
