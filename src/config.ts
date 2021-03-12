@@ -7,7 +7,7 @@ export class Config {
     public static get token(): string { return this.env.TOKEN }
     public static get prefix(): string { return this.env.PREFIX }
     public static get botAuthor(): string { return 'FunHB' }
-    public static get botVersion(): string { return '1.0.11' }
+    public static get botVersion(): string { return '1.0.12' }
     public static get owner(): string { return '324612588677627904' }
 
     // channels configs

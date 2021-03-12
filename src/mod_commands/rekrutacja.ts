@@ -8,7 +8,7 @@ export class ModRekrutacjaCommand implements Command {
     public args = true
     public roles: string[] = [Config.modRole]
     public usage = '[start / end]'
-    public channelType: channelType = channelType.normal
+    public channelType: channelType = channelType.botCommands
     public guildonly = true
     public static status = false
 
