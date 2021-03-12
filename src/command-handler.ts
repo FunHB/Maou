@@ -12,6 +12,7 @@ import { PingCommand } from './commands/ping'
 import { ReportCommand } from './commands/report'
 import { ServerinfoCommand } from './commands/serverinfo'
 import { WhoisCommand } from './commands/whois'
+import { RekrutacjaCommand } from './commands/rekrutacja'
 //
 
 // mod commands
@@ -22,6 +23,7 @@ import { UnmuteCommand } from './mod_commands/unmute'
 import { ResolveCommand } from './mod_commands/resolve'
 import { ShowmutedCommand } from './mod_commands/showmuted'
 import { RoleCommand } from './mod_commands/role'
+import { ModRekrutacjaCommand } from './mod_commands/rekrutacja'
 //
 
 export class CommandHandler {
@@ -40,7 +42,8 @@ export class CommandHandler {
             PingCommand,
             ReportCommand,
             ServerinfoCommand,
-            WhoisCommand
+            WhoisCommand,
+            RekrutacjaCommand
         ]
 
         const modCommandClasses = [
@@ -50,7 +53,8 @@ export class CommandHandler {
             UnmuteCommand,
             ResolveCommand,
             ShowmutedCommand,
-            RoleCommand
+            RoleCommand,
+            ModRekrutacjaCommand
         ]
 
         this._commands = commandClasses.map(CommandClass => new CommandClass())
