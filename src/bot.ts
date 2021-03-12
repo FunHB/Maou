@@ -37,7 +37,7 @@ export default class Bot implements BotInterface {
             console.error("Message Delete: ", user.id, message.content)
 
             if (messageDeleteLogChannel.isText()) {
-                messageDeleteLogChannel.send((new MessageEmbed({
+                await messageDeleteLogChannel.send((new MessageEmbed({
                     color: Colors.Error,
                     author: {
                         name: `${user.username}`,
