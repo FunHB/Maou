@@ -2,6 +2,7 @@ import { Collection, Message } from 'discord.js'
 import fs from 'fs'
 import { Muted } from "../api"
 import { Config } from '../config'
+import { Utils } from './utils'
 
 export class MutedManager {
     private static mutedUsers: Collection<string, Muted[]> = new Collection()
@@ -67,7 +68,7 @@ export class MutedManager {
                 await member.roles.remove(Config.muteRole)
             })
 
-            console.log(`iteration end at time - ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`)
+            console.log(`iteration end at time - ${Utils.dateToString(new Date())}`)
         },
             60000
         )

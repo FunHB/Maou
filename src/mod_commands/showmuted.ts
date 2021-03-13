@@ -24,7 +24,7 @@ export class ShowmutedCommand implements Command {
         await message.channel.send(new MessageEmbed({
             color: Colors.Info,
             title: 'Wyciszeni:',
-            description: mutedUsers.map(user => `<@!${user.id}> [do: ${Utils.dateToString(new Date(new Date(user.start).getTime() + user.duration), true)}] - ${user.reason}`).join('\n')
+            description: mutedUsers.map(user => `<@!${user.id}> [do: ${Utils.dateToString(new Date(new Date(user.start).getTime() + user.duration), false)}] - ${user.reason}`).join('\n')
         }))
     }
 }

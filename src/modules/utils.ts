@@ -4,9 +4,9 @@ import { Config } from "../config"
 
 export class Utils {
     // main methods
-    public static dateToString(date: Date, noSeconds = false): string {
+    public static dateToString(date: Date, seconds = true): string {
         const out = `${('0' + date.getUTCDate()).slice(-2)}.${('0' + (date.getUTCMonth() + 1)).slice(-2)}.${date.getUTCFullYear()} ${date.getUTCHours() !== 24 ? ('0' + (date.getUTCHours() + 1)).slice(-2) : '00'}:${('0' + date.getUTCMinutes()).slice(-2)}`
-        if (noSeconds) return out
+        if (!seconds) return out
         return `${out}:${('0' + date.getUTCSeconds()).slice(-2)}`
     }
 
@@ -73,7 +73,7 @@ export class Utils {
             fields: [
                 { name: 'UserId:', value: `${user.id}`, inline: true },
                 { name: 'Typ:', value: type, inline: true },
-                { name: 'Kiedy:', value: Utils.dateToString(message.createdAt, true), inline: true }
+                { name: 'Kiedy:', value: Utils.dateToString(message.createdAt, false), inline: true }
             ],
             footer: { text: `Przez: ${message.author.username}` }
         })
