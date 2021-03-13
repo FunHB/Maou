@@ -8,9 +8,9 @@ export class MutedManager {
     public static path = `./data/muted.json`
     public static isRunning = false
 
-    public static isStillMuted(user: Muted): boolean {
+    public static isStillMuted(muted: Muted): boolean {
         const time = new Date().getTime()
-        return time <= (new Date(user.start).getTime() + user.duration)
+        return time <= (new Date(muted.start).getTime() + muted.duration)
     }
 
     public static saveChanges(): void {
@@ -43,29 +43,31 @@ export class MutedManager {
         const { guild } = message
         this.isRunning = true
 
+        console.info('mutedManager is running')
+
         setInterval(() => {
             this.setMuted(guild.id)
 
-            if (this.mutedUsers.get(guild.id)) {
-                this.mutedUsers.get(guild.id).forEach(async user => {
-                    await guild.members.fetch()
-                    const mutedUser = guild.members.cache.get(user.id)
+            this.mutedUsers.get(guild.id).forEach(async muted => {
+                if (!this.isStillMuted(muted)) {
+                    this.removeMuted(guild.id, muted.id)
+                }
 
-                    if (!mutedUser) return
+                await guild.members.fetch()
+                const mutedMember = guild.members.cache.get(muted.id)
 
-                    if (mutedUser.roles.cache.has(Config.muteRole)) {
-                        if (!this.isStillMuted(user)) {
-                            await mutedUser.roles.remove(Config.muteRole)
-                            this.removeMuted(guild.id, user.id)
-                            return
-                        }
-                    }
+                if (!mutedMember) return
 
-                    if (this.isStillMuted(user)) {
-                        await mutedUser.roles.add(Config.muteRole)
-                    }
-                })
-            }
+                if (!mutedMember.roles.cache.has(Config.muteRole)) {
+                    await mutedMember.roles.add(Config.muteRole)
+                }
+            })
+
+            guild.roles.cache.get(Config.muteRole).members.filter(member => !this.mutedUsers.get(guild.id).find(muted => muted.id === member.id)).forEach(async member => {
+                await member.roles.remove(Config.muteRole)
+            })
+
+            console.log(`iteration end at time - ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`)
         },
             60000
         )
