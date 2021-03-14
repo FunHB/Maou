@@ -35,7 +35,7 @@ export class Utils {
     }
 
     // mod commands methods
-    public static errorCode(message: Message, member: GuildMember, checkBannable?: boolean): number {
+    public static errorCode(message: Message, member: GuildMember, checkBannable = false): number {
         if (Config.modLogsChannel === undefined) return 1
         if (!member) return 2
         if (checkBannable && member.id === message.author.id) return 3

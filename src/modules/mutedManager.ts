@@ -52,6 +52,7 @@ export class MutedManager {
             this.mutedUsers.get(guild.id).forEach(async muted => {
                 if (!this.isStillMuted(muted)) {
                     this.removeMuted(guild.id, muted.id)
+                    return
                 }
 
                 await guild.members.fetch()
