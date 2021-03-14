@@ -38,7 +38,7 @@ export class Utils {
     public static errorCode(message: Message, member: GuildMember, checkBannable?: boolean): number {
         if (Config.modLogsChannel === undefined) return 1
         if (!member) return 2
-        if (member.id === message.author.id) return 3
+        if (checkBannable && member.id === message.author.id) return 3
         if (member.user.bot === true) return 4
         if (checkBannable && !member.bannable) return 5
         if (member.roles.cache.has(Config.muteRole)) return 6
