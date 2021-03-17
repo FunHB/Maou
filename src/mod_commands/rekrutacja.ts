@@ -1,4 +1,5 @@
 import { Message, MessageEmbed } from 'discord.js'
+import fs from 'fs'
 import { channelType, Colors, Command } from '../api'
 import { Config } from '../config'
 
@@ -10,7 +11,6 @@ export class ModRekrutacjaCommand implements Command {
     public usage = '[start / end]'
     public channelType: channelType = channelType.botCommands
     public guildonly = true
-    public static status = false
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const { channel } = message
@@ -20,7 +20,7 @@ export class ModRekrutacjaCommand implements Command {
 
         const status = newStatus === 1
 
-        if (ModRekrutacjaCommand.status === status) {
+        if (ModRekrutacjaCommand.getStatus() === status) {
             await channel.send(new MessageEmbed({
                 color: Colors.Error,
                 description: `Rekrutacja została już ${this.getMessage(status, 'error')}!`
@@ -64,6 +64,14 @@ export class ModRekrutacjaCommand implements Command {
     }
 
     private static setStatus(newStatus: boolean): void {
-        this.status = newStatus
+        if (newStatus) {
+            fs.writeFileSync('./data/rekrutacja', '')
+            return
+        }
+        fs.unlinkSync('./data/rekrutacja')
+    }
+
+    public static getStatus(): boolean {
+        return fs.existsSync('./data/rekrutacja')
     }
 }

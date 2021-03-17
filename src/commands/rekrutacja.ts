@@ -12,9 +12,9 @@ export class RekrutacjaCommand implements Command {
     public async execute(message: Message): Promise<void> {
         const { guild, channel } = message
         const roleID = '820040781079117881'
-        const categoryID = '769188299692310538'
+        const categoryID = '820054293335375930'
 
-        if (!ModRekrutacjaCommand.status) {
+        if (!ModRekrutacjaCommand.getStatus()) {
             await channel.send(new MessageEmbed({
                 color: Colors.Error,
                 description: 'Rekrutacja została zakończona!'
