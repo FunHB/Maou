@@ -14,13 +14,22 @@ export class ModRekrutacjaCommand implements Command {
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const { channel } = message
-        const newStatus = this.getStatus(args.shift())
+        const newStatus = this.getStatus(args.join(' '))
+        const currentStatus = ModRekrutacjaCommand.getBoolStatus()
 
         if (!newStatus) return
 
-        const status = newStatus === 1
+        if (newStatus == 3) {
+            await channel.send(new MessageEmbed({
+                color: Colors.Info,
+                description: `Status rekrutacji: ${this.getMessage(currentStatus, 'error')}`
+            }))
+            return
+        }
 
-        if (ModRekrutacjaCommand.getStatus() === status) {
+        const status = newStatus == 1
+
+        if (currentStatus === status) {
             await channel.send(new MessageEmbed({
                 color: Colors.Error,
                 description: `Rekrutacja została już ${this.getMessage(status, 'error')}!`
@@ -44,6 +53,9 @@ export class ModRekrutacjaCommand implements Command {
             case 'end':
             case 'koniec':
                 return 2
+
+            case 'status':
+                return 3
 
             default:
                 return 0
@@ -71,7 +83,7 @@ export class ModRekrutacjaCommand implements Command {
         fs.unlinkSync('./data/rekrutacja')
     }
 
-    public static getStatus(): boolean {
+    public static getBoolStatus(): boolean {
         return fs.existsSync('./data/rekrutacja')
     }
 }
