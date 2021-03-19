@@ -13,7 +13,7 @@ export class AvatarCommand implements Command {
     public cooldown = 10
 
     public async execute(message: Message, args: string[]): Promise<void> {
-        const member = await Utils.getMember(message, args.join(' '))
+        const member = await Utils.getMember(message, args.join(' '), true)
 
         if (!member) return
 

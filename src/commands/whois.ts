@@ -12,7 +12,7 @@ export class WhoisCommand implements Command {
     public guildonly = true
 
     public async execute(message: Message, args: string[]): Promise<void> {
-        const member = await Utils.getMember(message, args.join(' '))
+        const member = await Utils.getMember(message, args.join(' '), true)
 
         if (!member) return
 

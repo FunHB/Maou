@@ -10,9 +10,9 @@ export class Utils {
         return `${out}:${('0' + date.getUTCSeconds()).slice(-2)}`
     }
 
-    public static async getMember(message: Message, identificator: string): Promise<GuildMember> {
+    public static async getMember(message: Message, identificator: string, selfOnNone = false): Promise<GuildMember> {
         await message.guild.members.fetch()
-        return message.guild.members.cache.find(member => member.user === message.mentions.users.first() || member.id === identificator || member.user.username.toLowerCase() === identificator || (member.nickname && member.nickname.toLowerCase() === identificator)) || message.member
+        return (message.guild.members.cache.find(member => member.user === message.mentions.users.first() || member.id === identificator || member.user.username.toLowerCase() === identificator.toLowerCase() || (member.nickname && member.nickname.toLowerCase() === identificator.toLowerCase()))) || ((!identificator && selfOnNone) ? message.member : null)
     }
 
     public static getAvatar(user: User): string {
@@ -48,7 +48,7 @@ export class Utils {
     public static getMessageFromErrorCode(errorCode: number, type: string): string {
         const errorMessages = [
             'Serwer dla bota nie jest poprawnie skonfigurowany!',
-            `Musisz podać osobę, którą chcesz ${this.getTypeWord(type)}!`,
+            `Nie znaleziono osoby!`,
             `Nie możesz ${this.getTypeWord(type)} samego siebie!`,
             `Nie możesz ${this.getTypeWord(type)} bota!`,
             `Nie masz wystarczających uprawnień, aby ${this.getTypeWord(type)} tego użytkownika!`,

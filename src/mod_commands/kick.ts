@@ -15,7 +15,7 @@ export class KickCommand implements Command {
     public cooldown = 0
 
     public async execute(message: Message, args: string[]): Promise<void> {
-        const member = await Utils.getMember(message, args.shift())
+        const member = await Utils.getMember(message, args.shift().toLowerCase())
         const reasonArg = args.join(' ') || 'Brak.'
         const modlogChannel = message.guild.channels.cache.get(Config.modLogsChannel)
         const errorCode = Utils.errorCode(message, member, true)
