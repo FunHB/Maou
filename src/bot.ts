@@ -1,11 +1,9 @@
 import { Client, Message, MessageEmbed } from 'discord.js'
-import { BotInterface } from './api'
-import { CommandHandler } from './command-handler'
+import { BotInterface, Colors } from './api'
 import { Config } from './config'
+import { CommandHandler } from './command-handler'
 import { MutedManager } from './modules/mutedManager'
-
 import { Utils } from './modules/utils'
-import { Colors } from './api'
 
 export default class Bot implements BotInterface {
     public start(client: Client): void {
@@ -18,12 +16,27 @@ export default class Bot implements BotInterface {
             client.user.setActivity(`${Config.prefix}pomoc`)
         })
 
+        client.on('guildMemberAdd', async member => {
+            const rulesChannel = '723107524194205818'
+
+            await member.guild.systemChannel.send(new MessageEmbed({
+                color: Colors.Info,
+                description: `Witaj <@${member.id}> na serwerze grupy tłumaczeniowej Maou Subs. Zanim coś napiszesz zapoznaj się z <#${rulesChannel}>`
+            }))
+        });
+
+        client.on('guildMemberRemove', async member => {
+            await member.guild.systemChannel.send(new MessageEmbed({
+                color: Colors.Info,
+                description: `<@${member.id}> spłonął w czeluściach ciemności`
+            }))
+        });
+
         client.on('message', async (message: Message) => {
             await commandHandler.handleMessage(message)
 
             if (!MutedManager.isRunning) {
                 await MutedManager.checkMuted(message)
-                return
             }
         })
 

@@ -17,7 +17,6 @@ export class UnmuteCommand implements Command {
     public async execute(message: Message, args: string[]): Promise<void> {
         const { guild } = message
         const member = await Utils.getMember(message, args.join(' '))
-        const modlogChannel = guild.channels.cache.get(Config.modLogsChannel)
         const role = guild.roles.cache.get(Config.muteRole)
         const type = this.name
 
@@ -33,10 +32,6 @@ export class UnmuteCommand implements Command {
 
         await member.roles.remove(role)
         await message.channel.send(Utils.getMessageFromType(member, type))
-
-        if (modlogChannel.isText()) {
-            await modlogChannel.send(Utils.getEmbedFromType(message, member.user, 'Ułaskawiony', type))
-        }
 
         MutedManager.setMuted(guild.id)
         MutedManager.removeMuted(guild.id, member.id)

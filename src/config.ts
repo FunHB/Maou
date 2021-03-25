@@ -8,7 +8,6 @@ export class Config {
     public static get prefix(): string { return this.env.PREFIX }
     public static get botAuthor(): string { return 'FunHB' }
     public static get botVersion(): string { return '1.0.12' }
-    public static get owner(): string { return '324612588677627904' }
 
     // channels configs
     public static get artsChannel(): string { return this.env.ARTSCHANNEL }

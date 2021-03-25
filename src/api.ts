@@ -25,7 +25,6 @@ export interface ConfigInterface {
     prefix: string
     botAuthor: string
     botVersion: string
-    owner: string
 
     // channels configs
     botCommandsChannel: string
