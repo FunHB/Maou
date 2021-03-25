@@ -16,11 +16,10 @@ export class ReportCommand implements Command {
     public async execute(message: Message, args: string[]): Promise<void> {
         const { channel, author, guild } = message
         const reportChannel = message.guild.channels.cache.get(Config.reportsChannel)
-        const reported = args.shift()
+        const reportedID = args.shift()
         const reason = args.join(' ')
-        await channel.messages.fetch()
-        const reportedMessage = channel.messages.cache.get(reported)
-        const errorCode = this.errorCode(reported, reason, reportedMessage)
+        const reportedMessage = await channel.messages.fetch(reportedID)
+        const errorCode = this.errorCode(reportedID, reason, reportedMessage)
 
         if (errorCode) {
             await channel.send(new MessageEmbed({
@@ -47,14 +46,14 @@ export class ReportCommand implements Command {
                     { name: 'Zgłoszone przez:', value: `Użytkownik: <@!${author.id}> ID: ${author.id}` },
                     { name: 'Zgłoszona osoba:', value: `Użytkownik: <@!${reportedMessage.author.id}> ID: ${reportedMessage.author.id}` },
                     { name: 'Zgłoszono na kanale:', value: `<#${channel.id}>` },
-                    { name: 'Id zgłoszonej wiadmości:', value: reported },
-                    { name: 'Link do zgłoszonej wiadomości:', value: `https://discord.com/channels/${guild.id}/${channel.id}/${reported}` },
+                    { name: 'Id zgłoszonej wiadmości:', value: reportedID },
+                    { name: 'Link do zgłoszonej wiadomości:', value: `https://discord.com/channels/${guild.id}/${channel.id}/${reportedID}` },
                     { name: 'Czas:', value: Utils.dateToString(message.createdAt) },
                     { name: 'Powód:', value: reason },
                     { name: 'Wiadomość:', value: reportedMessage.content }
                 ]
             }))
-            Utils.setReports(reportedMessage, reportMessage)
+            Utils.setReports(reportMessage.id, reportedMessage)
         }
     }
 

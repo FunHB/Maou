@@ -16,9 +16,12 @@ export class ResolveCommand implements Command {
     public cooldown = 0
 
     public async execute(message: Message, args: string[]): Promise<void> {
-        const reports = Utils.getReports().get(args.shift())
-        if (!reports) return
-        const { reported, report } = reports
+        const { channel } = message
+        const reportID = args.shift()
+        const report = Utils.getReport().get(reportID)
+        if (!report) return
+        const { reported } = report
+        const reportMessage = await channel.messages.fetch(reportID)
         const decision = this.getDecision(args.shift())
         const member = await Utils.getMember(message, reported.author.id)
 
@@ -31,9 +34,9 @@ export class ResolveCommand implements Command {
         }
         
         await message.delete()
-        await report.edit(report.embeds.shift().setColor(this.getColorByDecision(decision)).setTitle(this.getTitleByDecision(decision)))
+        await reportMessage.edit(reportMessage.embeds.shift().setColor(this.getColorByDecision(decision)).setTitle(this.getTitleByDecision(decision)))
 
-        Utils.deleteReport(report.id)
+        Utils.deleteReport(reportMessage.id)
     }
 
     private getDecision(decision: string): number {
@@ -41,11 +44,13 @@ export class ResolveCommand implements Command {
             case 'reject':
             case 'odrzuć':
             case 'odrzuc':
+            case 'nah':
                 return 0
 
             case 'approve':
             case 'zatwierdź':
             case 'zatwierdz':
+            case 'ok':
                 return 1
 
             default:

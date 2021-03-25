@@ -20,17 +20,17 @@ export class Utils {
     }
 
     // reports
-    private static _reports: Collection<string, { reported: Message, report: Message }> = new Collection()
+    private static _reports: Collection<string, { reported: Message }> = new Collection()
 
-    public static getReports(): Collection<string, { reported: Message, report: Message }> {
+    public static getReport(): Collection<string, { reported: Message }> {
         return this._reports
     }
 
-    public static setReports(reported: Message, report: Message): void {
-        this._reports.set(report.id, { reported: reported, report: report })
+    public static setReports(reportedID: string, reported: Message): void {
+        this._reports.set(reportedID, { reported: reported })
     }
 
-    public static deleteReport(id: string) {
+    public static deleteReport(id: string): void {
         this._reports.delete(id)
     }
 
