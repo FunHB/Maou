@@ -40,9 +40,8 @@ export class ServerinfoCommand implements Command {
 
     private getRoles(guild: Guild, max = 10): string {
         let index = 0
-        const roles = guild.roles.cache.filter(() => ++index <= max ).map(role => role.name === '@everyone' ? role.name : `<@&${role.id}>`)
-        if (guild.roles.cache.array().length > max) roles.push('...')
-        return roles.join(', ')
+        const roles = guild.roles.cache.sort((roleA , roleB) => roleB.position - roleA.position).filter(() => ++index <= max ).map(role => role)
+        return guild.roles.cache.array().length < max ? roles.join(', ') : roles.join(', ') + '...'
     }
 
     private getChannelCount(guild: Guild, type: string): number {

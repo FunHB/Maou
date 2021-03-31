@@ -44,6 +44,6 @@ export class WhoisCommand implements Command {
     }
 
     private getRoles(member: GuildMember): string {
-        return member.roles.cache.array().filter(role => role.name !== '@everyone').map(role => `<@&${role.id}>`).join('\n') || 'Brak'
+        return member.roles.cache.filter(role => role.name !== '@everyone').sort((roleA , roleB) => roleB.position - roleA.position).map(role => role).join('\n') || 'Brak'
     }
 }
