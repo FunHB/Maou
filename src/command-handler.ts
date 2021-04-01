@@ -13,6 +13,9 @@ import { ReportCommand } from './commands/report'
 import { ServerinfoCommand } from './commands/serverinfo'
 import { WhoisCommand } from './commands/whois'
 import { RekrutacjaCommand } from './commands/rekrutacja'
+import { ShowrolesCommand } from './commands/showroles'
+import { AddroleCommand } from './commands/addrole'
+import { RemoveroleCommand } from './commands/removerole'
 //
 
 // mod commands
@@ -22,7 +25,6 @@ import { KickCommand } from './mod_commands/kick'
 import { UnmuteCommand } from './mod_commands/unmute'
 import { ResolveCommand } from './mod_commands/resolve'
 import { ShowmutedCommand } from './mod_commands/showmuted'
-import { RoleCommand } from './mod_commands/role'
 import { ModRekrutacjaCommand } from './mod_commands/rekrutacja'
 //
 
@@ -43,7 +45,10 @@ export class CommandHandler {
             ReportCommand,
             ServerinfoCommand,
             WhoisCommand,
-            RekrutacjaCommand
+            RekrutacjaCommand,
+            ShowrolesCommand,
+            AddroleCommand,
+            RemoveroleCommand
         ]
 
         const modCommandClasses = [
@@ -53,7 +58,6 @@ export class CommandHandler {
             UnmuteCommand,
             ResolveCommand,
             ShowmutedCommand,
-            RoleCommand,
             ModRekrutacjaCommand
         ]
 

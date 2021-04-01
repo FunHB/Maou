@@ -24,26 +24,28 @@ export class RoleCommand implements Command {
         this.setRoles(guild)
         const roles = this._roles.get(guild.id)
 
-        await message.channel.send(new MessageEmbed({
+        const rolesMessage = await message.channel.send(new MessageEmbed({
             color: Colors.Warning,
             title: 'Możliwe do przyznania sobie role',
             description: this.rolesNames(roles)
-        })).then(async embed => {
-            await this.getEmojisForRoles(embed, roles.length)
-            
-            const collector = embed.createReactionCollector(filter, { dispose: true })
-            collector.on('collect', async (reaction, user) => {
-                const member = await Utils.getMember(message, user.id)
-                if (!this.hasRole(member, roles, reaction)) {
-                    member.roles.add(roles[this._emojis.indexOf(reaction.emoji.name)].id)
-                }
-            })
-            collector.on('remove', async (reaction, user) => {
-                const member = await Utils.getMember(message, user.id)
-                if (this.hasRole(member, roles, reaction)) {
-                    member.roles.remove(roles[this._emojis.indexOf(reaction.emoji.name)].id)
-                }
-            })
+        }))
+
+        await this.getEmojisForRoles(rolesMessage, roles.length)
+
+        const collector = rolesMessage.createReactionCollector(filter, { dispose: true })
+
+        collector.on('collect', async (reaction, user) => {
+            const member = await Utils.getMember(message, user.id)
+            if (!this.hasRole(member, roles, reaction)) {
+                member.roles.add(roles[this._emojis.indexOf(reaction.emoji.name)].id)
+            }
+        })
+        
+        collector.on('remove', async (reaction, user) => {
+            const member = await Utils.getMember(message, user.id)
+            if (this.hasRole(member, roles, reaction)) {
+                member.roles.remove(roles[this._emojis.indexOf(reaction.emoji.name)].id)
+            }
         })
     }
 
