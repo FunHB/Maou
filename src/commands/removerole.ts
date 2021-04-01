@@ -5,7 +5,7 @@ import { channelType, Colors, Command } from '../api'
 export class RemoveroleCommand implements Command {
     public name = 'removerole'
     public description = 'Zabiera użytkownikowi jedną z ról'
-    public aliases: string[] = ['zabierzrole', 'odbierzrole']
+    public aliases: string[] = ['zabierzrole', 'odbierzrole', 'zdejmijrole']
     public args = true
     public channelType: channelType = channelType.botCommands
     public guildonly = true
