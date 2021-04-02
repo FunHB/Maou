@@ -4,7 +4,7 @@ import { channelType, Colors, Command } from '../api'
 
 export class ShowrolesCommand implements Command {
     public name = 'showroles'
-    public description = 'wypisuje możliwe do nadania sobie role'
+    public description = 'Wypisuje możliwe do nadania sobie role'
     public aliases: string[] = ['wypiszrole', 'pokażrole', 'pokazrole']
     public args = false
     public channelType: channelType = channelType.botCommands

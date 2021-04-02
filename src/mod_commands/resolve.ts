@@ -6,11 +6,11 @@ import { MuteCommand } from './mute'
 
 export class ResolveCommand implements Command {
     public name = 'resolve'
-    public description = 'rozwiązuje zgłoszenie'
+    public description = 'rozwiązuje zgłoszenie!\nDecyzje:\n\t**zatwierdź** Aliasy: `approve`, `zatwierdz`, `ok`\n\t**odrzuć** Aliasy: `reject`, `odrzuc`, `nah`\nPrzy zatwierdzeniu wymagane jest podanie czasu trwania!'
     public aliases: string[] = ['rozwiąż', 'rozwiąz', 'rozwiaż', 'rozwiaz']
     public args = true
     public roles: string[] = [Config.modRole]
-    public usage = '<zgłoszenie> <decyzja> [czas trwania] [powód]'
+    public usage = '<id zgłoszenia> <zatwierdź / odrzuć> [czas trwania] [powód]'
     public channelType: channelType = channelType.reports
     public guildonly = true
     public cooldown = 0

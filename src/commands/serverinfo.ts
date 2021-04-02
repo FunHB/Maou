@@ -4,7 +4,7 @@ import { Utils } from '../modules/utils'
 
 export class ServerinfoCommand implements Command {
     public name = 'serverinfo'
-    public description = 'Wyświetla informacje o serwerze!'
+    public description = 'Wyświetla informacje o serwerze'
     public aliases: string[] = ['sinfo']
     public args = false
     public channelType: channelType = channelType.botCommands

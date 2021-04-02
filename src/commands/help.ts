@@ -4,11 +4,11 @@ import { Config } from '../config'
 
 export class HelpCommand implements Command {
     public name = 'help'
-    public description = 'Wyświetla listę wszystkich poleceń lub informacje o danym poleceniu.'
+    public description = 'Wyświetla listę wszystkich poleceń lub informacje o danym poleceniu'
     public aliases: string[] = ['pomoc', 'h']
     public args = false
     public roles: string[] = [Config.modRole]
-    public usage = '<komenda>'
+    public usage = '[polecenie]'
     public channelType: channelType = channelType.botCommands
     public guildonly = true
 

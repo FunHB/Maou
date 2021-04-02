@@ -3,7 +3,7 @@ import { channelType, Colors, Command } from '../api'
 
 export class PingCommand implements Command {
     public name = 'ping'
-    public description = 'Sprawdza opóźnienie między botem a serwerem!'
+    public description = 'Sprawdza opóźnienie między botem a serwerem'
     public args = false
     public channelType: channelType = channelType.botCommands
     public guildonly = true

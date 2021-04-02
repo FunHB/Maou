@@ -5,10 +5,9 @@ import { Utils } from '../modules/utils'
 
 export class InfoCommand implements Command {
     public name = 'info'
-    public description = 'Wyświetla informacje o bocie!'
+    public description = 'Wyświetla informacje o bocie'
     public aliases: string[] = ['informacje']
     public args = false
-    public usage = 'template'
     public channelType: channelType = channelType.botCommands
     public guildonly = true
     public cooldown = 10

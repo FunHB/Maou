@@ -6,7 +6,7 @@ import { Utils } from '../modules/utils'
 
 export class RoleCommand implements Command {
     public name = 'role'
-    public description = 'pozwala na przypisanie, bądź usunięcie sobie roli'
+    public description = 'Wywołuje mechanizm automatycznego przyznawania roli!'
     public aliases: string[] = ['rola']
     public args = false
     public roles: string[] = [Config.modRole]

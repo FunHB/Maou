@@ -4,7 +4,7 @@ import { ModRekrutacjaCommand } from '../mod_commands/rekrutacja'
 
 export class RekrutacjaCommand implements Command {
     public name = 'rekrutacja'
-    public description = 'polecenie do rekrutacji'
+    public description = 'Pozwala przystąpić do rekrutacji'
     public args = false
     public channelType: channelType = channelType.normal
     public guildonly = true

@@ -4,10 +4,10 @@ import { Utils } from '../modules/utils'
 
 export class AvatarCommand implements Command {
     public name = 'avatar'
-    public description = 'Wyświetla twój lub czyjś avatar.'
+    public description = 'Wyświetla twój lub czyjś avatar'
     public aliases: string[] = ['awatar']
     public args = false
-    public usage = '<osoba>'
+    public usage = '[użytkownik]'
     public channelType: channelType = channelType.botCommands
     public guildonly = true
     public cooldown = 10

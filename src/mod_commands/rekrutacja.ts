@@ -5,10 +5,10 @@ import { Config } from '../config'
 
 export class ModRekrutacjaCommand implements Command {
     public name = 'rekrutacja'
-    public description = 'polecenie do rekrutacji'
+    public description = 'rozpoczyna, lub kończy rekrutacje!'
     public args = true
     public roles: string[] = [Config.modRole]
-    public usage = '[start / end]'
+    public usage = '[start / koniec]'
     public channelType: channelType = channelType.botCommands
     public guildonly = true
 

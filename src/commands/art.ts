@@ -4,7 +4,7 @@ import arts from '../data/artdatabase.json'
 
 export class ArtCommand implements Command {
     public name = 'art'
-    public description = 'Wyświetla losowy obrazke z anime!'
+    public description = 'Wyświetla losowy obrazke z anime'
     public aliases: string[] = ['obrazek', 'fanart']
     public args = false
     public channelType: channelType = channelType.artschannel

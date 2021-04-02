@@ -4,9 +4,10 @@ import { channelType, Colors, Command } from '../api'
 
 export class AddroleCommand implements Command {
     public name = 'addrole'
-    public description = 'Dodaje użytkownikowi jedną z ról'
+    public description = 'Dodaje użytkownikowi role'
     public aliases: string[] = ['dodajrole']
     public args = true
+    public usage = '<nazwa roli>'
     public channelType: channelType = channelType.botCommands
     public guildonly = true
     public cooldown = 10

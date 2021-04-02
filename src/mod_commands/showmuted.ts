@@ -6,8 +6,8 @@ import { Utils } from '../modules/utils'
 
 export class ShowmutedCommand implements Command {
     public name = 'showmuted'
-    public description = 'pokazuje wszystkich wyciszonych'
-    public aliases: string[] = ['showm', 'smuted']
+    public description = 'Pokazuje wszystkich wyciszonych!'
+    public aliases: string[] = ['showm', 'smuted', 'sm']
     public args = false
     public roles: string[] = [Config.modRole]
     public channelType: channelType = channelType.normal

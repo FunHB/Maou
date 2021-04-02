@@ -4,9 +4,10 @@ import { channelType, Colors, Command } from '../api'
 
 export class RemoveroleCommand implements Command {
     public name = 'removerole'
-    public description = 'Zabiera użytkownikowi jedną z ról'
+    public description = 'Zdejmuje użytkownikowi role'
     public aliases: string[] = ['zabierzrole', 'odbierzrole', 'zdejmijrole']
     public args = true
+    public usage = '<nazwa roli>'
     public channelType: channelType = channelType.botCommands
     public guildonly = true
     public cooldown = 10

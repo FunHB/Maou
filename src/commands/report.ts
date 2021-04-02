@@ -5,10 +5,10 @@ import { Utils } from '../modules/utils'
 
 export class ReportCommand implements Command {
     public name = 'report'
-    public description = 'Dzięki niej możesz zgłosić wiadomośc użytkownika.'
+    public description = 'Pozwala na zgłoszenie wiadomości użytkownika'
     public aliases: string[] = ['raport', 'zgłoś', 'zgloś', 'zgłos', 'zglos']
     public args = true
-    public usage = '<id wiadomości> [powód zgłoszenia]'
+    public usage = '<id wiadomości> <powód zgłoszenia>'
     public channelType: channelType = channelType.normal
     public guildonly = true
     public cooldown = 1
