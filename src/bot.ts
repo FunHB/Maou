@@ -1,9 +1,9 @@
-import { Client, Message, MessageEmbed } from 'discord.js'
-import { BotInterface, Colors } from './api'
+import { Client } from 'discord.js'
+import { BotInterface } from './api'
 import { Config } from './config'
 import { CommandHandler } from './command-handler'
 import { MutedManager } from './modules/mutedManager'
-import { Utils } from './modules/utils'
+import { MessageDelete } from './modules/messageDelete'
 
 export default class Bot implements BotInterface {
     public start(client: Client): void {
@@ -26,7 +26,7 @@ export default class Bot implements BotInterface {
             await member.guild.systemChannel.send(`<@${member.id}> spłonął w czeluściach ciemności`)
         });
 
-        client.on('message', async (message: Message) => {
+        client.on('message', async (message) => {
             await commandHandler.handleMessage(message)
 
             if (!MutedManager.isRunning) {
@@ -35,32 +35,7 @@ export default class Bot implements BotInterface {
         })
 
         client.on('messageDelete', async (message) => {
-            const { guild, member, channel } = message
-            const { user } = member
-            const messageDeleteLogChannel = guild.channels.cache.get(Config.messageDeleteLogChannel)
-
-            if (user.bot) return
-
-            console.error("Message Delete: ", user.id, message.content)
-
-            if (messageDeleteLogChannel.isText()) {
-                await messageDeleteLogChannel.send((new MessageEmbed({
-                    color: Colors.Error,
-                    author: {
-                        name: `${user.username}`,
-                        iconURL: Utils.getAvatar(user)
-                    },
-                    fields: [
-                        { name: 'Skasowana wiadomość', value: message.content },
-                        { name: 'ID użytkownika', value: user.id, inline: true },
-                        { name: 'Nazwa użytkownika', value: user.username || 'Brak', inline: true },
-                        { name: '\u200b', value: '\u200b', inline: true },
-                        { name: 'ID kanału', value: channel.id, inline: true },
-                        { name: 'Nazwa kanału', value: guild.channels.cache.get(channel.id).name, inline: true },
-                        { name: '\u200b', value: '\u200b', inline: true }
-                    ]
-                })))
-            }
+            await MessageDelete.handle(message)
         })
 
         client.login(Config.token)
