@@ -19,17 +19,11 @@ export default class Bot implements BotInterface {
         client.on('guildMemberAdd', async member => {
             const rulesChannel = '723107524194205818'
 
-            await member.guild.systemChannel.send(new MessageEmbed({
-                color: Colors.Info,
-                description: `Witaj <@${member.id}> na serwerze grupy tłumaczeniowej Maou Subs. Zanim coś napiszesz zapoznaj się z <#${rulesChannel}>`
-            }))
+            await member.guild.systemChannel.send(`Witaj <@${member.id}> na serwerze grupy tłumaczeniowej Maou Subs. Zanim coś napiszesz zapoznaj się z <#${rulesChannel}>`)
         });
 
         client.on('guildMemberRemove', async member => {
-            await member.guild.systemChannel.send(new MessageEmbed({
-                color: Colors.Info,
-                description: `<@${member.id}> spłonął w czeluściach ciemności`
-            }))
+            await member.guild.systemChannel.send(`<@${member.id}> spłonął w czeluściach ciemności`)
         });
 
         client.on('message', async (message: Message) => {
