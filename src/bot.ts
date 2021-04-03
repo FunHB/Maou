@@ -19,7 +19,7 @@ export default class Bot implements BotInterface {
         client.on('guildMemberAdd', async member => {
             const rulesChannel = '723107524194205818'
 
-            await member.guild.systemChannel.send(`Witaj <@${member.id}> na serwerze grupy tłumaczeniowej Maou Subs. Zanim coś napiszesz zapoznaj się z <#${rulesChannel}>`)
+            await member.guild.systemChannel.send(`Witaj <@${member.id}> na serwerze grupy Maou Subs. Zanim coś napiszesz zapoznaj się z <#${rulesChannel}>`)
         });
 
         client.on('guildMemberRemove', async member => {
