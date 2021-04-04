@@ -38,6 +38,7 @@ export class MuteCommand implements Command {
                 color: Colors.Error,
                 description: 'Czas wyciszenia nie może wynosić mniej niż jedna godzina!'
             }))
+            return
         }
 
         if (errorCode) {
