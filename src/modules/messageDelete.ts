@@ -23,7 +23,7 @@ export class MessageDelete {
                     iconURL: Utils.getAvatar(user)
                 },
                 fields: [
-                    { name: 'Skasowana wiadomość', value: messageContent },
+                    { name: 'Skasowana wiadomość', value: messageContent.length < 1024 ? messageContent : messageContent.slice(0, 1023) },
                     { name: 'ID użytkownika', value: user.id, inline: true },
                     { name: 'Nazwa użytkownika', value: user.username || 'Brak', inline: true },
                     { name: '\u200b', value: '\u200b', inline: true },
