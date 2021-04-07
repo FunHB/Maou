@@ -20,7 +20,7 @@ export class InfoCommand implements Command {
                 name: `${client.user.tag}`,
                 iconURL: Utils.getAvatar(client.user)
             },
-            description: 'Bot stworzony dla grupy tłumaczy Maou Subs!',
+            description: 'Bot stworzony dla grupy Maou Subs!',
             thumbnail: {
                 url: Utils.getAvatar(client.user)
             },

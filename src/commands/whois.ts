@@ -1,4 +1,4 @@
-import { GuildMember, Message, MessageEmbed, User } from 'discord.js'
+import { GuildMember, Message, MessageEmbed } from 'discord.js'
 import { channelType, Colors, Command } from '../api'
 import { Utils } from '../modules/utils'
 
@@ -31,16 +31,12 @@ export class WhoisCommand implements Command {
                 { name: 'id', value: member.id, inline: true },
                 { name: 'Pseudo', value: member.nickname || 'Brak', inline: true },
                 { name: 'Status', value: user.presence.status, inline: true },
-                { name: 'Bot', value: this.isBot(user), inline: true },
+                { name: 'Bot', value: user.bot ? 'Tak' : 'Nie', inline: true },
                 { name: 'Utworzono', value: Utils.dateToString(user.createdAt) },
                 { name: 'Dołączono', value: Utils.dateToString(member.joinedAt) },
                 { name: `Role:[${member.roles.cache.array().length - 1}]`, value: this.getRoles(member) }
             ]
         }))
-    }
-
-    private isBot(user: User): string {
-        return user.bot ? 'Tak' : 'Nie'
     }
 
     private getRoles(member: GuildMember): string {
