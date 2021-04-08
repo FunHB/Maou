@@ -26,6 +26,10 @@ import { UnmuteCommand } from './mod_commands/unmute'
 import { ResolveCommand } from './mod_commands/resolve'
 import { ShowmutedCommand } from './mod_commands/showmuted'
 import { ModRekrutacjaCommand } from './mod_commands/rekrutacja'
+import { ChangeNickCommand } from './mod_commands/changenick'
+import { SendMsgCommand } from './mod_commands/sendmsg'
+import { SendEMsgCommand } from './mod_commands/sendemsg'
+import { ReactToMsgCommand } from './mod_commands/reacttomsg'
 //
 
 export class CommandHandler {
@@ -58,7 +62,11 @@ export class CommandHandler {
             UnmuteCommand,
             ResolveCommand,
             ShowmutedCommand,
-            ModRekrutacjaCommand
+            ModRekrutacjaCommand,
+            ChangeNickCommand,
+            SendMsgCommand,
+            SendEMsgCommand,
+            ReactToMsgCommand
         ]
 
         this._commands = commandClasses.map(CommandClass => new CommandClass())

@@ -19,6 +19,26 @@ export class Utils {
         return user.avatarURL({ size: 128, format: "jpg" }) || user.defaultAvatarURL
     }
 
+    public static getColor(color: string): Colors {
+        switch(color) {
+            case 'error':
+                return Colors.Error
+
+            case 'success':
+                return Colors.Success
+                
+            case 'warning':
+                return Colors.Warning
+
+            case 'info':
+                return Colors.Info
+                
+            case 'neutral':
+            default:
+                return Colors.Neutral
+        }
+    }
+
     // reports
     private static _reports: Collection<string, { reported: Message }> = new Collection()
 
