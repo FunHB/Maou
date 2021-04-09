@@ -44,7 +44,7 @@ export class MutedManager {
         const { guild } = message
         this.isRunning = true
 
-        console.info('mutedManager is running')
+        console.info('[Mutes Manager] Mutes Manager is running')
 
         setInterval(() => {
             this.setMuted(guild.id)
@@ -69,7 +69,7 @@ export class MutedManager {
                 await member.roles.remove(Config.muteRole)
             })
 
-            console.log(`iteration end at time - ${Utils.dateToString(new Date())}`)
+            console.info(`[Mutes Manager] iteration end at time - ${Utils.dateToString(new Date())}`)
         },
             60000
         )

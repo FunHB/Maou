@@ -97,7 +97,7 @@ export class CommandHandler {
         }
 
         // log of command
-        console.info(`Wywołane polecenie: ${command.name} przez: ${author.tag}`)
+        console.info(`[Command Handler] Command: ${command.name} by: ${author.tag}`)
 
 
         // skip for admins and moderators

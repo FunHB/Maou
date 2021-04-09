@@ -13,7 +13,7 @@ export class MessageDelete {
 
         if (executor.bot || !messageContent) return
 
-        console.info('Message Delete: ', user.tag, messageContent)
+        console.info(`[Message Delete] by: ${user.tag} content: ${messageContent}`)
 
         if (messageDeleteLogChannel.isText()) {
             await messageDeleteLogChannel.send((new MessageEmbed({

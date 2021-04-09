@@ -12,7 +12,7 @@ export default class Bot implements BotInterface {
         if (!Config.token) { throw new Error('invalid discord token') }
 
         client.on('ready', () => {
-            console.info(`Logged in as ${client.user.tag}!`)
+            console.info(`[Info] Logged in as ${client.user.tag}!`)
             client.user.setActivity(`${Config.prefix}pomoc`)
         })
 
