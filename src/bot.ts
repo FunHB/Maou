@@ -23,7 +23,7 @@ export default class Bot implements BotInterface {
         });
 
         client.on('guildMemberRemove', async member => {
-            await member.guild.systemChannel.send(`${member.nickname} spłonął w czeluściach ciemności`)
+            await member.guild.systemChannel.send(`${member.nickname || member.user.username} spłonął w czeluściach ciemności`)
         });
 
         client.on('message', async (message) => {
