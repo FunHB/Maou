@@ -20,7 +20,7 @@ export class AddroleCommand implements Command {
         const identificator = args.join(' ')
         this.setRoles(guild)
         const roles = this._roles.get(guild.id)
-        const role = roles.find(role => role.id == identificator || role.name == identificator)
+        const role = roles.find(role => role.id == identificator || role.name.toLowerCase() == identificator.toLowerCase())
 
         if (!role) {
             await channel.send(new MessageEmbed({

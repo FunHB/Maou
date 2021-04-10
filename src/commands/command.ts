@@ -14,7 +14,7 @@ export class CommandBody {
     const regex = new RegExp('"[^"]+"|[^\\ ]+', 'g')
 
     message.content.slice(prefix.length).match(regex).forEach(element => {
-      return this._args.push(element.replace(/"/g, '').toLowerCase())
+      return this._args.push(element.replace(/"/g, ''))
     })
 
     this._commandName = this._args.shift()

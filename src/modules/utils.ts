@@ -20,22 +20,24 @@ export class Utils {
     }
 
     public static getColor(color: string): Colors {
-        switch(color) {
+        switch (color) {
             case 'error':
                 return Colors.Error
 
             case 'success':
                 return Colors.Success
-                
+
             case 'warning':
                 return Colors.Warning
 
             case 'info':
                 return Colors.Info
-                
+
             case 'neutral':
-            default:
                 return Colors.Neutral
+
+            default:
+                return null
         }
     }
 
@@ -111,12 +113,16 @@ export class Utils {
             case 'ban':
                 if (suffix === 'ony') suffix = 'ny'
                 return `zbanowa${suffix || 'ć'}`
+
             case 'kick':
                 return `wyrzuc${suffix || 'ić'}`
+
             case 'mute':
                 return `wycisz${suffix || 'yć'}`
+
             case 'unmute':
                 return `ułaskawi${suffix || 'ć'}`
+
             default:
                 return ''
         }
@@ -126,12 +132,16 @@ export class Utils {
         switch (type) {
             case 'ban':
                 return Colors.Error
+
             case 'kick':
                 return Colors.Warning
+
             case 'mute':
                 return Colors.Info
+
             case 'unmute':
                 return Colors.Success
+                
             default:
                 return Colors.Neutral
         }

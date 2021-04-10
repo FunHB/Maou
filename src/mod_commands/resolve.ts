@@ -22,7 +22,7 @@ export class ResolveCommand implements Command {
         if (!report) return
         const { reported } = report
         const reportMessage = await channel.messages.fetch(reportID)
-        const decision = this.getDecision(args.shift())
+        const decision = this.getDecision(args.shift().toLowerCase())
         const member = await Utils.getMember(message, reported.author.id)
 
 

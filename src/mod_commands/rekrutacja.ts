@@ -14,7 +14,7 @@ export class ModRekrutacjaCommand implements Command {
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const { channel } = message
-        const newStatus = this.getStatus(args.join(' '))
+        const newStatus = this.getStatus(args.shift().toLowerCase())
         const currentStatus = ModRekrutacjaCommand.getBoolStatus()
 
         if (!newStatus) return
