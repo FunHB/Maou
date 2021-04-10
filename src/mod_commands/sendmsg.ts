@@ -36,9 +36,11 @@ export class SendMsgCommand implements Command {
         const links: string[] = messageContent.match(regex)
         const attachments: MessageAttachment[] = []
 
-        links.forEach(link => {
-            attachments.push(new MessageAttachment(link, Math.random().toString(36).substring(2) + '.' + link.split('.').pop()))
-        })
+        if (links) {
+            links.forEach(link => {
+                attachments.push(new MessageAttachment(link, Math.random().toString(36).substring(2) + '.' + link.split('.').pop()))
+            })
+        }
 
         return { attachments: attachments, messageContent: messageContent.replace(regex, '') }
     }
