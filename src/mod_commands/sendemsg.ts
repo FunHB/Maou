@@ -22,20 +22,30 @@ export class SendEMsgCommand implements Command {
 
         if (!color) return
 
-        const messageContent = args.join()
-
-        if (!messageContent) return
-
         if (channel.isText()) {
-            await channel.send(new MessageEmbed({
-                color: color,
-                description: messageContent.length < 1024 ? messageContent : messageContent.slice(0, 1023)
-            }))
+            await channel.send(this.getEmbed(color, args.join(' ')))
         }
 
         await message.channel.send(new MessageEmbed({
             color: Colors.Success,
             description: `Wysłano wiadomość na kanał <#${channel.id}>`
         }))
+    }
+
+    private getEmbed(color: Colors, messageContent: string): MessageEmbed {
+        const regex = /(https:\/\/)\S*[(.png)(.jpg)(.gif)(.jpeg)(.mp4)(.mp3)]/gm
+        const links: string[] = messageContent.match(regex)
+        const content = messageContent.replace(regex, '')
+
+        const embed = new MessageEmbed().setColor(color)
+
+        if (links && links.length > 0) {
+            embed.setImage(links[0])
+            if (links.length > 1) embed.setThumbnail(links[1])
+        }
+
+        if (content.length > 0) embed.setDescription(content)
+
+        return embed
     }
 }
