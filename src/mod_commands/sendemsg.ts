@@ -32,7 +32,7 @@ export class SendEMsgCommand implements Command {
         }))
     }
 
-    private getEmbed(color: Colors, messageContent: string): MessageEmbed {
+    private getEmbed(color: Colors | string, messageContent: string): MessageEmbed {
         const regex = /(https:\/\/)\S*[(.png)(.jpg)(.gif)(.jpeg)(.mp4)(.mp3)]/gm
         const links: string[] = messageContent.match(regex)
         const content = messageContent.replace(regex, '')

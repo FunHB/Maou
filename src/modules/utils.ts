@@ -19,7 +19,7 @@ export class Utils {
         return user.avatarURL({ size: 128, format: "jpg" }) || user.defaultAvatarURL
     }
 
-    public static getColor(color: string): Colors {
+    public static getColor(color: string): Colors | string {
         switch (color) {
             case 'error':
                 return Colors.Error
@@ -35,6 +35,9 @@ export class Utils {
 
             case 'neutral':
                 return Colors.Neutral
+
+            case 'random':
+                return 'RANDOM'
 
             default:
                 return null
