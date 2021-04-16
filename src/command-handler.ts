@@ -1,6 +1,6 @@
 import { Collection, Message, MessageEmbed, Permissions } from 'discord.js'
-import { Command, channelType, Colors } from './api'
-import { CommandBody } from './commands/command'
+import { channelType, Colors } from './api'
+import { Command } from './commands/command'
 import { Config } from './config'
 
 // commands
@@ -30,6 +30,7 @@ import { ChangeNickCommand } from './mod_commands/changenick'
 import { SendMsgCommand } from './mod_commands/sendmsg'
 import { SendEMsgCommand } from './mod_commands/sendemsg'
 import { ReactToMsgCommand } from './mod_commands/reacttomsg'
+import { QuoteCommand } from './mod_commands/quote'
 //
 
 export class CommandHandler {
@@ -38,9 +39,10 @@ export class CommandHandler {
 
     private _commands: Command[]
     private _modCommands: Command[]
-    private readonly _prefix: string
 
-    constructor(prefix: string) {
+    private _modPrefix = 'mod'
+
+    constructor() {
         const commandClasses = [
             ArtCommand,
             AvatarCommand,
@@ -66,26 +68,39 @@ export class CommandHandler {
             ChangeNickCommand,
             SendMsgCommand,
             SendEMsgCommand,
-            ReactToMsgCommand
+            ReactToMsgCommand,
+            QuoteCommand
         ]
 
         this._commands = commandClasses.map(CommandClass => new CommandClass())
         this._modCommands = modCommandClasses.map(modCommandClass => new modCommandClass())
-        this._commands.push(new HelpCommand(this._commands, this._modCommands))
-        this._modCommands.push(new HelpCommand(this._commands, this._modCommands, true))
-        this._prefix = prefix
+        this._commands.push(new HelpCommand().init(this._commands))
+        this._modCommands.push(new HelpCommand().init(this._modCommands))
     }
 
     async handleMessage(message: Message): Promise<void> {
         const { member, channel, guild, author } = message
 
-        if (author.bot || !message.content.startsWith(this._prefix)) return
+        if (author.bot || !message.content.startsWith(Config.prefix)) return
 
-        const commandBody = new CommandBody(message, this._prefix)
-        const command = this.getCommands(commandBody).find(command => this.validCommand(command, commandBody))
+        const regex = /"[^"]+"|[^\\ ]+/gm
+        let messageContent = message.content.slice(Config.prefix.length)
+
+        const command = this.getCommand(messageContent.toLowerCase())
 
         // check if command exist
         if (!command) return
+
+        const requireMod = command.group === 'mod'
+        const args: string[] = []
+
+        messageContent = this.fixedMessageContent(messageContent, command)
+
+        if (messageContent.length > 0) {
+            messageContent.match(regex).forEach(element => {
+                return args.push(element.replace(/"/g, ''))
+            })
+        }
 
         // check guild only
         if (command.guildonly && !guild) {
@@ -101,9 +116,9 @@ export class CommandHandler {
 
 
         // skip for admins and moderators
-        if (!member.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && !(member === guild.owner)) {
+        if (!member.roles.cache.get(Config.modRole) && !member.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && !(member === guild.owner)) {
             // check if user has one of required roles for this command usage
-            if (commandBody.modCommand && !member.roles.cache.find(role => command.roles.includes(role.id))) {
+            if (requireMod) {
                 await channel.send(new MessageEmbed({
                     color: Colors.Error,
                     image: {
@@ -114,32 +129,30 @@ export class CommandHandler {
             }
 
             // check if channel is valid for this command usage
-            if (!member.roles.cache.get(Config.modRole)) {
-                if (!this.validChannel(message, command.channelType)) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: `Polecenia można używać jedynie na kanale <#${this.getChannelByChannelType(command.channelType)}>`
-                    }))
-                    return
-                }
+            if (!this.validChannel(message, command.channelType)) {
+                await channel.send(new MessageEmbed({
+                    color: Colors.Error,
+                    description: `Polecenia można używać jedynie na kanale <#${this.getChannelByChannelType(command.channelType)}>`
+                }))
+                return
             }
         }
 
         // check arguments for this command
-        if (command.args && !commandBody.args.length) {
-            this.getCommands(commandBody).find(command => command.name === 'help').execute(message, [command.name])
+        if (command.requireArgs && !args.length) {
+            (requireMod ? this._modCommands : this._commands).find(command => command.name === 'help').execute(message, [command.name])
             return
         }
 
         // Check cooldowns
         const cooldowns: Collection<string, Collection<string, Date>> = new Collection()
 
-        if (!cooldowns.has(commandBody.commandName)) {
-            cooldowns.set(commandBody.commandName, new Collection())
+        if (!cooldowns.has(command.name)) {
+            cooldowns.set(command.name, new Collection())
         }
 
         const date = new Date()
-        const timestamps = cooldowns.get(commandBody.commandName)
+        const timestamps = cooldowns.get(command.name)
         const cooldownAmount = (command.cooldown || 3) * 1000
 
         if (timestamps.has(author.id)) {
@@ -149,7 +162,7 @@ export class CommandHandler {
                 const timeLeft = (expirationTime - date.getTime()) / 1000
                 await channel.send(new MessageEmbed({
                     color: Colors.Warning,
-                    description: `<@!${member.id}> Polecenia ${commandBody.commandName} możesz uzyć dopiero za ${timeLeft.toFixed(1)} sekund.`
+                    description: `<@!${member.id}> Polecenia ${command.name} możesz uzyć dopiero za ${timeLeft.toFixed(1)} sekund.`
                 }))
                 return
             }
@@ -163,7 +176,7 @@ export class CommandHandler {
         //
 
         try {
-            command.execute(message, commandBody.args)
+            command.execute(message, args)
         } catch (error) {
             await message.reply(new MessageEmbed({
                 color: Colors.Error,
@@ -203,11 +216,13 @@ export class CommandHandler {
         }
     }
 
-    private getCommands(commandBody: CommandBody): Command[] {
-        return commandBody.modCommand ? this._modCommands : this._commands
+    private getCommand(messageContent: string): Command {
+        return messageContent.startsWith(this._modPrefix) ? this._modCommands.find(command => messageContent.slice(this._modPrefix.length + 1).startsWith(command.name) || (command.aliases && command.aliases.find(alias => messageContent.slice(this._modPrefix.length + 1).startsWith(alias)) || (!messageContent.slice(this._modPrefix.length + 1).length && command.name === 'help'))) : this._commands.find(command => messageContent.startsWith(command.name) || (command.aliases && command.aliases.find(alias => messageContent.startsWith(alias))))
     }
 
-    private validCommand(command: Command, commandBody: CommandBody): boolean {
-        return command.name === commandBody.commandName || (command.aliases && command.aliases.includes(commandBody.commandName))
+    private fixedMessageContent(messageContent: string, command: Command): string {
+        const regex = new RegExp(`(${command.name}|${command.aliases.join('|')})`, 'm')
+        messageContent = messageContent.replace(regex, command.name)
+        return  messageContent.startsWith(this._modPrefix) ? messageContent.slice(this._modPrefix.length + 1).slice(command.name.length) : messageContent.slice(command.name.length)
     }
 }

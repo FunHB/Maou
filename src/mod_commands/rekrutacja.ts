@@ -1,16 +1,14 @@
 import { Message, MessageEmbed } from 'discord.js'
 import fs from 'fs'
-import { channelType, Colors, Command } from '../api'
-import { Config } from '../config'
+import { Colors } from '../api'
+import { Command } from '../commands/command'
 
-export class ModRekrutacjaCommand implements Command {
+export class ModRekrutacjaCommand extends Command {
     public name = 'rekrutacja'
     public description = 'rozpoczyna, lub kończy rekrutacje!'
-    public args = true
-    public roles: string[] = [Config.modRole]
+    public requireArgs = true
+    public group = 'mod'
     public usage = '[start / koniec]'
-    public channelType: channelType = channelType.botCommands
-    public guildonly = true
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const { channel } = message

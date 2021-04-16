@@ -1,17 +1,15 @@
 import { Message, MessageEmbed } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
-import { Config } from '../config'
+import { Colors } from '../api'
+import { Command } from '../commands/command'
 import { MutedManager } from '../modules/mutedManager'
 import { Utils } from '../modules/utils'
 
-export class ShowmutedCommand implements Command {
-    public name = 'showmuted'
+export class ShowmutedCommand extends Command {
+    public name = 'show muted'
     public description = 'Pokazuje wszystkich wyciszonych!'
-    public aliases: string[] = ['showm', 'smuted', 'sm']
-    public args = false
-    public roles: string[] = [Config.modRole]
-    public channelType: channelType = channelType.normal
-    public guildonly = true
+    public aliases: string[] = ['pokaż wyciszonych']
+    public requireArgs = false
+    public group = 'mod'
     public cooldown = 0
 
     public async execute(message: Message): Promise<void> {

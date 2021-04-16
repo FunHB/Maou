@@ -1,18 +1,17 @@
 import { Message, MessageEmbed } from 'discord.js'
-import { channelType, Colors, Command, Muted } from '../api'
+import { Colors, IMuted } from '../api'
+import { Command } from '../commands/command'
 import { Config } from '../config'
 import { MutedManager } from '../modules/mutedManager'
 import { Utils } from '../modules/utils'
 
-export class MuteCommand implements Command {
+export class MuteCommand extends Command {
     public name = 'mute'
     public description = 'Wycisza użytkownika na serwerze!'
     public aliases: string[] = ['wycisz']
-    public args = true
-    public roles: string[] = [Config.modRole]
+    public requireArgs = true
+    public group = 'mod'
     public usage = '<użytkownik> <czas trwania> [powód]'
-    public channelType: channelType = channelType.normal
-    public guildonly = true
     public cooldown = 0
 
     public async execute(message: Message, args: string[]): Promise<void> {
@@ -56,7 +55,7 @@ export class MuteCommand implements Command {
             await modlogChannel.send(Utils.getEmbedFromType(message, member.user, reasonArg, type).addField('Na ile:', `${this.getDurationString(duration)}`))
         }
 
-        const muteUser: Muted = {
+        const muteUser: IMuted = {
             id: member.id,
             reason: reasonArg,
             start: message.createdAt,

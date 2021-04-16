@@ -1,13 +1,12 @@
 import { Client } from 'discord.js'
-import { BotInterface } from './api'
 import { Config } from './config'
 import { CommandHandler } from './command-handler'
 import { MutedManager } from './modules/mutedManager'
 import { MessageDelete } from './modules/messageDelete'
 
-export default class Bot implements BotInterface {
-    public start(client: Client): void {
-        const commandHandler = new CommandHandler(Config.prefix)
+export default class Bot {
+    public static start(client: Client): void {
+        const commandHandler = new CommandHandler()
 
         if (!Config.token) { throw new Error('invalid discord token') }
 

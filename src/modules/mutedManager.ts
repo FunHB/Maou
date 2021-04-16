@@ -1,15 +1,15 @@
 import { Collection, Message } from 'discord.js'
 import fs from 'fs'
-import { Muted } from "../api"
+import { IMuted } from "../api"
 import { Config } from '../config'
 import { Utils } from './utils'
 
 export class MutedManager {
-    private static mutedUsers: Collection<string, Muted[]> = new Collection()
+    private static mutedUsers: Collection<string, IMuted[]> = new Collection()
     public static path = `./data/muted.json`
     public static isRunning = false
 
-    public static isStillMuted(muted: Muted): boolean {
+    public static isStillMuted(muted: IMuted): boolean {
         const time = new Date().getTime()
         return time <= (new Date(muted.start).getTime() + muted.duration)
     }
@@ -18,7 +18,7 @@ export class MutedManager {
         fs.writeFileSync(this.path, JSON.stringify(Object.fromEntries(this.mutedUsers)))
     }
 
-    public static addMuted(guildID: string, user: Muted): void {
+    public static addMuted(guildID: string, user: IMuted): void {
         this.mutedUsers.get(guildID).push(user)
         this.saveChanges()
     }
@@ -36,7 +36,7 @@ export class MutedManager {
         if (!this.mutedUsers.get(guildID)) this.mutedUsers.set(guildID, [])
     }
 
-    public static getMuted(guildID: string): Muted[] {
+    public static getMuted(guildID: string): IMuted[] {
         return this.mutedUsers.get(guildID)
     }
 

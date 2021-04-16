@@ -1,13 +1,11 @@
 import { Message, MessageEmbed } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
+import { channelType, Colors } from '../api'
+import { Command } from './command'
 
-export class PingCommand implements Command {
+export class PingCommand extends Command {
     public name = 'ping'
     public description = 'Sprawdza opóźnienie między botem a serwerem'
-    public args = false
     public channelType: channelType = channelType.botCommands
-    public guildonly = true
-    public cooldown = 10
 
     public async execute(message: Message): Promise<void> {
         const pingMessage = await message.channel.send('Ping?')

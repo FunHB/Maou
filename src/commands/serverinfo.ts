@@ -1,15 +1,13 @@
 import { Guild, Message, MessageEmbed } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
+import { channelType, Colors } from '../api'
 import { Utils } from '../modules/utils'
+import { Command } from './command'
 
-export class ServerinfoCommand implements Command {
+export class ServerinfoCommand extends Command {
     public name = 'serverinfo'
     public description = 'Wyświetla informacje o serwerze'
     public aliases: string[] = ['sinfo']
-    public args = false
     public channelType: channelType = channelType.botCommands
-    public guildonly = true
-    public cooldown = 10
 
     public async execute(message: Message): Promise<void> {
         const { guild, channel } = message

@@ -1,14 +1,13 @@
 import { Message, MessageEmbed } from 'discord.js'
-import { channelType, Command } from '../api'
+import { channelType } from '../api'
 import arts from '../data/artdatabase.json'
+import { Command } from './command'
 
-export class ArtCommand implements Command {
+export class ArtCommand extends Command {
     public name = 'art'
     public description = 'Wyświetla losowy obrazke z anime'
     public aliases: string[] = ['obrazek', 'fanart']
-    public args = false
     public channelType: channelType = channelType.artschannel
-    public guildonly = true
     public cooldown = 15
 
     public async execute(message: Message): Promise<void> {

@@ -8,4 +8,4 @@ const intents = new Intents([
 
 const client = new Client({ ws: { intents } })
 
-new Bot().start(client)
+Bot.start(client)

@@ -1,15 +1,14 @@
 import { GuildMember, Message, MessageEmbed } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
+import { channelType, Colors } from '../api'
 import { Utils } from '../modules/utils'
+import { Command } from './command'
 
-export class WhoisCommand implements Command {
-    public name = 'whois'
+export class WhoisCommand extends Command {
+    public name = 'who is'
     public description = 'wyświetla informacje o użytkowniku'
-    public aliases: string[] = ['ktoto']
-    public args = false
+    public aliases: string[] = ['kto to']
     public usage = '[użytkownik]'
     public channelType: channelType = channelType.botCommands
-    public guildonly = true
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const member = await Utils.getMember(message, args.join(' '), true)

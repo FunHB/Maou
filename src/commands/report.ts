@@ -1,16 +1,15 @@
 import { Message, MessageEmbed } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
+import { Colors } from '../api'
 import { Config } from '../config'
 import { Utils } from '../modules/utils'
+import { Command } from './command'
 
-export class ReportCommand implements Command {
+export class ReportCommand extends Command {
     public name = 'report'
     public description = 'Pozwala na zgłoszenie wiadomości użytkownika'
     public aliases: string[] = ['raport', 'zgłoś', 'zgloś', 'zgłos', 'zglos']
-    public args = true
+    public requireArgs = true
     public usage = '<id wiadomości> <powód zgłoszenia>'
-    public channelType: channelType = channelType.normal
-    public guildonly = true
     public cooldown = 1
 
     public async execute(message: Message, args: string[]): Promise<void> {

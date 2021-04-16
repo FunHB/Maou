@@ -1,17 +1,16 @@
 import { Message, MessageEmbed } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
+import { Colors } from '../api'
 import { Config } from '../config'
 import { Utils } from '../modules/utils'
 import { MutedManager } from '../modules/mutedManager'
+import { Command } from '../commands/command'
 
-export class UnmuteCommand implements Command {
+export class UnmuteCommand extends Command {
     public name = 'unmute'
     public description = 'Zdejmuje role wyciszonego!'
-    public args = true
-    public roles: string[] = [Config.modRole]
+    public requireArgs = true
+    public group = 'mod'
     public usage = '<użytkownik>'
-    public channelType: channelType = channelType.normal
-    public guildonly = true
     public cooldown = 0
 
     public async execute(message: Message, args: string[]): Promise<void> {

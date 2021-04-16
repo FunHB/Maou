@@ -1,16 +1,14 @@
 import { Message, MessageEmbed } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
+import { channelType, Colors } from '../api'
 import { Utils } from '../modules/utils'
+import { Command } from './command'
 
-export class AvatarCommand implements Command {
+export class AvatarCommand extends Command {
     public name = 'avatar'
     public description = 'Wyświetla twój lub czyjś avatar'
     public aliases: string[] = ['awatar']
-    public args = false
     public usage = '[użytkownik]'
     public channelType: channelType = channelType.botCommands
-    public guildonly = true
-    public cooldown = 10
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const member = await Utils.getMember(message, args.join(' '), true)

@@ -1,6 +1,4 @@
-import { Client, Message } from 'discord.js'
-
-// types
+/* types */
 
 export enum channelType {
     normal,
@@ -17,45 +15,9 @@ export enum Colors {
     Neutral = '#808080'
 }
 
-// main interfaces
+/* interfaces */
 
-export interface ConfigInterface {
-    // main configs
-    token: string
-    prefix: string
-    botAuthor: string
-    botVersion: string
-
-    // channels configs
-    botCommandsChannel: string
-    reportsChannel: string
-    modLogsChannel: string
-    artsChannel: string
-    messageDeleteLogChannel: string
-
-    // roles configs
-    modRole: string
-    muteRole: string
-}
-
-export interface BotInterface {
-    start(client: Client): void
-}
-
-export interface Command {
-    name: string
-    description: string
-    aliases?: string[]
-    args: boolean
-    roles?: string[]
-    usage?: string
-    channelType: channelType
-    guildonly: boolean
-    cooldown?: number
-    execute(message: Message, args: string[]): Promise<void>
-}
-
-export interface Muted {
+export interface IMuted {
     id: string
     reason: string
     start: Date

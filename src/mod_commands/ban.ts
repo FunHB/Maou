@@ -1,16 +1,15 @@
 import { Message, MessageEmbed } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
+import { Colors } from '../api'
+import { Command } from '../commands/command'
 import { Config } from '../config'
 import { Utils } from '../modules/utils'
 
-export class BanCommand implements Command {
+export class BanCommand extends Command {
     public name = 'ban'
     public description = 'Banuje użytkownika na serwerze!'
-    public args = true
-    public roles: string[] = [Config.modRole]
+    public requireArgs = true
+    public group = 'mod'
     public usage = '<użytkownik> [powód]'
-    public channelType: channelType = channelType.normal
-    public guildonly = true
     public cooldown = 0
 
     public async execute(message: Message, args: string[]): Promise<void> {

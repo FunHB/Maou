@@ -1,16 +1,15 @@
 import { Collection, Guild, Message, MessageEmbed, Role } from 'discord.js'
 import fs from 'fs'
-import { channelType, Colors, Command } from '../api'
+import { Command } from './command'
+import { channelType, Colors } from '../api'
 
-export class AddroleCommand implements Command {
-    public name = 'addrole'
+export class AddroleCommand extends Command {
+    public name = 'add role'
     public description = 'Dodaje użytkownikowi role'
-    public aliases: string[] = ['dodajrole']
-    public args = true
+    public aliases: string[] = ['dodaj role']
+    public requireArgs = true
     public usage = '<nazwa roli>'
     public channelType: channelType = channelType.botCommands
-    public guildonly = true
-    public cooldown = 10
 
     private _path = './data/addableRoles.json'
     private _roles: Collection<string, Role[]> = new Collection()

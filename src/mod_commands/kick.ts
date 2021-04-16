@@ -1,17 +1,16 @@
 import { Message, MessageEmbed } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
+import { Colors } from '../api'
+import { Command } from '../commands/command'
 import { Config } from '../config'
 import { Utils } from '../modules/utils'
 
-export class KickCommand implements Command {
+export class KickCommand extends Command {
     public name = 'kick'
     public description = 'Wyrzuca użytkownika z serwera!'
     public aliases: string[] = ['wyrzuc', 'wyrzuć']
-    public args = true
-    public roles: string[] = [Config.modRole]
+    public requireArgs = true
+    public group = 'mod'
     public usage = '<użytkownik> [powód]'
-    public channelType: channelType = channelType.normal
-    public guildonly = true
     public cooldown = 0
 
     public async execute(message: Message, args: string[]): Promise<void> {

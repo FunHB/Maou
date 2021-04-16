@@ -1,17 +1,15 @@
 import { Message, MessageEmbed, Permissions } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
-import { Config } from '../config'
+import { Colors } from '../api'
+import { Command } from '../commands/command'
 import { Utils } from '../modules/utils'
 
-export class ChangeNickCommand implements Command {
-    public name = 'changenick'
+export class ChangeNickCommand extends Command {
+    public name = 'change nick'
     public description = 'Zmienia pseudonim podanemu użytkownikowi'
-    public aliases: string[] = ['zmieńnick', 'zmiennick', 'zmienpseudonim', 'zmieńpseudonim']
-    public args = true
-    public roles: string[] = [Config.modRole]
+    public aliases: string[] = ['zmień nick', 'zmien nick']
+    public requireArgs = true
+    public group = 'mod'
     public usage = '<użytkownik> [nowy pseudonim]'
-    public channelType: channelType = channelType.normal
-    public guildonly = true
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const member = await Utils.getMember(message, args.shift())

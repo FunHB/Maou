@@ -1,18 +1,17 @@
 import { Message } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
-import { Config } from '../config'
+import { channelType, Colors } from '../api'
+import { Command } from '../commands/command'
 import { Utils } from '../modules/utils'
 import { MuteCommand } from './mute'
 
-export class ResolveCommand implements Command {
+export class ResolveCommand extends Command {
     public name = 'resolve'
     public description = 'rozwiązuje zgłoszenie!\nDecyzje:\n\t**zatwierdź** Aliasy: `approve`, `zatwierdz`, `ok`\n\t**odrzuć** Aliasy: `reject`, `odrzuc`, `nah`\nPrzy zatwierdzeniu wymagane jest podanie czasu trwania!'
     public aliases: string[] = ['rozwiąż', 'rozwiąz', 'rozwiaż', 'rozwiaz']
-    public args = true
-    public roles: string[] = [Config.modRole]
+    public requireArgs = true
+    public group = 'mod'
     public usage = '<id zgłoszenia> <zatwierdź / odrzuć> [czas trwania] [powód]'
     public channelType: channelType = channelType.reports
-    public guildonly = true
     public cooldown = 0
 
     public async execute(message: Message, args: string[]): Promise<void> {

@@ -1,15 +1,13 @@
 import { Message, MessageEmbed } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
-import { Config } from '../config'
+import { Colors } from '../api'
+import { Command } from '../commands/command'
 
-export class ReactToMsgCommand implements Command {
-    public name = 'reacttomsg'
+export class ReactToMsgCommand extends Command {
+    public name = 'r2msg'
     public description = 'dodaje reakcje pod podaną wiadomość'
-    public args = true
-    public roles: string[] = [Config.modRole]
+    public requireArgs = true
+    public group = 'mod'
     public usage = '<id kanału> <id wiadomości> <reakcja>'
-    public channelType: channelType = channelType.normal
-    public guildonly = true
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const channel = message.guild.channels.cache.get(args.shift())

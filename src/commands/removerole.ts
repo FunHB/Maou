@@ -1,16 +1,15 @@
 import { Collection, Guild, Message, MessageEmbed, Role } from 'discord.js'
 import fs from 'fs'
-import { channelType, Colors, Command } from '../api'
+import { channelType, Colors } from '../api'
+import { Command } from './command'
 
-export class RemoveroleCommand implements Command {
-    public name = 'removerole'
+export class RemoveroleCommand extends Command {
+    public name = 'remove role'
     public description = 'Zdejmuje użytkownikowi role'
-    public aliases: string[] = ['zabierzrole', 'odbierzrole', 'zdejmijrole']
-    public args = true
+    public aliases: string[] = ['zdejmij role']
+    public requireArgs = true
     public usage = '<nazwa roli>'
     public channelType: channelType = channelType.botCommands
-    public guildonly = true
-    public cooldown = 10
 
     private _path = './data/addableRoles.json'
     private _roles: Collection<string, Role[]> = new Collection()

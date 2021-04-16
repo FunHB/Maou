@@ -1,17 +1,15 @@
 import { Message, MessageEmbed } from 'discord.js'
-import { channelType, Colors, Command } from '../api'
-import { Config } from '../config'
+import { Colors } from '../api'
+import { Command } from '../commands/command'
 import { Utils } from '../modules/utils'
 
-export class SendEMsgCommand implements Command {
+export class SendEMsgCommand extends Command {
     public name = 'sendemsg'
     public description = 'Wysyła wiadomość embed na podany kanał'
     public aliases: string[] = ['sendembed']
-    public args = true
-    public roles: string[] = [Config.modRole]
+    public requireArgs = true
+    public group = 'mod'
     public usage = '<id kanału> <kolor> <treść wiadomości>\nkolory: `error`, `info`, `success`, `warning`, `neutral`'
-    public channelType: channelType = channelType.normal
-    public guildonly = true
 
     public async execute(message: Message, args: string[]): Promise<void> {
         const channel = message.guild.channels.cache.get(args.shift())
