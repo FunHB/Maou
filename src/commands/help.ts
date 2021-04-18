@@ -49,7 +49,7 @@ export class HelpCommand extends Command {
 
         if (command.aliases) data.push({ name: "**Aliasy:**", value: `${command.aliases.join(', ')}` })
         if (command.description) data.push({ name: "**Opis:**", value: `${command.description}` })
-        if (command.usage) data.push({ name: "**Użycie:**", value: `${prefix}${command.name} ${command.usage}` })
+        if (command.usage) data.push({ name: "**Użycie:**", value: `${prefix}${command.group ? command.group + ' ' : ''}${command.name} ${command.usage}` })
 
         await channel.send(new MessageEmbed({
             color: Colors.Info,
