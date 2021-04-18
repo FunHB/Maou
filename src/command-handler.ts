@@ -91,7 +91,7 @@ export class CommandHandler {
         // check if command exist
         if (!command) return
 
-        const requireMod = command.group === 'mod'
+        const requireMod = messageContent.startsWith(this._modPrefix)
         const args: string[] = []
 
         messageContent = this.fixedMessageContent(messageContent, command)
@@ -221,8 +221,8 @@ export class CommandHandler {
     }
 
     private fixedMessageContent(messageContent: string, command: Command): string {
-        const regex = new RegExp(`(${command.name}|${command.aliases.join('|')})`, 'm')
+        const regex = new RegExp(`(${command.name}${command.aliases ? '|' + command.aliases.join('|') : ''})`, 'm')
         messageContent = messageContent.replace(regex, command.name)
-        return  messageContent.startsWith(this._modPrefix) ? messageContent.slice(this._modPrefix.length + 1).slice(command.name.length) : messageContent.slice(command.name.length)
+        return messageContent.startsWith(this._modPrefix) ? messageContent.slice(this._modPrefix.length + 1).slice(command.name.length) : messageContent.slice(command.name.length)
     }
 }

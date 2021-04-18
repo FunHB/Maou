@@ -4,7 +4,7 @@ import { channelType } from '../api'
 export class Command {
   public name: string
   public description: string
-  public aliases: string[] = []
+  public aliases: string[]
   public requireArgs = false
   public group: string
   public usage = ''
