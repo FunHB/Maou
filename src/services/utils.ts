@@ -1,6 +1,7 @@
-import { Collection, GuildMember, Message, MessageEmbed, User } from "discord.js"
-import { Colors } from "../api"
+import { Collection, Guild, GuildMember, Message, MessageAttachment, MessageEmbed, Role, User } from "discord.js"
+import { Colors } from "../api/colors"
 import { Config } from "../config"
+import fs from 'fs'
 
 export class Utils {
     // main methods
@@ -44,6 +45,71 @@ export class Utils {
         }
     }
 
+    public static getChannelCount(guild: Guild, type: string): number {
+        return guild.channels.cache.array().filter(channel => channel.type === type).length
+    }
+
+    // report
+    public static reportErrorCode(reported: string, reason: string, message: Message): number {
+        if (!reported.match(/[0-9]{18}/)) return 1
+        if (!reason) return 2
+        if (!message) return 3
+        return 0
+    }
+
+    public static getReportMessageFromErrorCode(errorCode: number): string {
+        const messages = [
+            'Id wiadomości się nie zgadza!',
+            'Musisz podać powód zgłoszenia!',
+            'upłynął limit czasu na zgłoszenie bądź wiadomosć nie znajduje się na tym kanale'
+        ]
+        return messages[errorCode-1]
+    }
+
+    public static getResolveDecision(decision: string): number {
+        switch (decision) {
+            case 'reject':
+            case 'odrzuć':
+            case 'odrzuc':
+            case 'nah':
+                return 0
+
+            case 'approve':
+            case 'zatwierdź':
+            case 'zatwierdz':
+            case 'ok':
+                return 1
+
+            default:
+                return 2
+        }
+    }
+
+    // recrutation
+    public static getRecrutationStatus(): boolean {
+        return fs.existsSync('./data/rekrutacja')
+    }
+
+    public static changeRecrutationStatus(): void {
+        if (this.getRecrutationStatus()) {
+            fs.unlinkSync('./data/rekrutacja')
+            return
+        }
+        fs.writeFileSync('./data/rekrutacja', '')
+    }
+
+    // addable roles
+    private static _path = './data/addableRoles.json'
+
+    public static get roles(): Collection<string, Role[]> { return this._roles }
+    private static _roles: Collection<string, Role[]> = new Collection()
+
+    public static setRoles(guild: Guild): void {
+        const object = JSON.parse(fs.readFileSync(this._path).toString() || '{}')
+        this._roles = new Collection(Object.keys(object).map(key => [key, guild.roles.cache.filter(role => object[key].includes(role.id)).array()]))
+        if (!this._roles.get(guild.id)) this._roles.set(guild.id, [])
+    }
+
     // reports
     private static _reports: Collection<string, { reported: Message }> = new Collection()
 
@@ -60,6 +126,38 @@ export class Utils {
     }
 
     // mod commands methods
+
+    public static getEmbed(color: Colors | string, messageContent: string): MessageEmbed {
+        const regex = /(https:\/\/)\S*[(.png)(.jpg)(.gif)(.jpeg)(.mp4)(.mp3)]/gm
+        const links: string[] = messageContent.match(regex)
+        const content = messageContent.replace(regex, '')
+
+        const embed = new MessageEmbed().setColor(color)
+
+        if (links && links.length > 0) {
+            embed.setImage(links[0])
+            if (links.length > 1) embed.setThumbnail(links[1])
+        }
+
+        if (content.length > 0) embed.setDescription(content)
+
+        return embed
+    }
+
+    public static getAttachmentsAndMessageContent(messageContent: string): { attachments: MessageAttachment[], messageContent: string } {
+        const regex = /(https:\/\/)\S*[(.png)(.jpg)(.gif)(.jpeg)(.mp4)(.mp3)]/gm
+        const links: string[] = messageContent.match(regex)
+        const attachments: MessageAttachment[] = []
+
+        if (links) {
+            links.forEach(link => {
+                attachments.push(new MessageAttachment(link, Math.random().toString(36).substring(2) + '.' + link.split('.').pop()))
+            })
+        }
+
+        return { attachments: attachments, messageContent: messageContent.replace(regex, '') }
+    }
+
     public static errorCode(message: Message, member: GuildMember, checkBannable = false): number {
         if (Config.modLogsChannel === undefined) return 1
         if (!member) return 2

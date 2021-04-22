@@ -1,8 +1,8 @@
 import { Client } from 'discord.js'
 import { Config } from './config'
 import { CommandHandler } from './command-handler'
-import { MutedManager } from './modules/mutedManager'
-import { MessageDelete } from './modules/messageDelete'
+import { MutedManager } from './services/mutedManager'
+import { MessageDelete } from './services/messageDelete'
 
 export default class Bot {
     public static start(client: Client): void {

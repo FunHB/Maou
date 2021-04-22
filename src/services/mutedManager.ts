@@ -1,6 +1,6 @@
 import { Collection, Message } from 'discord.js'
 import fs from 'fs'
-import { IMuted } from "../api"
+import { IMuted } from "../api/IMuted"
 import { Config } from '../config'
 import { Utils } from './utils'
 
