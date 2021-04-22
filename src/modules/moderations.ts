@@ -1,4 +1,4 @@
-import { MessageEmbed, Permissions } from 'discord.js'
+import { GuildMember, MessageEmbed, Permissions } from 'discord.js'
 import { channelType } from '../api/channelType'
 import { Utils } from '../services/utils'
 import { Command } from '../api/command'
@@ -362,6 +362,43 @@ export class Moderations implements Module {
 
                 MutedManager.setMuted(guild.id)
                 MutedManager.removeMuted(guild.id, member.id)
+            }
+        },
+
+        {
+            name: 'rosyjska ruletka',
+            description: 'muahahahahaha',
+            requireArgs: true,
+            usage: '<"nagroda"> <użytkownicy (max. 20)>\nNagrody: `ban`, `mute`, `kick`, `nic`',
+
+            execute: async function (message, args) {
+                const { channel } = message
+
+                const type = args.shift().toLowerCase()
+                const members: GuildMember[] = []
+
+                for (let i = 0; i < args.length; ++i) {
+                    members.push(await Utils.getMember(message, args[i]))
+                }
+
+                if (members.length > 20 || members.length < 2) {
+                    await channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: `Podano błędną ilość użytkowników!`
+                    }))
+                    return
+                }
+
+                const winner = members[Math.floor(Math.random() * members.length)]
+
+                await channel.send(new MessageEmbed({
+                    color: Colors.Success,
+                    description: `Zwycięscą został ${winner.nickname ? winner.nickname : winner.user.username}`
+                }))
+
+                if (['ban', 'mute', 'kick'].includes(type)) {
+                    new Moderations().commands.find(command => command.name === type).execute(message, [winner.id, `${type === 'mute' ? 24 : ''}`, 'Źli moderatorzy znowu się bawią kosztem użytkowników'])
+                }
             }
         },
 
