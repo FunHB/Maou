@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js'
+import { Message, MessageEmbed } from 'discord.js'
 import arts from '../data/artdatabase.json'
 import { channelType } from '../api/channelType'
 import { Utils } from '../services/utils'
@@ -249,9 +249,22 @@ export class Helper implements Module {
                 const reportChannel = message.guild.channels.cache.get(Config.reportsChannel)
                 const reportedID = args.shift()
                 const reason = args.join(' ')
-                const reportedMessage = await channel.messages.fetch(reportedID)
-                const errorCode = Utils.reportErrorCode(reportedID, reason, reportedMessage)
 
+                let reportedMessage: Message
+
+                try {
+                    reportedMessage = await channel.messages.fetch(reportedID)
+                } catch (exception) {
+                    await channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: 'nie znaleziono wiadomości'
+                    }))
+                    console.info(`[Report] ${exception}`)
+                    return
+                }
+
+                const errorCode = Utils.reportErrorCode(reportedID, reason, reportedMessage)
+                
                 if (errorCode) {
                     await channel.send(new MessageEmbed({
                         color: Colors.Error,

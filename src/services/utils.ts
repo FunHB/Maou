@@ -6,9 +6,9 @@ import fs from 'fs'
 export class Utils {
     // main methods
     public static dateToString(date: Date, seconds = true): string {
-        const out = `${('0' + date.getUTCDate()).slice(-2)}.${('0' + (date.getUTCMonth() + 1)).slice(-2)}.${date.getUTCFullYear()} ${date.getUTCHours() !== 24 ? ('0' + (date.getUTCHours() + 1)).slice(-2) : '00'}:${('0' + date.getUTCMinutes()).slice(-2)}`
+        const out = `${('0' + date.getDate()).slice(-2)}.${('0' + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()} ${date.getHours() !== 24 ? ('0' + (date.getHours())).slice(-2) : '00'}:${('0' + date.getMinutes()).slice(-2)}`
         if (!seconds) return out
-        return `${out}:${('0' + date.getUTCSeconds()).slice(-2)}`
+        return `${out}:${('0' + date.getSeconds()).slice(-2)}`
     }
 
     public static async getMember(message: Message, identificator: string, selfOnNone = false): Promise<GuildMember> {
@@ -53,7 +53,7 @@ export class Utils {
     public static reportErrorCode(reported: string, reason: string, message: Message): number {
         if (!reported.match(/[0-9]{18}/)) return 1
         if (!reason) return 2
-        if (!message) return 3
+        if (Date.now() - message.createdTimestamp > 10800000) return 3
         return 0
     }
 
@@ -61,7 +61,7 @@ export class Utils {
         const messages = [
             'Id wiadomości się nie zgadza!',
             'Musisz podać powód zgłoszenia!',
-            'upłynął limit czasu na zgłoszenie bądź wiadomosć nie znajduje się na tym kanale'
+            'Wiadmości starszych niż trzy godziny nie można zgłaszać'
         ]
         return messages[errorCode-1]
     }
@@ -174,7 +174,7 @@ export class Utils {
             `Nie znaleziono osoby!`,
             `Nie możesz ${this.getTypeWord(type)} samego siebie!`,
             `Nie możesz ${this.getTypeWord(type)} bota!`,
-            `Nie masz wystarczających uprawnień, aby ${this.getTypeWord(type)} tego użytkownika!`,
+            `Nie możesz go ${this.getTypeWord(type)} baakaa!`,
             'Ta osoba jest już wyciszona!'
         ]
 
