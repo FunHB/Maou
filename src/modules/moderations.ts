@@ -1,4 +1,4 @@
-import { GuildMember, MessageEmbed, Permissions } from 'discord.js'
+import { GuildMember, Message, MessageEmbed, Permissions } from 'discord.js'
 import { channelType } from '../api/channelType'
 import { Utils } from '../services/utils'
 import { Command } from '../api/command'
@@ -171,8 +171,17 @@ export class Moderations implements Module {
             usage: '<id wiadomości> <id kanału>',
 
             execute: async function (message, args) {
-                const quoted = await message.channel.messages.fetch(args.shift())
-                if (!quoted) return
+                let quoted: Message
+
+                try {
+                    quoted = await message.channel.messages.fetch(args.shift())
+                } catch (exception) {
+                    await message.channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: 'nie znaleziono wiadomości'
+                    }))
+                    return
+                }
 
                 const channel = message.guild.channels.cache.get(args.shift())
                 if (!channel) return
@@ -201,9 +210,17 @@ export class Moderations implements Module {
 
                 if (!channel) return
 
-                const messageForReaction = channel.isText() ? await channel.messages.fetch(args.shift()) : null
+                let messageForReaction: Message
 
-                if (!messageForReaction) return
+                try {
+                    messageForReaction = channel.isText() && await channel.messages.fetch(args.shift())
+                } catch (exception) {
+                    await message.channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: 'nie znaleziono wiadomości'
+                    }))
+                    return
+                }
 
                 const reaction = args.shift()
 
@@ -245,7 +262,19 @@ export class Moderations implements Module {
                 const report = Utils.getReport().get(reportID)
                 if (!report) return
                 const { reported } = report
-                const reportMessage = await channel.messages.fetch(reportID)
+
+                let reportMessage: Message
+
+                try {
+                    reportMessage = await channel.messages.fetch(reportID)
+                } catch (exception) {
+                    await message.channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: 'nie znaleziono wiadomości'
+                    }))
+                    return
+                }
+                
                 const decision = Utils.getResolveDecision(args.shift().toLowerCase())
                 const member = await Utils.getMember(message, reported.author.id)
 

@@ -41,6 +41,7 @@ export class Utils {
                 return 'RANDOM'
 
             default:
+                if ((/^#[0-9A-Fa-f]{6}$/).test(color)) return color
                 return null
         }
     }
