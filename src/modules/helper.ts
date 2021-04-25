@@ -1,12 +1,15 @@
 import { Message, MessageEmbed } from 'discord.js'
-import arts from '../data/artdatabase.json'
 import { channelType } from '../api/channelType'
-import { Utils } from '../services/utils'
+import { AddableRoles } from '../extentions/addableRoles'
+import { Recrutation } from '../extentions/recrutation'
+import { Utils } from '../extentions/utils'
 import { Command } from '../api/command'
 import { Colors } from '../api/colors'
 import { Config } from '../config'
 import { Module } from '../api/module'
 import { getHelpForModule } from '../services/help'
+import { Reports } from '../extentions/reports'
+import { Arts } from '../extentions/arts'
 
 export class Helper implements Module {
     public group = ''
@@ -23,8 +26,8 @@ export class Helper implements Module {
             execute: async function (message, args) {
                 const { guild, channel, member } = message
                 const identificator = args.join(' ')
-                Utils.setRoles(guild)
-                const roles = Utils.roles.get(guild.id)
+                AddableRoles.setRoles(guild)
+                const roles = AddableRoles.roles.get(guild.id)
                 const role = roles.find(role => role.id == identificator || role.name.toLowerCase() == identificator.toLowerCase())
 
                 if (!role) {
@@ -59,13 +62,12 @@ export class Helper implements Module {
             channelType: channelType.artschannel,
 
             execute: async function (message) {
-                const index = Math.floor(Math.random() * arts.length)
+                const artUrl = await Arts.getRandomImage()
 
                 await message.channel.send(new MessageEmbed({
                     color: 'RANDOM',
                     description: `<@!${message.author.id}> o to obrazek dla ciebie <3`,
-                    image: { url: arts[index] },
-                    footer: { text: `Index: ${index}` }
+                    image: { url: artUrl },
                 }))
             }
         },
@@ -147,7 +149,7 @@ export class Helper implements Module {
                 const roleID = '820040781079117881'
                 const categoryID = '769188299692310538'
 
-                if (!Utils.getRecrutationStatus()) {
+                if (!Recrutation.getRecrutationStatus()) {
                     await channel.send(new MessageEmbed({
                         color: Colors.Error,
                         description: 'Rekrutacja została zakończona!'
@@ -208,8 +210,8 @@ export class Helper implements Module {
             execute: async function (message, args) {
                 const { guild, channel, member } = message
                 const identificator = args.join(' ')
-                Utils.setRoles(guild)
-                const roles = Utils.roles.get(guild.id)
+                AddableRoles.setRoles(guild)
+                const roles = AddableRoles.roles.get(guild.id)
                 const role = roles.find(role => role.id == identificator || role.name.toLowerCase() == identificator.toLowerCase())
 
                 if (!role) {
@@ -263,12 +265,12 @@ export class Helper implements Module {
                     return
                 }
 
-                const errorCode = Utils.reportErrorCode(reportedID, reason, reportedMessage)
+                const errorCode = Reports.reportErrorCode(reportedID, reason, reportedMessage)
                 
                 if (errorCode) {
                     await channel.send(new MessageEmbed({
                         color: Colors.Error,
-                        description: Utils.getReportMessageFromErrorCode(errorCode)
+                        description: Reports.getReportMessageFromErrorCode(errorCode)
                     }))
                     return
                 }
@@ -297,7 +299,7 @@ export class Helper implements Module {
                             { name: 'Wiadomość:', value: reportedMessage.content }
                         ]
                     }))
-                    Utils.setReports(reportMessage.id, reportedMessage)
+                    Reports.setReports(reportMessage.id, reportedMessage)
                 }
             }
         },
@@ -346,8 +348,8 @@ export class Helper implements Module {
 
             execute: async function (message) {
                 const { guild, channel } = message
-                Utils.setRoles(guild)
-                const roles = Utils.roles.get(guild.id)
+                AddableRoles.setRoles(guild)
+                const roles = AddableRoles.roles.get(guild.id)
 
                 await channel.send(new MessageEmbed({
                     color: Colors.Info,
