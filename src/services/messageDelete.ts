@@ -1,7 +1,7 @@
 import { Message, MessageEmbed, PartialMessage, User } from "discord.js";
 import { Colors } from "../api/colors";
 import { Config } from "../config";
-import { Utils } from './utils'
+import { Utils } from "../extentions/utils";
 
 export class MessageDelete {
     public static async handle(message: Message | PartialMessage): Promise<void> {

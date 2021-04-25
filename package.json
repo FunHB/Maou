@@ -20,7 +20,6 @@
     "analyze": "size-limit --why",
     "watch": "tsdx watch"
   },
-  "peerDependencies": {},
   "husky": {
     "hooks": {
       "pre-commit": "tsdx lint"
@@ -48,6 +47,7 @@
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.9.2",
     "@types/node": "^14.14.31",
+    "@types/node-fetch": "^2.5.10",
     "husky": "^5.0.9",
     "size-limit": "^4.9.2",
     "tsdx": "^0.14.1",
@@ -55,8 +55,8 @@
     "typescript": "^4.1.5"
   },
   "dependencies": {
-    "axios": "^0.21.1",
     "discord.js": "^12.5.3",
+    "node-fetch": "^2.6.1",
     "ts-dotenv": "^0.8.3"
   }
 }

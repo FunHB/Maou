@@ -1,6 +1,7 @@
 import { GuildMember, Message, MessageEmbed, Permissions } from 'discord.js'
 import { channelType } from '../api/channelType'
-import { Utils } from '../services/utils'
+import { Utils } from '../extentions/utils'
+import { UserManagement } from '../extentions/userManagement'
 import { Command } from '../api/command'
 import { Colors } from '../api/colors'
 import { Module } from '../api/module'
@@ -8,6 +9,8 @@ import { Config } from '../config'
 import { getHelpForModule } from '../services/help'
 import { MutedManager } from '../services/mutedManager'
 import { IMuted } from '../api/IMuted'
+import { Recrutation } from '../extentions/recrutation'
+import { Reports } from '../extentions/reports'
 
 export class Moderations implements Module {
     public group = 'mod'
@@ -23,22 +26,22 @@ export class Moderations implements Module {
                 const member = await Utils.getMember(message, args.shift())
                 const reasonArg = args.join(' ') || 'Brak.'
                 const modlogChannel = message.guild.channels.cache.get(Config.modLogsChannel)
-                const errorCode = Utils.errorCode(message, member, true)
+                const errorCode = UserManagement.errorCode(message, member, true)
                 const type = this.name
 
                 if (errorCode) {
                     await message.channel.send(new MessageEmbed({
                         color: Colors.Error,
-                        description: Utils.getMessageFromErrorCode(errorCode, type)
+                        description: UserManagement.getMessageFromErrorCode(errorCode, type)
                     }))
                     return
                 }
 
                 await member.ban({ reason: reasonArg })
-                await message.channel.send(Utils.getMessageFromType(member, type))
+                await message.channel.send(UserManagement.getMessageFromType(member, type))
 
                 if (modlogChannel.isText()) {
-                    await modlogChannel.send(Utils.getEmbedFromType(message, member.user, reasonArg, type))
+                    await modlogChannel.send(UserManagement.getEmbedFromType(message, member.user, reasonArg, type))
                 }
             }
         },
@@ -83,22 +86,22 @@ export class Moderations implements Module {
                 const member = await Utils.getMember(message, args.shift())
                 const reasonArg = args.join(' ') || 'Brak.'
                 const modlogChannel = message.guild.channels.cache.get(Config.modLogsChannel)
-                const errorCode = Utils.errorCode(message, member, true)
+                const errorCode = UserManagement.errorCode(message, member, true)
                 const type = this.name
 
                 if (errorCode) {
                     await message.channel.send(new MessageEmbed({
                         color: Colors.Error,
-                        description: Utils.getMessageFromErrorCode(errorCode, type)
+                        description: UserManagement.getMessageFromErrorCode(errorCode, type)
                     }))
                     return
                 }
 
                 await member.kick(reasonArg)
-                await message.channel.send(Utils.getMessageFromType(member, type))
+                await message.channel.send(UserManagement.getMessageFromType(member, type))
 
                 if (modlogChannel.isText()) {
-                    await modlogChannel.send(Utils.getEmbedFromType(message, member.user, reasonArg, type))
+                    await modlogChannel.send(UserManagement.getEmbedFromType(message, member.user, reasonArg, type))
                 }
             }
         },
@@ -118,7 +121,7 @@ export class Moderations implements Module {
                 const hours = duration - (days * 24)
                 const reasonArg = args.join(' ') || 'Brak.'
                 const modlogChannel = guild.channels.cache.get(Config.modLogsChannel)
-                const errorCode = Utils.errorCode(message, member)
+                const errorCode = UserManagement.errorCode(message, member)
                 const type = this.name
 
                 if (isNaN(duration)) {
@@ -140,16 +143,16 @@ export class Moderations implements Module {
                 if (errorCode) {
                     await channel.send(new MessageEmbed({
                         color: Colors.Error,
-                        description: Utils.getMessageFromErrorCode(errorCode, type)
+                        description: UserManagement.getMessageFromErrorCode(errorCode, type)
                     }))
                     return
                 }
 
                 await member.roles.add(Config.muteRole)
-                await channel.send(Utils.getMessageFromType(member, type))
+                await channel.send(UserManagement.getMessageFromType(member, type))
 
                 if (modlogChannel.isText()) {
-                    await modlogChannel.send(Utils.getEmbedFromType(message, member.user, reasonArg, type).addField('Na ile:', `${days} dni ${hours} godzin`))
+                    await modlogChannel.send(UserManagement.getEmbedFromType(message, member.user, reasonArg, type).addField('Na ile:', `${days} dni ${hours} godzin`))
                 }
 
                 const muteUser: IMuted = {
@@ -240,11 +243,11 @@ export class Moderations implements Module {
             description: 'Rozpoczyna, lub kończy rekrutacje!',
 
             execute: async function (message) {
-                Utils.changeRecrutationStatus()
+                Recrutation.changeRecrutationStatus()
 
                 await message.channel.send(new MessageEmbed({
                     color: Colors.Success,
-                    description: `Status rekrutacji został zmianiony na: ${Utils.getRecrutationStatus() ? '`Włączona`' : '`Wyłączona`'}!`
+                    description: `Status rekrutacji został zmianiony na: ${Recrutation.getRecrutationStatus() ? '`Włączona`' : '`Wyłączona`'}!`
                 }))
             }
         },
@@ -259,7 +262,7 @@ export class Moderations implements Module {
             execute: async function (message, args) {
                 const { channel } = message
                 const reportID = args.shift()
-                const report = Utils.getReport().get(reportID)
+                const report = Reports.getReport().get(reportID)
                 if (!report) return
                 const { reported } = report
 
@@ -275,7 +278,7 @@ export class Moderations implements Module {
                     return
                 }
                 
-                const decision = Utils.getResolveDecision(args.shift().toLowerCase())
+                const decision = Reports.getResolveDecision(args.shift().toLowerCase())
                 const member = await Utils.getMember(message, reported.author.id)
 
 
@@ -283,13 +286,13 @@ export class Moderations implements Module {
 
                 if (decision) {
                     await new Moderations().commands.find(command => command.name === 'mute').execute(message, [member.id, ...args])
-                    if (Utils.errorCode(message, member) && Utils.errorCode(message, member) != 6) return
+                    if (UserManagement.errorCode(message, member) && UserManagement.errorCode(message, member) != 6) return
                 }
 
                 await message.delete()
                 await reportMessage.edit(reportMessage.embeds.shift().setColor(decision ? Colors.Success : Colors.Error).setTitle(decision ? 'Zatwierdzony' : 'Odrzucony'))
 
-                Utils.deleteReport(reportMessage.id)
+                Reports.deleteReport(reportMessage.id)
             }
         },
 
@@ -309,7 +312,7 @@ export class Moderations implements Module {
                 if (!color) return
 
                 if (channel.isText()) {
-                    await channel.send(Utils.getEmbed(color, args.join(' ')))
+                    await channel.send(UserManagement.getEmbed(color, args.join(' ')))
                 }
 
                 await message.channel.send(new MessageEmbed({
@@ -330,7 +333,7 @@ export class Moderations implements Module {
 
                 if (!channel) return
 
-                const { attachments, messageContent } = Utils.getAttachmentsAndMessageContent(args.join(' '))
+                const { attachments, messageContent } = UserManagement.getAttachmentsAndMessageContent(args.join(' '))
 
                 if (channel.isText()) {
                     await channel.send(messageContent, {
@@ -387,7 +390,7 @@ export class Moderations implements Module {
                 }
 
                 await member.roles.remove(role)
-                await message.channel.send(Utils.getMessageFromType(member, type))
+                await message.channel.send(UserManagement.getMessageFromType(member, type))
 
                 MutedManager.setMuted(guild.id)
                 MutedManager.removeMuted(guild.id, member.id)

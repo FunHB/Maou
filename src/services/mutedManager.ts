@@ -2,7 +2,7 @@ import { Collection, Message } from 'discord.js'
 import fs from 'fs'
 import { IMuted } from "../api/IMuted"
 import { Config } from '../config'
-import { Utils } from './utils'
+import { Utils } from '../extentions/utils'
 
 export class MutedManager {
     private static mutedUsers: Collection<string, IMuted[]> = new Collection()
