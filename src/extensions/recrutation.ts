@@ -2,14 +2,14 @@ import fs from 'fs'
 
 export class Recrutation {
     public static getRecrutationStatus(): boolean {
-        return fs.existsSync('./data/rekrutacja')
+        return fs.existsSync('rekrutacja')
     }
 
     public static changeRecrutationStatus(): void {
         if (this.getRecrutationStatus()) {
-            fs.unlinkSync('./data/rekrutacja')
+            fs.unlinkSync('rekrutacja')
             return
         }
-        fs.writeFileSync('./data/rekrutacja', '')
+        fs.writeFileSync('rekrutacja', '')
     }
 }

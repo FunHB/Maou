@@ -1,5 +1,5 @@
 import { Message } from 'discord.js'
-import { channelType } from './channelType'
+import { channelType } from '../preconditions/requireChannel'
 
 export class Command {
   public name: string
@@ -9,6 +9,7 @@ export class Command {
   public usage?: string
   public channelType?: channelType = channelType.normal
   public guildonly? = true
+  public precondition?: (...args: any) => any
 
-  public async execute(_message: Message, _args: string[]): Promise<void> {}
+  public execute: (message: Message, args: string[]) => Promise<void>
 }

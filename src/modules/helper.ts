@@ -1,15 +1,19 @@
-import { Message, MessageEmbed } from 'discord.js'
-import { channelType } from '../api/channelType'
-import { AddableRoles } from '../extentions/addableRoles'
-import { Recrutation } from '../extentions/recrutation'
-import { Utils } from '../extentions/utils'
+import { Message, MessageEmbed, MessageReaction, Permissions } from 'discord.js'
+import { AddableRoles } from '../extensions/addableRoles'
+import { Recrutation } from '../extensions/recrutation'
+import { Utils } from '../extensions/utils'
 import { Command } from '../api/command'
 import { Colors } from '../api/colors'
 import { Config } from '../config'
 import { Module } from '../api/module'
-import { getHelpForModule } from '../services/help'
-import { Reports } from '../extentions/reports'
-import { Arts } from '../extentions/arts'
+import { getHelpForModule } from '../extensions/help'
+import { Arts } from '../extensions/arts'
+import { ExpManager } from '../services/expManager'
+import { Moderations } from './moderations'
+import { channelType } from '../preconditions/requireChannel'
+import { PenaltyEntity, PenaltyType } from '../database/entity/Penalty'
+import { ReportEntity } from '../database/entity/Report'
+import { DatabaseManager } from '../database/databaseManager'
 
 export class Helper implements Module {
     public group = ''
@@ -21,13 +25,12 @@ export class Helper implements Module {
             aliases: ['add role'],
             requireArgs: true,
             usage: '<nazwa roli>',
-            channelType: channelType.botCommands,
+            channelType: channelType.commands,
 
             execute: async function (message, args) {
                 const { guild, channel, member } = message
                 const identificator = args.join(' ')
-                AddableRoles.setRoles(guild)
-                const roles = AddableRoles.roles.get(guild.id)
+                const roles = await AddableRoles.getRoles(guild)
                 const role = roles.find(role => role.id == identificator || role.name.toLowerCase() == identificator.toLowerCase())
 
                 if (!role) {
@@ -59,7 +62,7 @@ export class Helper implements Module {
             name: 'art',
             description: 'Wyświetla losowy obrazke z anime',
             aliases: ['obrazek', 'fanart'],
-            channelType: channelType.artschannel,
+            channelType: channelType.arts,
 
             execute: async function (message) {
                 const artUrl = await Arts.getRandomImage()
@@ -77,7 +80,7 @@ export class Helper implements Module {
             description: 'Wyświetla twój lub czyjś avatar',
             aliases: ['avatar'],
             usage: '[użytkownik]',
-            channelType: channelType.botCommands,
+            channelType: channelType.commands,
 
             execute: async function (message, args) {
                 const member = await Utils.getMember(message, args.join(' '), true)
@@ -102,9 +105,10 @@ export class Helper implements Module {
             name: 'info',
             description: 'Wyświetla informacje o bocie',
             aliases: ['informacje'],
-            channelType: channelType.botCommands,
+            channelType: channelType.commands,
 
             execute: async function (message) {
+                const config = new Config()
                 const { client } = message
                 await message.channel.send(new MessageEmbed({
                     color: Colors.Info,
@@ -117,8 +121,8 @@ export class Helper implements Module {
                         url: Utils.getAvatar(client.user)
                     },
                     fields: [
-                        { name: 'Autor', value: Config.botAuthor, inline: true },
-                        { name: 'Wersja', value: Config.botVersion, inline: true }
+                        { name: 'Autor', value: config.creator, inline: true },
+                        { name: 'Wersja', value: config.version, inline: true }
                     ],
                     footer: { text: `Aktualny czas ${Date().toLocaleString().slice(16, 21)}` }
                 }))
@@ -128,7 +132,7 @@ export class Helper implements Module {
         {
             name: 'ping',
             description: 'Sprawdza opóźnienie między botem a serwerem',
-            channelType: channelType.botCommands,
+            channelType: channelType.commands,
 
             execute: async function (message) {
                 const pingMessage = await message.channel.send('Ping?')
@@ -145,29 +149,28 @@ export class Helper implements Module {
             description: 'Pozwala przystąpić do rekrutacji',
 
             execute: async function (message) {
-                const { guild, channel } = message
-                const roleID = '820040781079117881'
-                const categoryID = '769188299692310538'
+                const { guild, channel, member } = message
+                const config = new Config()
 
                 if (!Recrutation.getRecrutationStatus()) {
                     await channel.send(new MessageEmbed({
                         color: Colors.Error,
-                        description: 'Rekrutacja została zakończona!'
+                        description: 'Aktualnie nie prowadzimy rekrutacji!'
                     }))
                     return
                 }
 
-                if (guild.channels.cache.find(channel => channel.name == message.author.username.toLowerCase())) {
+                if (guild.channels.cache.find(channel => channel.name == (member.nickname || member.user.username).toLowerCase())) {
                     await channel.send(new MessageEmbed({
                         color: Colors.Error,
-                        description: 'Już masz kanał rekrutacyjny!'
+                        description: 'Kanał rekrutacyjny już istnieje!'
                     }))
                     return
                 }
 
-                const recrutationChannel = await guild.channels.create(message.author.username, {
+                const recrutationChannel = await guild.channels.create((member.nickname || member.user.username), {
                     type: 'text',
-                    parent: categoryID,
+                    parent: config.channels.recrutation,
                     permissionOverwrites: [
                         {
                             type: 'role',
@@ -176,13 +179,13 @@ export class Helper implements Module {
                         },
                         {
                             type: 'member',
-                            id: message.author.id,
+                            id: member.id,
                             allow: ['VIEW_CHANNEL']
                         },
                         {
                             type: 'role',
-                            id: roleID,
-                            allow: ['VIEW_CHANNEL', 'MANAGE_MESSAGES']
+                            id: config.roles.recrutation,
+                            allow: ['VIEW_CHANNEL', 'MANAGE_MESSAGES', 'MANAGE_CHANNELS', 'MANAGE_ROLES']
                         }
                     ]
                 })
@@ -191,11 +194,7 @@ export class Helper implements Module {
                     color: Colors.Success,
                     description: 'Zgłoszenie zostało przyjęte.'
                 }))
-
-                await recrutationChannel.send(new MessageEmbed({
-                    color: Colors.Info,
-                    description: 'Witamy na Twoim prywatnym kanale rekrutacyjnym. Chcesz spróbować swoich sił jako tłumacz, korektor, czy uploader?'
-                }))
+                await recrutationChannel.send(`${config.messages.recrutation.replace(/({user})/g, `<@${member.id}>`)} (<@&${config.roles.recrutation}>)`)
             }
         },
 
@@ -205,13 +204,12 @@ export class Helper implements Module {
             aliases: ['zdejmij role'],
             requireArgs: true,
             usage: '<nazwa roli>',
-            channelType: channelType.botCommands,
+            channelType: channelType.commands,
 
             execute: async function (message, args) {
                 const { guild, channel, member } = message
                 const identificator = args.join(' ')
-                AddableRoles.setRoles(guild)
-                const roles = AddableRoles.roles.get(guild.id)
+                const roles = await AddableRoles.getRoles(guild)
                 const role = roles.find(role => role.id == identificator || role.name.toLowerCase() == identificator.toLowerCase())
 
                 if (!role) {
@@ -247,31 +245,30 @@ export class Helper implements Module {
             usage: '<id wiadomości> <powód zgłoszenia>',
 
             execute: async function (message, args) {
-                const { channel, author, guild } = message
-                const reportChannel = message.guild.channels.cache.get(Config.reportsChannel)
+                const config = new Config()
+                const { channel, member, guild } = message
+                const reportChannel = message.guild.channels.cache.get(config.channels.reports)
                 const reportedID = args.shift()
                 const reason = args.join(' ')
+
+                if (!reason) {
+                    await channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: 'Musisz podać powód zgłoszenia!'
+                    }))
+                }
 
                 let reportedMessage: Message
 
                 try {
                     reportedMessage = await channel.messages.fetch(reportedID)
+                    if (Date.now() - reportedMessage.createdTimestamp > 10800000) throw 'Time expired'
                 } catch (exception) {
                     await channel.send(new MessageEmbed({
                         color: Colors.Error,
-                        description: 'nie znaleziono wiadomości'
+                        description: 'nie znaleziono wiadomości, lub wiadomość jest starsza niż 3 godziny!'
                     }))
                     console.info(`[Report] ${exception}`)
-                    return
-                }
-
-                const errorCode = Reports.reportErrorCode(reportedID, reason, reportedMessage)
-                
-                if (errorCode) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: Reports.getReportMessageFromErrorCode(errorCode)
-                    }))
                     return
                 }
 
@@ -284,22 +281,58 @@ export class Helper implements Module {
                     description: 'Wiadomość została zgłoszona!'
                 }))
 
-                if (reportChannel.isText()) {
+                if (member.id === reportedMessage.author.id) {
+                    const penalty = new PenaltyEntity({
+                        user: member.id,
+                        guild: member.guild.id,
+                        reason: 'Skoro tak bardzo chcesz',
+                        startDate: message.createdAt,
+                        duration: 24,
+                        type: PenaltyType.mute
+                    })
+
+                    await member.roles.add(config.roles.mute)
+                    await DatabaseManager.save(penalty)
+
+                    if (config.channels.modLogs) {
+                        await Moderations.notifyAboutPenalty(guild, member.user, penalty, 'Maou')
+                    }
+
+                    await channel.send(new MessageEmbed({
+                        color: Colors.Success,
+                        description: `<@${member.id}> został wyciszony`
+                    }))
+                    return
+                }
+
+                if (reportChannel && reportChannel.isText()) {
                     const reportMessage = await reportChannel.send(new MessageEmbed({
                         color: Colors.Info,
-                        description: 'Report',
+                        title: 'Report',
+                        description: reportedMessage.content,
                         fields: [
-                            { name: 'Zgłoszone przez:', value: `Użytkownik: <@!${author.id}> ID: ${author.id}` },
+                            { name: 'Zgłoszone przez:', value: `Użytkownik: <@!${member.id}> ID: ${member.id}` },
                             { name: 'Zgłoszona osoba:', value: `Użytkownik: <@!${reportedMessage.author.id}> ID: ${reportedMessage.author.id}` },
                             { name: 'Zgłoszono na kanale:', value: `<#${channel.id}>` },
                             { name: 'Id zgłoszonej wiadmości:', value: reportedID },
                             { name: 'Link do zgłoszonej wiadomości:', value: `https://discord.com/channels/${guild.id}/${channel.id}/${reportedID}` },
                             { name: 'Czas:', value: Utils.dateToString(message.createdAt) },
-                            { name: 'Powód:', value: reason },
-                            { name: 'Wiadomość:', value: reportedMessage.content }
+                            { name: 'Powód:', value: reason.substring(0, 1023) },
                         ]
                     }))
-                    Reports.setReports(reportMessage.id, reportedMessage)
+
+                    const report = new ReportEntity({
+                        reportId: reportMessage.id,
+                        reportedUserId: reportedMessage.author.id,
+                        reportingUserId: member.id,
+                        channelId: channel.id,
+                        messageId: reportedID,
+                        date: message.createdAt,
+                        reason: reason,
+                        message: reportedMessage.content
+                    })
+
+                    await DatabaseManager.save(report)
                 }
             }
         },
@@ -308,7 +341,7 @@ export class Helper implements Module {
             name: 'serverinfo',
             description: 'Wyświetla informacje o serwerze',
             aliases: ['sinfo'],
-            channelType: channelType.botCommands,
+            channelType: channelType.commands,
 
             execute: async function (message) {
                 const { guild, channel } = message
@@ -344,16 +377,15 @@ export class Helper implements Module {
             name: 'wypisz role',
             description: 'Wypisuje możliwe do nadania sobie role',
             aliases: ['show roles'],
-            channelType: channelType.botCommands,
+            channelType: channelType.commands,
 
             execute: async function (message) {
                 const { guild, channel } = message
-                AddableRoles.setRoles(guild)
-                const roles = AddableRoles.roles.get(guild.id)
+                const roles = await AddableRoles.getRoles(guild)
 
                 await channel.send(new MessageEmbed({
                     color: Colors.Info,
-                    description: roles.map(role => role).join('\n')
+                    description: roles.map(role => role).join('\n') || 'Brak.'
                 }))
             }
         },
@@ -363,7 +395,7 @@ export class Helper implements Module {
             description: 'wyświetla informacje o użytkowniku',
             aliases: ['who is'],
             usage: '[użytkownik]',
-            channelType: channelType.botCommands,
+            channelType: channelType.commands,
 
             execute: async function (message, args) {
                 const member = await Utils.getMember(message, args.join(' '), true)
@@ -371,7 +403,7 @@ export class Helper implements Module {
                 if (!member) return
 
                 const { user } = member
-                const roles = member.roles.cache.filter(role => role.name !== '@everyone').sort((roleA , roleB) => roleB.position - roleA.position).map(role => role)
+                const roles = member.roles.cache.filter(role => role.name !== '@everyone').sort((roleA, roleB) => roleB.position - roleA.position).map(role => role)
 
                 await message.channel.send(new MessageEmbed({
                     color: Colors.Info,
@@ -396,11 +428,145 @@ export class Helper implements Module {
         },
 
         {
+            name: 'iledopoziomu',
+            description: 'Pokazuje brakujące punkty doświadczenia do awansu na kolejny poziom',
+            aliases: ['idp', 'howmuchtolevelup', 'hmtlu'],
+
+            execute: async function (message) {
+                const { channel, member } = message
+
+                const user = await ExpManager.getUserOrCreate(member.id)
+                const diff = ExpManager.expToNextLevel(user) - user.exp
+
+                channel.send(new MessageEmbed({
+                    color: Colors.Info,
+                    description: `<@${member.id}> potrzebuje ${diff.toFixed(0)} punktów doświadczenia do następnego poziomu.`
+                }))
+            }
+        },
+
+        {
+            name: 'poziom',
+            description: 'Pokazuje aktualny poziom użytkownika',
+            aliases: ['level', 'lvl'],
+
+            execute: async function (message) {
+                const { channel, member } = message
+
+                const user = await ExpManager.getUserOrCreate(member.id)
+
+                channel.send(new MessageEmbed({
+                    color: Colors.Info,
+                    description: `<@${member.id}> ma poziom **${user.level}**`
+                }))
+            }
+        },
+
+        {
+            name: 'vote mute',
+            description: 'Rozpoczyna głosowanie o wyciszenie użytkownika',
+            requireArgs: true,
+            usage: '<użytkownik>',
+
+            execute: async function (message, args) {
+                const { member, guild, channel } = message
+                const config = new Config()
+                const emoji = '723131979540725841'
+
+                const memberToMute = await Utils.getMember(message, args.shift())
+
+                if (member.roles.cache.has(config.roles.mute) || memberToMute.roles.cache.has(config.roles.mute)) {
+                    channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: 'Ta zabawa nie ma sensu, jak biorący udział jest już wyciszony!'
+                    }))
+                    return
+                }
+
+                let votesMultiplier = 1
+
+                if (memberToMute.roles.cache.has(config.roles.mod)) votesMultiplier = 2
+                if (memberToMute.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) votesMultiplier = 3
+
+                if (memberToMute === member) {
+                    const penalty = new PenaltyEntity({
+                        user: member.id,
+                        guild: member.guild.id,
+                        reason: 'Głosowanie nie będzie potrzebne',
+                        startDate: new Date(),
+                        duration: (4 - votesMultiplier) * 24,
+                        type: PenaltyType.mute
+                    })
+                    await member.roles.add(config.roles.mute)
+                    await DatabaseManager.save(penalty)
+                    await Moderations.notifyAboutPenalty(guild, member.user, penalty, 'Maou')
+                    return
+                }
+
+                let votes = 0
+                const maxVotes = votesMultiplier * 10
+
+                const vote = await channel.send(new MessageEmbed({
+                    color: Colors.Warning,
+                    description: `Głosowanie za wyciszeniem użytkownika <@${memberToMute.id}> rozpoczęte`,
+                    footer: { text: `${votes} / ${maxVotes}` }
+                }))
+
+                await vote.react(emoji)
+
+                const collector = vote.createReactionCollector((reaction: MessageReaction) => reaction.emoji.id === emoji, {
+                    time: 300000,
+                    maxUsers: maxVotes,
+                    dispose: true
+                })
+
+                collector.on('collect', async () => {
+                    await vote.edit(vote.embeds[0].setFooter(`${++votes} / ${maxVotes}`))
+                })
+
+                collector.on('remove', async () => {
+                    await vote.edit(vote.embeds[0].setFooter(`${--votes} / ${maxVotes}`))
+                })
+
+                collector.on('end', async () => {
+                    if (votes >= maxVotes) {
+                        await vote.edit(vote.embeds[0].setColor(Colors.Success))
+                        const penalty = new PenaltyEntity({
+                            user: memberToMute.id,
+                            guild: memberToMute.guild.id,
+                            reason: 'Lud tak zdecydował',
+                            startDate: new Date(),
+                            duration: 24,
+                            type: PenaltyType.mute
+                        })
+                        await memberToMute.roles.add(config.roles.mute)
+                        await DatabaseManager.save(penalty)
+                        await Moderations.notifyAboutPenalty(guild, memberToMute.user, penalty, 'Społeczeństwo')
+                        return
+                    }
+
+                    await vote.edit(vote.embeds[0].setColor(Colors.Error))
+                    const penalty = new PenaltyEntity({
+                        user: member.id,
+                        guild: member.guild.id,
+                        reason: 'Myślałeś, że obejdzie się bez konsekwencji?',
+                        startDate: new Date(),
+                        duration: votesMultiplier * 24,
+                        type: PenaltyType.mute
+                    })
+                    await member.roles.add(config.roles.mute)
+                    await DatabaseManager.save(penalty)
+                    await Moderations.notifyAboutPenalty(guild, member.user, penalty, 'Maou')
+                })
+            },
+        },
+
+        {
             name: 'pomoc',
             description: 'Wyświetla listę wszystkich poleceń lub informacje o danym poleceniu',
             aliases: ['help', 'h'],
             usage: '[polecenie]',
-            channelType: channelType.botCommands,
+            channelType: channelType.commands,
 
             execute: async function (message, args) {
                 await message.channel.send(getHelpForModule(new Helper(), args.join(' ').toLowerCase()))

@@ -3,5 +3,6 @@ data/wids.txt
 node_modules
 dist
 LICENSE
-data/muted.json
-data/rekrutacja
+rekrutacja
+config.json
+package-lock.json

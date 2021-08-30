@@ -18,29 +18,14 @@ export class Utils {
     }
 
     public static getColor(color: string): Colors | string {
-        switch (color) {
-            case 'error':
-                return Colors.Error
-
-            case 'success':
-                return Colors.Success
-
-            case 'warning':
-                return Colors.Warning
-
-            case 'info':
-                return Colors.Info
-
-            case 'neutral':
-                return Colors.Neutral
-
-            case 'random':
-                return 'RANDOM'
-
-            default:
-                if ((/^#[0-9A-Fa-f]{6}$/).test(color)) return color
-                return null
-        }
+        if (color === 'error') return Colors.Error
+        if (color === 'success') return Colors.Success
+        if (color === 'warning') return Colors.Warning
+        if (color === 'info') return Colors.Info
+        if (color === 'neutral') return Colors.Neutral
+        if (color === 'random') return 'RANDOM'
+        if ((/^#[0-9A-Fa-f]{6}$/).test(color)) return color
+        return null
     }
 
     public static getChannelCount(guild: Guild, type: string): number {

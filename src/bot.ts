@@ -1,43 +1,52 @@
+import "reflect-metadata";
 import { Client } from 'discord.js'
 import { Config } from './config'
 import { CommandHandler } from './command-handler'
-import { MutedManager } from './services/mutedManager'
 import { MessageDelete } from './services/messageDelete'
+import { DatabaseManager } from './database/databaseManager'
+import { ExpManager } from './services/expManager'
+import { Supervisor } from './services/supervisor/supervisor'
+import { PenaltiesManager } from './services/penaltiesManager'
+import { AutoPublic } from './services/autoPublic'
 
 export default class Bot {
-    public static start(client: Client): void {
+    public static async start(client: Client): Promise<void> {
         const commandHandler = new CommandHandler()
+        const supervisor = new Supervisor()
+        const expManager = new ExpManager()
+        new PenaltiesManager(client)
+        const config = new Config()
 
-        if (!Config.token) { throw new Error('invalid discord token') }
+        if (!config.token) { throw new Error('invalid discord token') }
+
+        await DatabaseManager.connect()
 
         client.on('ready', () => {
             console.info(`[Info] Logged in as ${client.user.tag}!`)
-            client.user.setActivity(`${Config.prefix}pomoc`)
+            client.user.setActivity(`${config.prefix}pomoc`)
         })
 
         client.on('guildMemberAdd', async member => {
-            const rulesChannel = '723107524194205818'
-
-            await member.guild.systemChannel.send(`Witaj <@${member.id}> na serwerze grupy Maou Subs. Zanim coś napiszesz zapoznaj się z <#${rulesChannel}>`)
+            const config = new Config()
+            await member.guild.systemChannel.send(config.messages.welcome.replace(/({user})/g, `<@${member.id}>`))
         });
 
         client.on('guildMemberRemove', async member => {
-            await member.guild.systemChannel.send(`${member.nickname || member.user.username} spłonął w czeluściach ciemności`)
+            const config = new Config()
+            await member.guild.systemChannel.send(config.messages.farewell.replace(/({user})/g, member.nickname || member.user.username))
         });
 
         client.on('message', async (message) => {
             await commandHandler.handleMessage(message)
-
-            if (!MutedManager.isRunning) {
-                await MutedManager.checkMuted(message)
-            }
+            await supervisor.handleMessage(message)
+            await expManager.handleMessage(message)
+            await AutoPublic.public(message)
         })
 
         client.on('messageDelete', async (message) => {
-            await MessageDelete.handle(message)
+            await MessageDelete.handleMessage(message)
         })
 
-        client.login(Config.token)
+        client.login(config.token)
     }
 }
-

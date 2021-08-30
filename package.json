@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -13,12 +13,7 @@
   "scripts": {
     "start": "node ./dist/index.js",
     "build": "tsdx build",
-    "test": "tsdx test",
-    "lint": "tsdx lint",
-    "prepare": "tsdx build",
-    "size": "size-limit",
-    "analyze": "size-limit --why",
-    "watch": "tsdx watch"
+    "update": "git pull https://github.com/Sygnator/maou-bot.git"
   },
   "husky": {
     "hooks": {
@@ -45,8 +40,8 @@
     }
   ],
   "devDependencies": {
-    "@size-limit/preset-small-lib": "^4.9.2",
-    "@types/node": "^14.14.31",
+    "@size-limit/preset-small-lib": "^4.5.5",
+    "@types/node": "^14.17.3",
     "@types/node-fetch": "^2.5.10",
     "husky": "^5.0.9",
     "size-limit": "^4.9.2",
@@ -57,6 +52,8 @@
   "dependencies": {
     "discord.js": "^12.5.3",
     "node-fetch": "^2.6.1",
-    "ts-dotenv": "^0.8.3"
+    "pg": "^8.6.0",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.2.34"
   }
 }

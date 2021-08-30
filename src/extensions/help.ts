@@ -5,7 +5,8 @@ import { Config } from "../config"
 
 export function getHelpForModule(module: Module, commandName: string) {
     const { group, commands } = module
-    const prefix = group.length > 1 ? `${Config.prefix}${group} ` : Config.prefix
+    const config = new Config()
+    const prefix = group.length > 1 ? `${config.prefix}${group} ` : config.prefix
     const data = []
 
     if (!commandName) {

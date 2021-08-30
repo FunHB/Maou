@@ -1,16 +1,19 @@
-import { GuildMember, Message, MessageEmbed, Permissions } from 'discord.js'
-import { channelType } from '../api/channelType'
-import { Utils } from '../extentions/utils'
-import { UserManagement } from '../extentions/userManagement'
+import { Guild, GuildMember, Message, MessageAttachment, MessageEmbed, Permissions, User } from 'discord.js'
+import { Utils } from '../extensions/utils'
 import { Command } from '../api/command'
 import { Colors } from '../api/colors'
 import { Module } from '../api/module'
 import { Config } from '../config'
-import { getHelpForModule } from '../services/help'
-import { MutedManager } from '../services/mutedManager'
-import { IMuted } from '../api/IMuted'
-import { Recrutation } from '../extentions/recrutation'
-import { Reports } from '../extentions/reports'
+import { getHelpForModule } from '../extensions/help'
+import { Recrutation } from '../extensions/recrutation'
+import { RequireAdminOrMod } from '../preconditions/requireAdminOrMod'
+import { requireAdminOrModOrChannelPermission } from '../preconditions/requireAdminOrModOrChannelPermission'
+import { DatabaseManager } from '../database/databaseManager'
+import { PenaltiesManager } from '../services/penaltiesManager'
+import { channelType } from '../preconditions/requireChannel'
+import { PenaltyEntity, PenaltyType } from '../database/entity/Penalty'
+import { ReportEntity } from '../database/entity/Report'
+import { RequireAdmin } from '../preconditions/requireAdmin'
 
 export class Moderations implements Module {
     public group = 'mod'
@@ -21,28 +24,226 @@ export class Moderations implements Module {
             description: 'Banuje użytkownika na serwerze!',
             requireArgs: true,
             usage: '<użytkownik> [powód]',
+            precondition: RequireAdminOrMod,
 
             execute: async function (message, args) {
+                const { channel } = message
+                const config = new Config()
                 const member = await Utils.getMember(message, args.shift())
-                const reasonArg = args.join(' ') || 'Brak.'
-                const modlogChannel = message.guild.channels.cache.get(Config.modLogsChannel)
-                const errorCode = UserManagement.errorCode(message, member, true)
-                const type = this.name
+                const reason = args.join(' ') || 'Brak.'
 
-                if (errorCode) {
-                    await message.channel.send(new MessageEmbed({
+                if (!member) return
+                if (member.id === message.author.id) return
+                if (!member.bannable || member.user.bot) {
+                    await channel.send(new MessageEmbed({
                         color: Colors.Error,
-                        description: UserManagement.getMessageFromErrorCode(errorCode, type)
+                        description: 'Tego użytkownika nie da się zbanować!'
                     }))
                     return
                 }
 
-                await member.ban({ reason: reasonArg })
-                await message.channel.send(UserManagement.getMessageFromType(member, type))
+                const penalty = new PenaltyEntity({
+                    user: member.id,
+                    guild: member.guild.id,
+                    reason: reason,
+                    startDate: message.createdAt,
+                    duration: -1,
+                    type: PenaltyType.ban
+                })
 
-                if (modlogChannel.isText()) {
-                    await modlogChannel.send(UserManagement.getEmbedFromType(message, member.user, reasonArg, type))
+                await member.ban({ reason: reason })
+                await DatabaseManager.save(penalty)
+
+                if (config.channels.modLogs) {
+                    await Moderations.notifyAboutPenalty(message.guild, member.user, penalty, message.author.username)
                 }
+
+                await channel.send(new MessageEmbed({
+                    color: Colors.Success,
+                    description: `<@${member.id}> został zbanowany`
+                }))
+            }
+        },
+
+        {
+            name: 'kick',
+            description: 'Wyrzuca użytkownika z serwera!',
+            requireArgs: true,
+            usage: '<użytkownik> [powód]',
+            precondition: RequireAdminOrMod,
+
+            execute: async function (message, args) {
+                const { channel } = message
+                const config = new Config()
+                const member = await Utils.getMember(message, args.shift())
+                const reason = args.join(' ') || 'Brak.'
+
+                if (!member) return
+                if (member.id === message.author.id) return
+                if (!member.bannable || member.user.bot) {
+                    await channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: 'Tego użytkownika nie da się zbanować!'
+                    }))
+                    return
+                }
+
+                const penalty = new PenaltyEntity({
+                    user: member.id,
+                    guild: member.guild.id,
+                    reason: reason,
+                    startDate: message.createdAt,
+                    duration: -1,
+                    type: PenaltyType.kick
+                })
+
+                await member.kick(reason)
+                await DatabaseManager.save(penalty)
+
+                if (config.channels.modLogs) {
+                    await Moderations.notifyAboutPenalty(message.guild, member.user, penalty, message.author.username)
+                }
+
+                await channel.send(new MessageEmbed({
+                    color: Colors.Success,
+                    description: `<@${member.id}> został wyrzucony`
+                }))
+            }
+        },
+
+        {
+            name: 'mute',
+            description: 'Wycisza użytkownika na serwerze!',
+            requireArgs: true,
+            usage: '<użytkownik> <czas trwania> [powód]',
+            precondition: RequireAdminOrMod,
+
+            execute: async function (message, args) {
+                const { channel, guild } = message
+                const config = new Config()
+
+                if (!config.roles.mute) {
+                    await channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: 'Nie ustawiono roli wyciszonego!'
+                    }))
+                    return
+                }
+
+                const member = await Utils.getMember(message, args.shift())
+                const duration = parseInt(args.shift())
+                const reason = args.join(' ') || 'Brak.'
+
+                if (duration < 1) return
+                if (!member) return
+                if (member.user.bot) return
+
+                if (member.roles.cache.has(config.roles.mute)) {
+                    await channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: 'Ta osoba jest już wyciszona!'
+                    }))
+                    return
+                }
+
+                const penalty = new PenaltyEntity({
+                    user: member.id,
+                    guild: member.guild.id,
+                    reason: reason,
+                    startDate: message.createdAt,
+                    duration: duration,
+                    type: PenaltyType.mute
+                })
+
+                await member.roles.add(config.roles.mute)
+                await DatabaseManager.save(penalty)
+
+                if (config.channels.modLogs) {
+                    await Moderations.notifyAboutPenalty(guild, member.user, penalty, message.author.username)
+                }
+
+                await channel.send(new MessageEmbed({
+                    color: Colors.Success,
+                    description: `<@${member.id}> został wyciszony`
+                }))
+            }
+        },
+
+        {
+            name: 'show mutes',
+            description: 'Pokazuje wszystkich wyciszonych!',
+            precondition: RequireAdminOrMod,
+
+            execute: async function (message) {
+                const mutes = await PenaltiesManager.getPenaltiesByTypeOrGuild(PenaltyType.mute, message.guild.id)
+
+                await message.channel.send(new MessageEmbed({
+                    color: Colors.Info,
+                    title: 'Wyciszeni:',
+                    description: mutes.map(penalty => `<@!${penalty.user}> [do: ${penalty.startDate.setHours(penalty.startDate.getHours() + penalty.duration) && Utils.dateToString(penalty.startDate, false)}] - ${penalty.reason}`).join('\n')
+                }))
+            }
+        },
+
+        {
+            name: 'unmute',
+            description: 'Zdejmuje role wyciszonego!',
+            requireArgs: true,
+            usage: '<użytkownik>',
+            precondition: RequireAdminOrMod,
+
+            execute: async function (message, args) {
+                const { channel, guild } = message
+                const config = new Config()
+                const member = await Utils.getMember(message, args.join(' '))
+                const role = guild.roles.cache.get(config.roles.mute)
+
+                if (!member) return
+
+                if (!member.roles.cache.has(config.roles.mute)) {
+                    await channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: 'Ta osoba nie jest wyciszona!'
+                    }))
+                    return
+                }
+
+                await member.roles.remove(role)
+                await PenaltiesManager.removePenalty(member.id, PenaltyType.mute)
+
+                await channel.send(new MessageEmbed({
+                    color: Colors.Success,
+                    description: `<@${member.id}> został ułaskawiony`
+                }))
+            }
+        },
+
+        {
+            name: 'unban',
+            description: 'Zdejmuje bana!',
+            requireArgs: true,
+            usage: '<id użytkownika>',
+            precondition: RequireAdminOrMod,
+
+            execute: async function (message, args) {
+                const { channel, guild } = message
+                const memberId = args.join(' ')
+
+                if (!(await guild.fetchBans()).find(ban => ban.user.id === memberId)) {
+                    await channel.send(new MessageEmbed({
+                        color: Colors.Error,
+                        description: 'Ta osoba nie ma bana!'
+                    }))
+                    return
+                }
+
+                await guild.members.unban(memberId)
+                await PenaltiesManager.removePenalty(memberId, PenaltyType.ban)
+
+                await channel.send(new MessageEmbed({
+                    color: Colors.Success,
+                    description: `<@${memberId}> został odbanowany`
+                }))
             }
         },
 
@@ -52,13 +253,13 @@ export class Moderations implements Module {
             aliases: ['change nick', 'zmien nick'],
             requireArgs: true,
             usage: '<użytkownik> [nowy pseudonim]',
+            precondition: RequireAdminOrMod,
 
             execute: async function (message, args) {
                 const member = await Utils.getMember(message, args.shift())
                 const oldNickname = member.nickname
 
                 if (!member) return
-
                 if (!message.guild.me.hasPermission(Permissions.FLAGS.CHANGE_NICKNAME) || !member.bannable) {
                     await message.channel.send(new MessageEmbed({
                         color: Colors.Error,
@@ -77,93 +278,68 @@ export class Moderations implements Module {
         },
 
         {
-            name: 'kick',
-            description: 'Wyrzuca użytkownika z serwera!',
-            requireArgs: true,
-            usage: '<użytkownik> [powód]',
+            name: 'rekrutacja',
+            description: 'Rozpoczyna, lub kończy rekrutacje!',
+            precondition: RequireAdminOrMod,
 
-            execute: async function (message, args) {
-                const member = await Utils.getMember(message, args.shift())
-                const reasonArg = args.join(' ') || 'Brak.'
-                const modlogChannel = message.guild.channels.cache.get(Config.modLogsChannel)
-                const errorCode = UserManagement.errorCode(message, member, true)
-                const type = this.name
+            execute: async function (message) {
+                Recrutation.changeRecrutationStatus()
 
-                if (errorCode) {
-                    await message.channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: UserManagement.getMessageFromErrorCode(errorCode, type)
-                    }))
-                    return
-                }
-
-                await member.kick(reasonArg)
-                await message.channel.send(UserManagement.getMessageFromType(member, type))
-
-                if (modlogChannel.isText()) {
-                    await modlogChannel.send(UserManagement.getEmbedFromType(message, member.user, reasonArg, type))
-                }
+                await message.channel.send(new MessageEmbed({
+                    color: Colors.Success,
+                    description: `Status rekrutacji został zmianiony na: ${Recrutation.getRecrutationStatus() ? '`Włączona`' : '`Wyłączona`'}!`
+                }))
             }
         },
 
         {
-            name: 'mute',
-            description: 'Wycisza użytkownika na serwerze!',
+            name: 'resolve',
+            description: 'rozwiązuje zgłoszenie!\nDecyzje:\n\t**zatwierdź** Aliasy: `approve`, `zatwierdz`, `ok`\n\t**odrzuć** Aliasy: `reject`, `odrzuc`, `nah`\nPrzy zatwierdzeniu wymagane jest podanie czasu trwania!',
             requireArgs: true,
-            usage: '<użytkownik> <czas trwania> [powód]',
+            usage: '<id zgłoszenia> <zatwierdź / odrzuć> [czas trwania] [powód]',
+            channelType: channelType.reports,
 
             execute: async function (message, args) {
-                const { channel, guild } = message
+                const { guild, channel } = message
+                const reportId = args.shift()
+                const report: ReportEntity = await DatabaseManager.getEntity(ReportEntity, { reportId: reportId })
+                if (!report) return
 
-                const member = await Utils.getMember(message, args.shift())
-                const duration = parseInt(args.shift())
-                const days = Math.floor(duration / 24)
-                const hours = duration - (days * 24)
-                const reasonArg = args.join(' ') || 'Brak.'
-                const modlogChannel = guild.channels.cache.get(Config.modLogsChannel)
-                const errorCode = UserManagement.errorCode(message, member)
-                const type = this.name
+                let reported: Message
+                let reportMessage: Message
 
-                if (isNaN(duration)) {
-                    await channel.send(new MessageEmbed({
+                const reportedChannel = guild.channels.cache.get(report.channelId)
+
+                try {
+                    reported = reportedChannel.isText() && await reportedChannel.messages.fetch(report.messageId)
+                    reportMessage = await channel.messages.fetch(reportId)
+                } catch (exception) {
+                    await message.channel.send(new MessageEmbed({
                         color: Colors.Error,
-                        description: 'Musisz podać czas trwania wyciszenia!'
+                        description: 'coś poszło nie tak'
                     }))
+                    console.error(`[Resolve] ${exception}`)
                     return
                 }
 
-                if (duration < 1) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Czas wyciszenia nie może wynosić mniej niż jedna godzina!'
-                    }))
-                    return
+                const decisionArg = args.shift()
+
+                if (!decisionArg) return
+
+                const decision = ['reject', 'odrzuć', 'odrzuc', 'nah'].includes(decisionArg) ? 0 : ['approve', 'zatwierdź', 'zatwierdz', 'ok'].includes(decisionArg) ? 1 : -1
+                const member = await Utils.getMember(message, reported.author.id)
+
+
+                if (!reported || !report || decision === -1) return
+
+                if (decision) {
+                    await new Moderations().commands.find(command => command.name === 'mute').execute(message, [member.id, ...args])
                 }
 
-                if (errorCode) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: UserManagement.getMessageFromErrorCode(errorCode, type)
-                    }))
-                    return
-                }
+                await message.delete()
+                await reportMessage.edit(reportMessage.embeds.shift().setColor(decision ? Colors.Success : Colors.Error).setTitle(decision ? 'Zatwierdzony' : 'Odrzucony'))
 
-                await member.roles.add(Config.muteRole)
-                await channel.send(UserManagement.getMessageFromType(member, type))
-
-                if (modlogChannel.isText()) {
-                    await modlogChannel.send(UserManagement.getEmbedFromType(message, member.user, reasonArg, type).addField('Na ile:', `${days} dni ${hours} godzin`))
-                }
-
-                const muteUser: IMuted = {
-                    id: member.id,
-                    reason: reasonArg,
-                    start: message.createdAt,
-                    duration: (duration * 60 * 60 * 1000)
-                }
-
-                MutedManager.setMuted(guild.id)
-                MutedManager.addMuted(guild.id, muteUser)
+                await DatabaseManager.remove(report)
             }
         },
 
@@ -172,6 +348,7 @@ export class Moderations implements Module {
             description: 'Cytuje wiadomość i wysyła na podany kanał',
             requireArgs: true,
             usage: '<id wiadomości> <id kanału>',
+            precondition: requireAdminOrModOrChannelPermission(Permissions.FLAGS.MANAGE_MESSAGES),
 
             execute: async function (message, args) {
                 let quoted: Message
@@ -183,6 +360,7 @@ export class Moderations implements Module {
                         color: Colors.Error,
                         description: 'nie znaleziono wiadomości'
                     }))
+                    console.error(`[Quote] ${exception}`)
                     return
                 }
 
@@ -207,6 +385,7 @@ export class Moderations implements Module {
             description: 'Dodaje reakcje pod podaną wiadomość',
             requireArgs: true,
             usage: '<id kanału> <id wiadomości> <reakcja>',
+            precondition: RequireAdminOrMod,
 
             execute: async function (message, args) {
                 const channel = message.guild.channels.cache.get(args.shift())
@@ -222,6 +401,7 @@ export class Moderations implements Module {
                         color: Colors.Error,
                         description: 'nie znaleziono wiadomości'
                     }))
+                    console.error(`[r2msg] ${exception}`)
                     return
                 }
 
@@ -239,68 +419,11 @@ export class Moderations implements Module {
         },
 
         {
-            name: 'rekrutacja',
-            description: 'Rozpoczyna, lub kończy rekrutacje!',
-
-            execute: async function (message) {
-                Recrutation.changeRecrutationStatus()
-
-                await message.channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `Status rekrutacji został zmianiony na: ${Recrutation.getRecrutationStatus() ? '`Włączona`' : '`Wyłączona`'}!`
-                }))
-            }
-        },
-
-        {
-            name: 'resolve',
-            description: 'rozwiązuje zgłoszenie!\nDecyzje:\n\t**zatwierdź** Aliasy: `approve`, `zatwierdz`, `ok`\n\t**odrzuć** Aliasy: `reject`, `odrzuc`, `nah`\nPrzy zatwierdzeniu wymagane jest podanie czasu trwania!',
-            requireArgs: true,
-            usage: '<id zgłoszenia> <zatwierdź / odrzuć> [czas trwania] [powód]',
-            channelType: channelType.reports,
-
-            execute: async function (message, args) {
-                const { channel } = message
-                const reportID = args.shift()
-                const report = Reports.getReport().get(reportID)
-                if (!report) return
-                const { reported } = report
-
-                let reportMessage: Message
-
-                try {
-                    reportMessage = await channel.messages.fetch(reportID)
-                } catch (exception) {
-                    await message.channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'nie znaleziono wiadomości'
-                    }))
-                    return
-                }
-                
-                const decision = Reports.getResolveDecision(args.shift().toLowerCase())
-                const member = await Utils.getMember(message, reported.author.id)
-
-
-                if (!reported || !report || decision === 2) return
-
-                if (decision) {
-                    await new Moderations().commands.find(command => command.name === 'mute').execute(message, [member.id, ...args])
-                    if (UserManagement.errorCode(message, member) && UserManagement.errorCode(message, member) != 6) return
-                }
-
-                await message.delete()
-                await reportMessage.edit(reportMessage.embeds.shift().setColor(decision ? Colors.Success : Colors.Error).setTitle(decision ? 'Zatwierdzony' : 'Odrzucony'))
-
-                Reports.deleteReport(reportMessage.id)
-            }
-        },
-
-        {
             name: 'semsg',
             description: 'Wysyła wiadomość embed na podany kanał',
             requireArgs: true,
             usage: '<id kanału> <kolor> <treść wiadomości>\nkolory: `error`, `info`, `success`, `warning`, `neutral`',
+            precondition: RequireAdminOrMod,
 
             execute: async function (message, args) {
                 const channel = message.guild.channels.cache.get(args.shift())
@@ -312,7 +435,7 @@ export class Moderations implements Module {
                 if (!color) return
 
                 if (channel.isText()) {
-                    await channel.send(UserManagement.getEmbed(color, args.join(' ')))
+                    await channel.send(Moderations.getEmbed(color, args.join(' ')))
                 }
 
                 await message.channel.send(new MessageEmbed({
@@ -327,13 +450,14 @@ export class Moderations implements Module {
             description: 'Wysyła wiadomość na podany kanał',
             requireArgs: true,
             usage: '<id kanału> <wiadomość>',
+            precondition: RequireAdminOrMod,
 
             execute: async function (message, args) {
                 const channel = message.guild.channels.cache.get(args.shift())
 
                 if (!channel) return
 
-                const { attachments, messageContent } = UserManagement.getAttachmentsAndMessageContent(args.join(' '))
+                const { attachments, messageContent } = Moderations.getAttachmentsAndMessageContent(args.join(' '))
 
                 if (channel.isText()) {
                     await channel.send(messageContent, {
@@ -349,51 +473,36 @@ export class Moderations implements Module {
         },
 
         {
-            name: 'show muted',
-            description: 'Pokazuje wszystkich wyciszonych!',
-
-            execute: async function (message) {
-                const { guild } = message
-
-                MutedManager.setMuted(guild.id)
-
-                const mutedUsers = MutedManager.getMuted(guild.id)
-
-                await message.channel.send(new MessageEmbed({
-                    color: Colors.Info,
-                    title: 'Wyciszeni:',
-                    description: mutedUsers.map(user => `<@!${user.id}> [do: ${Utils.dateToString(new Date(new Date(user.start).getTime() + user.duration), false)}] - ${user.reason}`).join('\n')
-                }))
-            }
-        },
-
-        {
-            name: 'unmute',
-            description: 'Zdejmuje role wyciszonego!',
+            name: 'editmsg',
+            description: 'Edytuje podaną wiadomość',
             requireArgs: true,
-            usage: '<użytkownik>',
+            usage: '<id kanału> <wiadomość> <nowa wiadomość>',
+            precondition: RequireAdminOrMod,
 
             execute: async function (message, args) {
-                const { guild } = message
-                const member = await Utils.getMember(message, args.join(' '))
-                const role = guild.roles.cache.get(Config.muteRole)
-                const type = this.name
+                const channel = message.guild.channels.cache.get(args.shift())
 
-                if (!member) return
+                if (!channel) return
 
-                if (!member.roles.cache.has(Config.muteRole)) {
+                try {
+                    if (channel.isText()) {
+                        const prevMessage = await channel.messages.fetch(args.shift())
+
+                        const { messageContent } = Moderations.getAttachmentsAndMessageContent(args.join(' '))
+
+                        await prevMessage.edit(messageContent)
+
+                        await message.channel.send(new MessageEmbed({
+                            color: Colors.Success,
+                            description: `Zedytowano wiadomość na kanale <#${channel.id}>`
+                        }))
+                    }
+                } catch (exception) {
                     await message.channel.send(new MessageEmbed({
                         color: Colors.Error,
-                        description: 'Ta osoba nie jest wyciszona!'
+                        description: 'nie znaleziono wiadomości'
                     }))
-                    return
                 }
-
-                await member.roles.remove(role)
-                await message.channel.send(UserManagement.getMessageFromType(member, type))
-
-                MutedManager.setMuted(guild.id)
-                MutedManager.removeMuted(guild.id, member.id)
             }
         },
 
@@ -402,6 +511,7 @@ export class Moderations implements Module {
             description: 'muahahahahaha',
             requireArgs: true,
             usage: '<"nagroda"> <użytkownicy (max. 20)>\nNagrody: `ban`, `mute`, `kick`, `nic`',
+            precondition: RequireAdmin,
 
             execute: async function (message, args) {
                 const { channel } = message
@@ -437,12 +547,86 @@ export class Moderations implements Module {
         {
             name: 'pomoc',
             description: 'Wyświetla listę wszystkich poleceń lub informacje o danym poleceniu',
-            aliases: ['help', 'h'],
+            aliases: ['help', 'h', ''],
             usage: '[polecenie]',
+            precondition: RequireAdminOrMod,
 
             execute: async function (message, args) {
                 await message.channel.send(getHelpForModule(new Moderations(), args.join(' ').toLowerCase()))
             }
         }
     ]
+
+    public static getEmbed(color: Colors | string, messageContent: string): MessageEmbed {
+        const regex = /(https:\/\/)\S*[(.png)(.jpg)(.gif)(.jpeg)(.mp4)(.mp3)]/gm
+        const links: string[] = messageContent.match(regex)
+        const content = messageContent.replace(regex, '')
+
+        const embed = new MessageEmbed().setColor(color)
+
+        if (links && links.length > 0) {
+            embed.setImage(links[0])
+            if (links.length > 1) embed.setThumbnail(links[1])
+        }
+
+        if (content.length > 0) embed.setDescription(content)
+
+        return embed
+    }
+
+    public static getAttachmentsAndMessageContent(messageContent: string): { attachments: MessageAttachment[], messageContent: string } {
+        const regex = /(https:\/\/)\S*[(.png)(.jpg)(.gif)(.jpeg)(.mp4)(.mp3)]/gm
+        const links: string[] = messageContent.match(regex)
+        const attachments: MessageAttachment[] = []
+
+        if (links) {
+            links.forEach(link => {
+                attachments.push(new MessageAttachment(link, Math.random().toString(36).substring(2) + '.' + link.split('.').pop()))
+            })
+        }
+
+        return { attachments: attachments, messageContent: messageContent.replace(regex, '') }
+    }
+
+    public static async notifyAboutPenalty(guild: Guild, user: User, penalty: PenaltyEntity, by: string): Promise<void> {
+        const config = new Config()
+        const modlogChannel = guild.channels.cache.get(config.channels.modLogs)
+        const { reason, startDate, duration, type } = penalty
+        const embed = new MessageEmbed({
+            color: this.getColorFromType(type),
+            author: {
+                name: user.username,
+                iconURL: user.displayAvatarURL({
+                    dynamic: true,
+                    size: 128,
+                    format: "png"
+                })
+            },
+            description: `Powód: ${reason}`,
+            fields: [
+                { name: 'UserId:', value: `${user.id}`, inline: true },
+                { name: 'Typ:', value: type, inline: true },
+                { name: 'Kiedy:', value: Utils.dateToString(startDate, false), inline: true }
+            ],
+            footer: { text: `Przez: ${by}` }
+        })
+
+        if (type === 'mute') {
+            const days = Math.floor(duration / 24)
+            const hours = duration - (days * 24)
+            embed.addField('Na ile:', `${days} dni ${hours} godzin`)
+        }
+
+        if (modlogChannel.isText()) {
+            await modlogChannel.send(embed)
+        }
+    }
+
+    private static getColorFromType(type: string): Colors {
+        if (type === 'ban') return Colors.Error
+        if (type === 'kick') return Colors.Warning
+        if (type === 'mute') return Colors.Info
+        if (type === 'unmute' || type === 'unban') return Colors.Success
+        return Colors.Neutral
+    }
 }

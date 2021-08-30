@@ -1,34 +1,72 @@
-
-import { load } from 'ts-dotenv'
+import { IConfig, IExp } from './api/IConfig'
+import fs from 'fs'
+import { MessageEmbed } from 'discord.js'
+import { Colors } from './api/colors'
 
 export class Config {
+    public readonly token: string
+    public readonly upload: Record<string, string>
+    public prefix: string
+    public channels: Record<string, string>
+    public roles: Record<string, string>
+    public messages: Record<string, string>
+    public exp: IExp
+    public readonly creator: string
+    public readonly version: string
 
-    // main configs
-    public static get token(): string { return this.env.TOKEN }
-    public static get prefix(): string { return this.env.PREFIX }
-    public static get botAuthor(): string { return 'FunHB' }
-    public static get botVersion(): string { return '2.0.0' }
+    constructor() {
+        const config: IConfig = JSON.parse(fs.readFileSync('./config.json').toString())
+        const packageJson: { author: string, version: string } = JSON.parse(fs.readFileSync('./package.json').toString())
+        this.token = config.token
+        this.upload = config.upload
+        this.prefix = config.prefix
+        this.channels = config.channels
+        this.roles = config.roles
+        this.messages = config.messages
+        this.exp = config.exp
+        this.creator = packageJson.author
+        this.version = packageJson.version
+    }
 
-    // channels configs
-    public static get artsChannel(): string { return this.env.ARTSCHANNEL }
-    public static get reportsChannel(): string { return this.env.REPORTSCHANNEL }
-    public static get modLogsChannel(): string { return this.env.MODLOGSCHANNEL }
-    public static get botCommandsChannel(): string { return this.env.BOTCOMMANDSCHANNEL }
-    public static get messageDeleteLogChannel(): string { return this.env.MESSAGEDELETELOGCHANNEL }
+    public toString(): string {
+        return Object.entries(new Config()).filter(([key]) => key !== 'token').map(([key, value]) => `${key}: ${typeof value === 'object' ? `{\n${Object.entries(value).map(([key, value]) => `\t${key}: ${value}`).join('\n')}\n}` : value}`).join('\n')
+    }
 
-    // roles configs
-    public static get modRole(): string { return this.env.MODROLE }
-    public static get muteRole(): string { return this.env.MUTEROLE }
+    public toEmbed(): MessageEmbed {
+        const showInConfig = [
+            'prefix',
+            'channels',
+            'roles',
+            'messages',
+            'exp'
+        ]
+        const config = Object.entries(new Config()).filter(([key]) => showInConfig.includes(key))
+        const embed = new MessageEmbed().setColor(Colors.Info)
 
-    private static env = load({
-        TOKEN: String,
-        BOTCOMMANDSCHANNEL: String,
-        REPORTSCHANNEL: String,
-        MODROLE: String,
-        MODLOGSCHANNEL: String,
-        MUTEROLE: String,
-        ARTSCHANNEL: String,
-        PREFIX: String,
-        MESSAGEDELETELOGCHANNEL: String,
-    })
+        config.forEach(([key, value]) => {
+            if (typeof value === 'object') {
+                value = Object.entries(value).map(([key, value]) => `${key}: ${value}`).join('\n')
+            }
+
+            embed.addField(key, value)
+        })
+
+        return embed
+    }
+
+    public save(): void {
+        const config = {
+            token: this.token,
+            prefix: this.prefix,
+            channels: this.channels,
+            roles: this.roles,
+            upload: this.upload,
+            exp: this.exp,
+            messages: this.messages,
+            creator: this.creator,
+            version: this.version
+        }
+
+        fs.writeFileSync('./config.json', JSON.stringify(config))
+    }
 }

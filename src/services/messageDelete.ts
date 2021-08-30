@@ -1,13 +1,14 @@
 import { Message, MessageEmbed, PartialMessage, User } from "discord.js";
 import { Colors } from "../api/colors";
 import { Config } from "../config";
-import { Utils } from "../extentions/utils";
+import { Utils } from "../extensions/utils";
 
 export class MessageDelete {
-    public static async handle(message: Message | PartialMessage): Promise<void> {
+    public static async handleMessage(message: Message | PartialMessage): Promise<void> {
         const { guild, member, channel } = message
+        const config = new Config()
         const { user } = member
-        const messageDeleteLogChannel = guild.channels.cache.get(Config.messageDeleteLogChannel)
+        const messageDeleteLogChannel = guild.channels.cache.get(config.channels.messageDeleteLogs)
         const executor = await this.getExecutor(message)
         const messageContent = await this.getMessageContentOrAttachments(message)
 
@@ -38,9 +39,12 @@ export class MessageDelete {
 
     private static async getExecutor(message: Message | PartialMessage): Promise<User> {
         const { guild, author } = message
-        const { executor, target, createdTimestamp } = await guild.fetchAuditLogs({ limit: 1, type: 'MESSAGE_DELETE' }).then(audit => audit.entries.first())
-
-        if (target.valueOf() === author.id && createdTimestamp > (Date.now() - 5000)) return executor
+        try {
+            const { executor, target, createdTimestamp } = await guild.fetchAuditLogs({ limit: 1, type: 'MESSAGE_DELETE' }).then(audit => audit.entries.first())
+            if (target.valueOf() === author.id && createdTimestamp > (Date.now() - 5000)) return executor
+        } catch (exception) {
+            console.error(`[Message Delete] get Executor exception: ${exception}`)
+        }
         return author
     }
 

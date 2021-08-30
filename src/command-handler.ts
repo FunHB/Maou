@@ -1,5 +1,5 @@
-import { Collection, Message, MessageEmbed, Permissions } from 'discord.js'
-import { channelType } from './api/channelType'
+import { Collection, Message, MessageEmbed } from 'discord.js'
+import { RequireChannel } from './preconditions/requireChannel'
 import { Command } from './api/command'
 import { Colors } from './api/colors'
 import { Config } from './config'
@@ -7,6 +7,8 @@ import { Config } from './config'
 // modules
 import { Helper } from "./modules/helper"
 import { Moderations } from "./modules/moderations"
+import { Debug } from './modules/debug'
+import { Upload } from './modules/upload'
 //
 
 export class CommandHandler {
@@ -18,18 +20,24 @@ export class CommandHandler {
     constructor() {
         const helper = new Helper()
         const mod = new Moderations()
+        const dev = new Debug()
+        const upload = new Upload()
+
         this._commands = new Collection([
+            [dev.group, dev.commands],
             [mod.group, mod.commands],
+            [upload.group, upload.commands],
             [helper.group, helper.commands]     // Helper module MUST be the last element of Collection
         ])
     }
 
     async handleMessage(message: Message): Promise<void> {
-        const { member, channel, guild, author } = message
+        const { channel, guild, author } = message
+        const config = new Config()
 
-        if (author.bot || !message.content.startsWith(Config.prefix)) return
+        if (author.bot || !message.content.startsWith(config.prefix)) return
 
-        let messageContent = message.content.slice(Config.prefix.length)
+        let messageContent = message.content.slice(config.prefix.length)
 
         const group = this.getModule(messageContent.toLowerCase())
 
@@ -63,29 +71,9 @@ export class CommandHandler {
         // log of command
         console.info(`[Command Handler] Command: ${command.name} by: ${author.tag}`)
 
+        if (command.precondition && !(await command.precondition(message))) return
 
-        // skip for admins and moderators
-        if (!member.roles.cache.get(Config.modRole) && !member.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && !(member === guild.owner)) {
-            // check if user has one of required roles for this command usage
-            if (group.length > 1) {
-                await channel.send(new MessageEmbed({
-                    color: Colors.Error,
-                    image: {
-                        url: `https://i.giphy.com/RX3vhj311HKLe.gif`
-                    }
-                }))
-                return
-            }
-
-            // check if channel is valid for this command usage
-            if (!this.validChannel(message, command.channelType)) {
-                await channel.send(new MessageEmbed({
-                    color: Colors.Error,
-                    description: `Polecenia można używać jedynie na kanale <#${this.getChannelByChannelType(command.channelType)}>`
-                }))
-                return
-            }
-        }
+        if (!(await RequireChannel(message, command.channelType))) return
 
         // check arguments for this command
         if (command.requireArgs && !args.length) {
@@ -94,44 +82,23 @@ export class CommandHandler {
         }
 
         try {
-            command.execute(message, args)
-        } catch (error) {
+            await command.execute(message, args)
+        } catch (exception) {
             await message.reply(new MessageEmbed({
                 color: Colors.Error,
-                description: 'Nie wywołano polecenia! Zygluś popsuł <:uuuu:723131980849479781>'
+                description: 'Wystąpił nieoczekiwany błąd. Zgłoś go do administracji!'
             }))
-            throw error
+            console.error(`[Comamnd handler] command ${command.name} error: ${exception}`)
         }
     }
 
-    private validChannel(message: Message, type: channelType): boolean {
-        switch (type) {
-            case channelType.botCommands:
-            case channelType.reports:
-            case channelType.artschannel:
-                return message.channel.id === this.getChannelByChannelType(type)
-
-            case channelType.normal:
-            default:
-                return true
-        }
-    }
-
-    private getChannelByChannelType(type: channelType): string {
-        switch (type) {
-            case channelType.botCommands:
-                return Config.botCommandsChannel
-
-            case channelType.reports:
-                return Config.reportsChannel
-
-            case channelType.artschannel:
-                return Config.artsChannel
-
-            case channelType.normal:
-            default:
-                return ''
-        }
+    public isCommand(messageContent: string): boolean {
+        if (!messageContent.startsWith(new Config().prefix)) return false
+        const group = this.getModule(messageContent.toLowerCase())
+        if (group.length > 1) messageContent = messageContent.slice(group.length + 1)
+        const command = this.getCommand(messageContent.toLowerCase(), group)
+        if (!command) return false
+        return true
     }
 
     private getCommand(messageContent: string, group: string): Command {
