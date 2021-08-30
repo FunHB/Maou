@@ -42,11 +42,4 @@ Create a `config.json` file in the root directory and enter the following inform
 ```
 
 #### Instalation
-1. ##### Instalation required modules
-    `npm install`
-    
-2. ##### Building Bot modules
-    `npm run build`
-    
-3. ##### Starting the Bot
-    `npm start`
+Install and start bot just by running file "run.sh".
