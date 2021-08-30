@@ -212,11 +212,11 @@ export class Debug implements Module {
                 const { channel } = message
                 const config = new Config()
 
-                const expChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { type: ChannelType.withExp })).map(channel => channel.id)
-                const supervisorChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { type: ChannelType.supervisor })).map(channel => channel.id)
-                const autopublicChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { type: ChannelType.autoPublic })).map(channel => channel.id)
-                const addableRoles: string[] = (await DatabaseManager.getEntities(RoleEntity, { type: RoleType.addable })).map(role => role.id)
-                const levelRoles: string[] = (await DatabaseManager.getEntities(RoleEntity, { type: RoleType.level })).map(role => role.id)
+                const expChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { type: ChannelType.withExp })).map(channel => `<#${channel.id}>`)
+                const supervisorChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { type: ChannelType.supervisor })).map(channel => `<#${channel.id}>`)
+                const autopublicChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { type: ChannelType.autoPublic })).map(channel => `<#${channel.id}>`)
+                const addableRoles: string[] = (await DatabaseManager.getEntities(RoleEntity, { type: RoleType.addable })).map(role => `<@&${role.id}>`)
+                const levelRoles = (await DatabaseManager.getEntities(RoleEntity, { type: RoleType.level })).map(role => `<@&${role.id}> - ${role.minLevel}`)
 
                 await channel.send(config.toEmbed().addFields([
                     { name: 'Channels with exp', value: expChannels.join('\n') || 'Brak.' },

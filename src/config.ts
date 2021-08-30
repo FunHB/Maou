@@ -62,9 +62,7 @@ export class Config {
             roles: this.roles,
             upload: this.upload,
             exp: this.exp,
-            messages: this.messages,
-            creator: this.creator,
-            version: this.version
+            messages: this.messages
         }
 
         fs.writeFileSync('./config.json', JSON.stringify(config))
