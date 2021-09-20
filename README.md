@@ -7,7 +7,7 @@ Create a `config.json` file in the root directory and enter the following inform
 ```json
 {
     "token": "<YOUR TOKEN>", // Discord Bot token
-    "databaseString": "<Postgresql database connection string>",
+    "databaseString": "<Postgresql database connection string>", // connection string
     "prefix": "!", // prefix used before bot commands
     "channels": {
         "commands": "<channel id>", // channel for most of bot commands for users
