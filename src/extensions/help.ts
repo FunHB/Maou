@@ -10,8 +10,8 @@ export function getHelpForModule(module: Module, commandName: string) {
     const data = []
 
     if (!commandName) {
-        data.push({ name: 'List of this bot commands:\n', value: commands.map(command => command.name).join(", ") })
-        const footer = `\nTo show informations about specific command use: ${prefix}pomoc [nazwa polecenia]`
+        data.push({ name: 'Lista poleceń bota:\n', value: commands.map(command => command.name).join(", ") })
+        const footer = `\nAby wyświetlić informacje na temat danego polecenia wpisz: ${prefix}pomoc [nazwa polecenia]`
 
         return new MessageEmbed({
             color: Colors.Info,
@@ -26,15 +26,15 @@ export function getHelpForModule(module: Module, commandName: string) {
     if (!command) {
         return new MessageEmbed({
             color: Colors.Error,
-            description: 'Specified command not found',
+            description: 'Nie znaleziono polecenia.',
         })
     }
 
-    const title = `**Command name:** ${command.name}`
+    const title = `**Nazwa polecenia:** ${command.name}`
 
-    if (command.aliases) data.push({ name: "**Aliases:**", value: `${command.aliases.join(', ')}` })
-    if (command.description) data.push({ name: "**Description:**", value: `${command.description}` })
-    if (command.usage) data.push({ name: "**Usage:**", value: `${prefix}${command.name} ${command.usage}` })
+    if (command.aliases) data.push({ name: "**Aliasy:**", value: `${command.aliases.join(', ')}` })
+    if (command.description) data.push({ name: "**Opis:**", value: `${command.description}` })
+    if (command.usage) data.push({ name: "**Użycie:**", value: `${prefix}${command.name} ${command.usage}` })
 
     return new MessageEmbed({
         color: Colors.Info,
