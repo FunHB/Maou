@@ -5,6 +5,7 @@ import { Colors } from './api/colors'
 
 export class Config {
     public readonly token: string
+    public readonly databaseString: string
     public readonly upload: Record<string, string>
     public prefix: string
     public channels: Record<string, string>
@@ -18,6 +19,7 @@ export class Config {
         const config: IConfig = JSON.parse(fs.readFileSync('./config.json').toString())
         const packageJson: { author: string, version: string } = JSON.parse(fs.readFileSync('./package.json').toString())
         this.token = config.token
+        this.databaseString = config.databaseString
         this.upload = config.upload
         this.prefix = config.prefix
         this.channels = config.channels
@@ -57,6 +59,7 @@ export class Config {
     public save(): void {
         const config = {
             token: this.token,
+            databaseString: this.databaseString,
             prefix: this.prefix,
             channels: this.channels,
             roles: this.roles,

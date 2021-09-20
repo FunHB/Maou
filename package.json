@@ -13,7 +13,7 @@
   "scripts": {
     "start": "node ./dist/index.js",
     "build": "tsdx build",
-    "update": "git pull git@github.com:Sygnator/maou-bot.git"
+    "update": "git fetch git@github.com:Sygnator/maou-bot.git dev"
   },
   "husky": {
     "hooks": {

@@ -1,5 +1,6 @@
 export interface IConfig {
     readonly token: string
+    readonly databaseString: string
     readonly upload: Record<string, string>
     prefix: string
     channels: Record<string, string>
