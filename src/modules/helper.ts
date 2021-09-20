@@ -430,7 +430,7 @@ export class Helper implements Module {
         {
             name: 'iledopoziomu',
             description: 'Pokazuje brakujące punkty doświadczenia do awansu na kolejny poziom',
-            aliases: ['idp', 'howmuchtolevelup', 'hmtlu'],
+            aliases: ['idp', 'howmuchtolevelup', 'hmtlu', 'xp'],
 
             execute: async function (message) {
                 const { channel, member } = message
