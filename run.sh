@@ -1,5 +1,4 @@
 #!/bin/bash
-npm i
 rval=1
 while ((rval == 1)); do
     npm run build
