@@ -280,6 +280,7 @@ export class Debug implements Module {
                 const artsChannel = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.arts })
                 const messageDeleteLogsChannel = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.messageDeleteLogs })
                 const recrutationChannel = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.recrutation })
+                const uploadChannel = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.upload })
 
                 const modRole = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: RoleType.mod })
                 const muteRole = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: RoleType.mute })
@@ -293,7 +294,7 @@ export class Debug implements Module {
                         { name: 'Channels with commands', value: commandsChannel.join('\n') || 'Brak.' },
                         { name: 'addable roles', value: addableRoles.join('\n') || 'Brak.' },
                         { name: 'level roles', value: levelRoles.join('\n') || 'Brak.' },
-                        { name: 'other channels', value: `reports - ${reportsChannel ? `<#${reportsChannel.id}>` : 'Brak.'}\nmodLogs = ${modLogsChannel ? `<#${modLogsChannel.id}>` : 'Brak.'}\narts - ${artsChannel ? `<#${artsChannel.id}>` : 'Brak.'}\nmessageDeleteLogs - ${messageDeleteLogsChannel ? `<#${messageDeleteLogsChannel.id}>` : 'Brak.'}\nrecrutation - ${recrutationChannel ? `<#${recrutationChannel.id}>` : 'Brak.'}` },
+                        { name: 'other channels', value: `reports - ${reportsChannel ? `<#${reportsChannel.id}>` : 'Brak.'}\nmodLogs = ${modLogsChannel ? `<#${modLogsChannel.id}>` : 'Brak.'}\narts - ${artsChannel ? `<#${artsChannel.id}>` : 'Brak.'}\nmessageDeleteLogs - ${messageDeleteLogsChannel ? `<#${messageDeleteLogsChannel.id}>` : 'Brak.'}\nrecrutation - ${recrutationChannel ? `<#${recrutationChannel.id}>` : 'Brak.'}\nupload - ${uploadChannel ? `<#${uploadChannel.id}>` : 'Brak.'}` },
                         { name: 'other roles', value: `mod - ${modRole ? `<@&${modRole.id}>` : 'Brak.'}\nmute = ${muteRole ? `<@&${muteRole.id}>` : 'Brak.'}\nrecrutation - ${recrutationRole ? `<@&${recrutationRole.id}>` : 'Brak.'}` }
                     ])]
                 })
@@ -362,7 +363,7 @@ export class Debug implements Module {
                     return
                 }
 
-                const roleEntity = await DatabaseManager.getEntity(RoleEntity, { id: value, guild: guild.id, type: role })
+                const roleEntity = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: role })
 
                 if (roleEntity) {
                     roleEntity.id = value
@@ -399,6 +400,7 @@ export class Debug implements Module {
                     ChannelType.arts,
                     ChannelType.messageDeleteLogs,
                     ChannelType.recrutation,
+                    ChannelType.upload
                 ]
 
                 if (!channels.includes(channelType)) {
@@ -421,7 +423,7 @@ export class Debug implements Module {
                     return
                 }
 
-                const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { id: value, guild: guild.id, type: channelType })
+                const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: channelType })
 
                 if (channelEntity) {
                     channelEntity.id = value
