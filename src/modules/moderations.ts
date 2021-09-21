@@ -16,7 +16,7 @@ import { ChannelEntity, ChannelType } from '../database/entity/Channel'
 import { RoleEntity, RoleType } from '../database/entity/Role'
 
 export class Moderations implements Module {
-    public name = 'Moderations'
+    public name = 'Moderatorskie'
     public group = 'mod'
     public help: Help
 

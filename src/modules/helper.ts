@@ -19,13 +19,14 @@ import { PenaltiesManager } from '../services/penaltiesManager'
 import { ExpManager } from '../services/expManager'
 
 export class Helper implements Module {
-    public name = 'Basic'
+    public name = 'Podstawowe'
     public group = ''
     public help: Help
 
     constructor(...modules: Module[]) {
         this.help = new Help(this, ...modules)
     }
+    
     public commands: Command[] = [
         {
             name: 'dodaj role',
@@ -491,7 +492,7 @@ export class Helper implements Module {
         {
             name: 'iledopoziomu',
             description: 'Pokazuje brakujące punkty doświadczenia do awansu na kolejny poziom',
-            aliases: ['idp', 'howmuchtolevelup', 'hmtlu'],
+            aliases: ['idp', 'howmuchtolevelup', 'hmtlu', 'xp'],
 
             execute: async function (message) {
                 const { channel, member } = message

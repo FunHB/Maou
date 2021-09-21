@@ -12,7 +12,7 @@ import { RoleEntity, RoleType } from "../database/entity/Role";
 import { Utils } from "../extensions/utils";
 
 export class Debug implements Module {
-    public name = 'Administration'
+    public name = 'Administacyjne'
     public group = 'dev'
     public help: Help
 
@@ -445,7 +445,7 @@ export class Debug implements Module {
             name: 'set message',
             description: 'Ustawia podaną wiadomość',
             requireArgs: true,
-            usage: '<wiadomość> <treść wiadomości>\nWiadomości:\nPowitalna - `welcome`\nPożegnalna - `farewell`\nRekrutacja - `recrutation`',
+            usage: '<wiadomość> <treść wiadomości>\nWiadomości:\nPowitalna - `welcome`\nPożegnalna - `farewell`\nRekrutacja - `recrutation`\nAby ustawić wzmiankę użyj `{user}`',
             precondition: RequireAdmin,
 
             execute: async function (message, args) {

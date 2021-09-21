@@ -19,8 +19,8 @@ export class Help {
             const prefix = group.length > 1 ? `${config.prefix}${group} ` : config.prefix
             return [new MessageEmbed({
                 color: Colors.Info,
-                fields: this.modules.map(module => { return { name: `List of ${module.name} commands:`, value: module.commands.map(command => command.name).join(", ") } }),
-                footer: { text: `To show informations about specific command use: ${prefix}help <command name>` },
+                fields: this.modules.map(module => { return { name: `Lista poleceń - ${module.name}:`, value: module.commands.map(command => command.name).join(", ") } }),
+                footer: { text: `Aby wyświetlić informacje na temat konkretnego polecenia wpisz: ${prefix}pomoc <nazwa polecenia>` },
             })]
         }
 
@@ -29,18 +29,18 @@ export class Help {
         if (!command) {
             return [new MessageEmbed({
                 color: Colors.Error,
-                description: 'Specified command not found',
+                description: 'Nie znaleziono polecenia',
             })]
         }
 
         const prefix = module.group.length > 1 ? `${config.prefix}${module.group} ` : config.prefix
         const data = []
 
-        const title = `**Command name:** ${command.name}`
+        const title = `**Nazwa polecenia:** ${command.name}`
 
-        if (command.aliases) data.push({ name: "**Aliases:**", value: `${command.aliases.join(', ')}` })
-        if (command.description) data.push({ name: "**Description:**", value: `${command.description}` })
-        if (command.usage) data.push({ name: "**Usage:**", value: `${prefix}${command.name} ${command.usage}` })
+        if (command.aliases) data.push({ name: "**Aliasy:**", value: `${command.aliases.join(', ')}` })
+        if (command.description) data.push({ name: "**Opis:**", value: `${command.description}` })
+        if (command.usage) data.push({ name: "**Użycie:**", value: `${prefix}${command.name} ${command.usage}` })
 
         return [new MessageEmbed({
             color: Colors.Info,
