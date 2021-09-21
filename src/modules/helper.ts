@@ -26,7 +26,7 @@ export class Helper implements Module {
     constructor(...modules: Module[]) {
         this.help = new Help(this, ...modules)
     }
-    
+
     public commands: Command[] = [
         {
             name: 'dodaj role',
@@ -422,8 +422,8 @@ export class Helper implements Module {
                             { name: 'Właściciel', value: `<@!${guild.ownerId}>`, inline: true },
                             { name: 'Utworzono', value: Utils.dateToString(guild.createdAt), inline: true },
                             { name: 'Liczba użytkowników', value: guild.memberCount.toFixed(), inline: true },
-                            { name: 'Kanały tekstowe', value: Utils.getChannelCount(guild, 'text').toFixed(), inline: true },
-                            { name: 'Kanały głosowe', value: Utils.getChannelCount(guild, 'voice').toFixed(), inline: true },
+                            { name: 'Kanały tekstowe', value: Utils.getChannelCount(guild, 'GUILD_TEXT').toFixed(), inline: true },
+                            { name: 'Kanały głosowe', value: Utils.getChannelCount(guild, 'GUILD_VOICE').toFixed(), inline: true },
                             { name: `Role:[${roles.length}]`, value: roles.join(', ').length > 1024 ? roles.join(', ').substring(0, 1023) : roles.join(', '), inline: true }
                         ]
                     })]

@@ -29,7 +29,7 @@ export class Utils {
         return null
     }
 
-    public static getChannelCount(guild: Guild, type: string): number {
+    public static getChannelCount(guild: Guild, type: 'GUILD_TEXT' | 'GUILD_VOICE'): number {
         return guild.channels.cache.filter(channel => channel.type === type).map(channel => channel).length
     }
 
