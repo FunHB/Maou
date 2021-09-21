@@ -1,4 +1,5 @@
 import { Connection, ConnectionManager, EntityTarget, FindConditions } from 'typeorm'
+import { Config } from '../config'
 import { ChannelEntity } from './entity/Channel'
 import { PenaltyEntity } from './entity/Penalty'
 import { ReportEntity } from './entity/Report'
@@ -6,20 +7,19 @@ import { RoleEntity } from './entity/Role'
 import { UserEntity } from './entity/User'
 
 export class DatabaseManager {
-    private static readonly url: string = 'postgres://postgres:password@localhost/maou'
-
     public static connection: Connection
     public static connectionManager: ConnectionManager
 
     public static async connect(): Promise<void> {
+        const config = new Config()
         console.info('[Database Manager] Connecting to database')
 
         this.connectionManager = new ConnectionManager()
 
         this.connection = this.connectionManager.create({
-            name: 'maoubot',
+            name: 'ene',
             type: 'postgres',
-            url: this.url,
+            url: config.databaseString,
             synchronize: true,
             entities: [
                 ChannelEntity,

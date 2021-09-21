@@ -10,6 +10,9 @@ export class ReportEntity {
     @Column('varchar')
     public reportId: string
 
+    @Column('varchar', { length: 18 })
+    public guild: string
+
     @Column('varchar')
     public reportedUserId: string
 
@@ -34,6 +37,7 @@ export class ReportEntity {
     constructor(report: IReport) {
         if (!report) return
         this.reportId = report.reportId
+        this.guild = report.guild
         this.reportedUserId = report.reportedUserId
         this.reportingUserId = report.reportingUserId
         this.channelId = report.channelId

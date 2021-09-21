@@ -14,7 +14,7 @@ export class ExpManager {
     private maxExpFromMsg: number
     private expMultiplier: number
 
-    constructor () {
+    constructor() {
         const config = new Config()
         this.minCharInMsg = config.exp.minCharInMsg
         this.maxCharInMsg = config.exp.maxCharInMsg
@@ -24,12 +24,12 @@ export class ExpManager {
     }
 
     public async handleMessage(message: Message): Promise<void> {
-        const { channel, member } = message
+        const { guild, channel, member } = message
 
         if (message.author.bot) return
 
         const config = new Config()
-        const channelsWithExp: string[] = (await DatabaseManager.getEntities(ChannelEntity, { type: ChannelType.withExp })).map(channel => channel.id)
+        const channelsWithExp: string[] = (await DatabaseManager.getEntities(ChannelEntity, { guild: guild.id, type: ChannelType.withExp })).map(channel => channel.id)
 
         if (!channelsWithExp.includes(channel.id)) return
 
@@ -43,7 +43,7 @@ export class ExpManager {
             user.exp -= toNextLvl
             ++user.level
 
-            const roles: RoleEntity[] = await DatabaseManager.getEntities(RoleEntity, { type: RoleType.level })
+            const roles: RoleEntity[] = await DatabaseManager.getEntities(RoleEntity, { guild: guild.id, type: RoleType.level })
             const newRoles = roles.filter(role => role.minLevel <= user.level);
 
             newRoles.forEach(newRole => {
@@ -52,11 +52,13 @@ export class ExpManager {
                 }
             })
 
-            channel.send(new MessageEmbed({
-                color: member.displayHexColor,
-                title: 'Nowy poziom',
-                description: `<@${member.id}> awansował na poziom ${user.level}`,
-            }))
+            channel.send({
+                embeds: [new MessageEmbed({
+                    color: member.displayHexColor,
+                    title: 'Nowy poziom',
+                    description: `<@${member.id}> awansował na poziom ${user.level}`,
+                })]
+            })
         }
 
         await DatabaseManager.save(user)

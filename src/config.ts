@@ -8,8 +8,6 @@ export class Config {
     public readonly databaseString: string
     public readonly upload: Record<string, string>
     public prefix: string
-    public channels: Record<string, string>
-    public roles: Record<string, string>
     public messages: Record<string, string>
     public exp: IExp
     public readonly creator: string
@@ -22,8 +20,6 @@ export class Config {
         this.databaseString = config.databaseString
         this.upload = config.upload
         this.prefix = config.prefix
-        this.channels = config.channels
-        this.roles = config.roles
         this.messages = config.messages
         this.exp = config.exp
         this.creator = packageJson.author
@@ -49,7 +45,6 @@ export class Config {
             if (typeof value === 'object') {
                 value = Object.entries(value).map(([key, value]) => `${key}: ${value}`).join('\n')
             }
-
             embed.addField(key, value)
         })
 
@@ -61,8 +56,6 @@ export class Config {
             token: this.token,
             databaseString: this.databaseString,
             prefix: this.prefix,
-            channels: this.channels,
-            roles: this.roles,
             upload: this.upload,
             exp: this.exp,
             messages: this.messages

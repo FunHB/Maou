@@ -1,52 +1,61 @@
 import "reflect-metadata";
 import { Client } from 'discord.js'
 import { Config } from './config'
-import { CommandHandler } from './command-handler'
 import { MessageDelete } from './services/messageDelete'
 import { DatabaseManager } from './database/databaseManager'
 import { ExpManager } from './services/expManager'
 import { Supervisor } from './services/supervisor/supervisor'
 import { PenaltiesManager } from './services/penaltiesManager'
 import { AutoPublic } from './services/autoPublic'
+import { CommandHandler } from "./commandHandler";
 
 export default class Bot {
-    public static async start(client: Client): Promise<void> {
-        const commandHandler = new CommandHandler()
-        const supervisor = new Supervisor()
-        const expManager = new ExpManager()
+    private readonly client: Client
+    private readonly commandHandler: CommandHandler
+    private readonly supervisor: Supervisor
+    private readonly expManager: ExpManager
+
+    constructor(client: Client) {
+        this.client = client
+        this.commandHandler = new CommandHandler()
+        this.supervisor = new Supervisor()
+        this.expManager = new ExpManager()
         new PenaltiesManager(client)
+    }
+
+    public async start(): Promise<void> {
         const config = new Config()
 
         if (!config.token) { throw new Error('invalid discord token') }
 
         await DatabaseManager.connect()
 
-        client.on('ready', () => {
-            console.info(`[Info] Logged in as ${client.user.tag}!`)
-            client.user.setActivity(`${config.prefix}pomoc`)
+        this.client.on('ready', () => {
+            console.info(`[Info] Logged in as ${this.client.user.tag}!`)
+            this.client.user.setActivity(`${config.prefix}pomoc`)
         })
 
-        client.on('guildMemberAdd', async member => {
-            const config = new Config()
+        this.client.on('guildMemberAdd', async member => {
+            if (!config.messages.welcome || config.messages.welcome === 'off') return
             await member.guild.systemChannel.send(config.messages.welcome.replace(/({user})/g, `<@${member.id}>`))
-        });
+        })
 
-        client.on('guildMemberRemove', async member => {
-            const config = new Config()
+        this.client.on('guildMemberRemove', async member => {
+            if (!config.messages.farewell || config.messages.farewell === 'off') return
             await member.guild.systemChannel.send(config.messages.farewell.replace(/({user})/g, member.nickname || member.user.username))
-        });
+        })
 
-        client.on('message', async (message) => {
-            await commandHandler.handleMessage(message)
-            await supervisor.handleMessage(message)
-            await expManager.handleMessage(message)
+        this.client.on('messageCreate', async message => {
+            await this.commandHandler.handleMessage(message)
+            await this.supervisor.handleMessage(message)
+            await this.expManager.handleMessage(message)
             await AutoPublic.public(message)
         })
 
-        client.on('messageDelete', async (message) => {
+        this.client.on('messageDelete', async message => {
             await MessageDelete.handleMessage(message)
         })
 
-        client.login(config.token)
+        this.client.login(config.token)
     }
 }

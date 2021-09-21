@@ -1,11 +1,8 @@
-import { Guild, GuildMember, Message, MessageAttachment, MessageEmbed, Permissions, User } from 'discord.js'
+import { ColorResolvable, Guild, Message, MessageAttachment, MessageEmbed, Permissions, User } from 'discord.js'
 import { Utils } from '../extensions/utils'
 import { Command } from '../api/command'
 import { Colors } from '../api/colors'
 import { Module } from '../api/module'
-import { Config } from '../config'
-import { getHelpForModule } from '../extensions/help'
-import { Recrutation } from '../extensions/recrutation'
 import { RequireAdminOrMod } from '../preconditions/requireAdminOrMod'
 import { requireAdminOrModOrChannelPermission } from '../preconditions/requireAdminOrModOrChannelPermission'
 import { DatabaseManager } from '../database/databaseManager'
@@ -13,10 +10,19 @@ import { PenaltiesManager } from '../services/penaltiesManager'
 import { channelType } from '../preconditions/requireChannel'
 import { PenaltyEntity, PenaltyType } from '../database/entity/Penalty'
 import { ReportEntity } from '../database/entity/Report'
-import { RequireAdmin } from '../preconditions/requireAdmin'
+import fs from 'fs'
+import { Help } from '../extensions/help'
+import { ChannelEntity, ChannelType } from '../database/entity/Channel'
+import { RoleEntity, RoleType } from '../database/entity/Role'
 
 export class Moderations implements Module {
+    public name = 'Moderations'
     public group = 'mod'
+    public help: Help
+
+    constructor(...modules: Module[]) {
+        this.help = new Help(this, ...modules)
+    }
 
     public commands: Command[] = [
         {
@@ -28,17 +34,18 @@ export class Moderations implements Module {
 
             execute: async function (message, args) {
                 const { channel } = message
-                const config = new Config()
                 const member = await Utils.getMember(message, args.shift())
                 const reason = args.join(' ') || 'Brak.'
 
                 if (!member) return
                 if (member.id === message.author.id) return
                 if (!member.bannable || member.user.bot) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Tego użytkownika nie da się zbanować!'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Tego użytkownika nie da się zbanować!'
+                        })]
+                    })
                     return
                 }
 
@@ -54,14 +61,14 @@ export class Moderations implements Module {
                 await member.ban({ reason: reason })
                 await DatabaseManager.save(penalty)
 
-                if (config.channels.modLogs) {
-                    await Moderations.notifyAboutPenalty(message.guild, member.user, penalty, message.author.username)
-                }
+                await Moderations.notifyAboutPenalty(message.guild, member.user, penalty, message.author.username)
 
-                await channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `<@${member.id}> został zbanowany`
-                }))
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `<@${member.id}> został zbanowany`
+                    })]
+                })
             }
         },
 
@@ -74,17 +81,18 @@ export class Moderations implements Module {
 
             execute: async function (message, args) {
                 const { channel } = message
-                const config = new Config()
                 const member = await Utils.getMember(message, args.shift())
                 const reason = args.join(' ') || 'Brak.'
 
                 if (!member) return
                 if (member.id === message.author.id) return
                 if (!member.bannable || member.user.bot) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Tego użytkownika nie da się zbanować!'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Tego użytkownika nie da się zbanować!'
+                        })]
+                    })
                     return
                 }
 
@@ -100,14 +108,14 @@ export class Moderations implements Module {
                 await member.kick(reason)
                 await DatabaseManager.save(penalty)
 
-                if (config.channels.modLogs) {
-                    await Moderations.notifyAboutPenalty(message.guild, member.user, penalty, message.author.username)
-                }
+                await Moderations.notifyAboutPenalty(message.guild, member.user, penalty, message.author.username)
 
-                await channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `<@${member.id}> został wyrzucony`
-                }))
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `<@${member.id}> został wyrzucony`
+                    })]
+                })
             }
         },
 
@@ -120,13 +128,15 @@ export class Moderations implements Module {
 
             execute: async function (message, args) {
                 const { channel, guild } = message
-                const config = new Config()
+                const muteRole = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: RoleType.mute })
 
-                if (!config.roles.mute) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Nie ustawiono roli wyciszonego!'
-                    }))
+                if (!muteRole) {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Nie ustawiono roli wyciszonego!'
+                        })]
+                    })
                     return
                 }
 
@@ -138,11 +148,13 @@ export class Moderations implements Module {
                 if (!member) return
                 if (member.user.bot) return
 
-                if (member.roles.cache.has(config.roles.mute)) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Ta osoba jest już wyciszona!'
-                    }))
+                if (member.roles.cache.has(muteRole.id)) {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Ta osoba jest już wyciszona!'
+                        })]
+                    })
                     return
                 }
 
@@ -155,17 +167,17 @@ export class Moderations implements Module {
                     type: PenaltyType.mute
                 })
 
-                await member.roles.add(config.roles.mute)
+                await PenaltiesManager.addPenalty(member, penalty)
                 await DatabaseManager.save(penalty)
 
-                if (config.channels.modLogs) {
-                    await Moderations.notifyAboutPenalty(guild, member.user, penalty, message.author.username)
-                }
+                await Moderations.notifyAboutPenalty(guild, member.user, penalty, message.author.username)
 
-                await channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `<@${member.id}> został wyciszony`
-                }))
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `<@${member.id}> został wyciszony`
+                    })]
+                })
             }
         },
 
@@ -177,11 +189,13 @@ export class Moderations implements Module {
             execute: async function (message) {
                 const mutes = await PenaltiesManager.getPenaltiesByTypeOrGuild(PenaltyType.mute, message.guild.id)
 
-                await message.channel.send(new MessageEmbed({
-                    color: Colors.Info,
-                    title: 'Wyciszeni:',
-                    description: mutes.map(penalty => `<@!${penalty.user}> [do: ${penalty.startDate.setHours(penalty.startDate.getHours() + penalty.duration) && Utils.dateToString(penalty.startDate, false)}] - ${penalty.reason}`).join('\n')
-                }))
+                await message.channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Info,
+                        title: 'Wyciszeni:',
+                        description: mutes.map(penalty => `<@!${penalty.user}> [do: ${penalty.startDate.setHours(penalty.startDate.getHours() + penalty.duration) && Utils.dateToString(penalty.startDate, false)}] - ${penalty.reason}`).join('\n')
+                    })]
+                })
             }
         },
 
@@ -194,27 +208,42 @@ export class Moderations implements Module {
 
             execute: async function (message, args) {
                 const { channel, guild } = message
-                const config = new Config()
+                const muteRole = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: RoleType.mute })
+
+                if (!muteRole) {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Nie ustawiono roli wyciszonego!'
+                        })]
+                    })
+                    return
+                }
+
                 const member = await Utils.getMember(message, args.join(' '))
-                const role = guild.roles.cache.get(config.roles.mute)
+                const role = guild.roles.cache.get(muteRole.id)
 
                 if (!member) return
 
-                if (!member.roles.cache.has(config.roles.mute)) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Ta osoba nie jest wyciszona!'
-                    }))
+                if (!member.roles.cache.has(muteRole.id)) {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Ta osoba nie jest wyciszona!'
+                        })]
+                    })
                     return
                 }
 
                 await member.roles.remove(role)
                 await PenaltiesManager.removePenalty(member.id, PenaltyType.mute)
 
-                await channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `<@${member.id}> został ułaskawiony`
-                }))
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `<@${member.id}> został ułaskawiony`
+                    })]
+                })
             }
         },
 
@@ -229,21 +258,25 @@ export class Moderations implements Module {
                 const { channel, guild } = message
                 const memberId = args.join(' ')
 
-                if (!(await guild.fetchBans()).find(ban => ban.user.id === memberId)) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Ta osoba nie ma bana!'
-                    }))
+                if (guild.bans.cache.has(memberId)) {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Ta osoba nie ma bana!'
+                        })]
+                    })
                     return
                 }
 
                 await guild.members.unban(memberId)
                 await PenaltiesManager.removePenalty(memberId, PenaltyType.ban)
 
-                await channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `<@${memberId}> został odbanowany`
-                }))
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `<@${memberId}> został odbanowany`
+                    })]
+                })
             }
         },
 
@@ -260,20 +293,24 @@ export class Moderations implements Module {
                 const oldNickname = member.nickname
 
                 if (!member) return
-                if (!message.guild.me.hasPermission(Permissions.FLAGS.CHANGE_NICKNAME) || !member.bannable) {
-                    await message.channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Bot nie ma uprawnień do zmiany nicków'
-                    }))
+                if (!message.guild.me.permissions.has(Permissions.FLAGS.CHANGE_NICKNAME) || !member.bannable) {
+                    await message.channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Bot nie ma uprawnień do zmiany nicków'
+                        })]
+                    })
                     return
                 }
 
                 await member.setNickname(args.join(' '))
 
-                await message.channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `Pseudonim użytkownika <@${member.id}> został zmieniony z ${oldNickname} na ${member.nickname || 'Brak'}`
-                }))
+                await message.channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Pseudonim użytkownika <@${member.id}> został zmieniony z ${oldNickname} na ${member.nickname || 'Brak'}`
+                    })]
+                })
             }
         },
 
@@ -283,12 +320,18 @@ export class Moderations implements Module {
             precondition: RequireAdminOrMod,
 
             execute: async function (message) {
-                Recrutation.changeRecrutationStatus()
+                if (fs.existsSync('recrutation')) {
+                    fs.unlinkSync('recrutation')
+                    return
+                }
+                fs.writeFileSync('recrutation', '')
 
-                await message.channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `Status rekrutacji został zmianiony na: ${Recrutation.getRecrutationStatus() ? '`Włączona`' : '`Wyłączona`'}!`
-                }))
+                await message.channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Status rekrutacji został zmianiony na: ${fs.existsSync('recrutation') ? '`Włączona`' : '`Wyłączona`'}!`
+                    })]
+                })
             }
         },
 
@@ -302,7 +345,7 @@ export class Moderations implements Module {
             execute: async function (message, args) {
                 const { guild, channel } = message
                 const reportId = args.shift()
-                const report: ReportEntity = await DatabaseManager.getEntity(ReportEntity, { reportId: reportId })
+                const report: ReportEntity = await DatabaseManager.getEntity(ReportEntity, { reportId: reportId, guild: guild.id })
                 if (!report) return
 
                 let reported: Message
@@ -314,10 +357,12 @@ export class Moderations implements Module {
                     reported = reportedChannel.isText() && await reportedChannel.messages.fetch(report.messageId)
                     reportMessage = await channel.messages.fetch(reportId)
                 } catch (exception) {
-                    await message.channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'coś poszło nie tak'
-                    }))
+                    await message.channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'coś poszło nie tak'
+                        })]
+                    })
                     console.error(`[Resolve] ${exception}`)
                     return
                 }
@@ -337,7 +382,7 @@ export class Moderations implements Module {
                 }
 
                 await message.delete()
-                await reportMessage.edit(reportMessage.embeds.shift().setColor(decision ? Colors.Success : Colors.Error).setTitle(decision ? 'Zatwierdzony' : 'Odrzucony'))
+                await reportMessage.edit({ embeds: [reportMessage.embeds.shift().setColor(decision ? Colors.Success : Colors.Error).setTitle(decision ? 'Zatwierdzony' : 'Odrzucony')] })
 
                 await DatabaseManager.remove(report)
             }
@@ -356,10 +401,12 @@ export class Moderations implements Module {
                 try {
                     quoted = await message.channel.messages.fetch(args.shift())
                 } catch (exception) {
-                    await message.channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'nie znaleziono wiadomości'
-                    }))
+                    await message.channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'nie znaleziono wiadomości'
+                        })]
+                    })
                     console.error(`[Quote] ${exception}`)
                     return
                 }
@@ -368,15 +415,18 @@ export class Moderations implements Module {
                 if (!channel) return
 
                 if (channel.isText()) {
-                    await channel.send(`>>> ${quoted.content}`, {
-                        files: quoted.attachments.array()
+                    await channel.send({
+                        content: `>>> ${quoted.content}`,
+                        files: quoted.attachments.map(a => a)
                     })
                 }
 
-                await message.channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `Wysłano wiadomość na kanał <#${channel.id}>`
-                }))
+                await message.channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Wysłano wiadomość na kanał <#${channel.id}>`
+                    })]
+                })
             }
         },
 
@@ -397,10 +447,12 @@ export class Moderations implements Module {
                 try {
                     messageForReaction = channel.isText() && await channel.messages.fetch(args.shift())
                 } catch (exception) {
-                    await message.channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'nie znaleziono wiadomości'
-                    }))
+                    await message.channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'nie znaleziono wiadomości'
+                        })]
+                    })
                     console.error(`[r2msg] ${exception}`)
                     return
                 }
@@ -411,10 +463,12 @@ export class Moderations implements Module {
 
                 await messageForReaction.react(reaction)
 
-                await message.channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `dodano reakcje ${reaction} do wiadomości`
-                }))
+                await message.channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `dodano reakcje ${reaction} do wiadomości`
+                    })]
+                })
             }
         },
 
@@ -435,13 +489,15 @@ export class Moderations implements Module {
                 if (!color) return
 
                 if (channel.isText()) {
-                    await channel.send(Moderations.getEmbed(color, args.join(' ')))
+                    await channel.send({ embeds: [Moderations.getEmbed(color, args.join(' '))] })
                 }
 
-                await message.channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `Wysłano wiadomość na kanał <#${channel.id}>`
-                }))
+                await message.channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Wysłano wiadomość na kanał <#${channel.id}>`
+                    })]
+                })
             }
         },
 
@@ -460,15 +516,18 @@ export class Moderations implements Module {
                 const { attachments, messageContent } = Moderations.getAttachmentsAndMessageContent(args.join(' '))
 
                 if (channel.isText()) {
-                    await channel.send(messageContent, {
-                        files: message.attachments.array().concat(attachments)
+                    await channel.send({
+                        content: messageContent,
+                        files: message.attachments.map(a => a).concat(attachments)
                     })
                 }
 
-                await message.channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `Wysłano wiadomość na kanał <#${channel.id}>`
-                }))
+                await message.channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Wysłano wiadomość na kanał <#${channel.id}>`
+                    })]
+                })
             }
         },
 
@@ -492,54 +551,20 @@ export class Moderations implements Module {
 
                         await prevMessage.edit(messageContent)
 
-                        await message.channel.send(new MessageEmbed({
-                            color: Colors.Success,
-                            description: `Zedytowano wiadomość na kanale <#${channel.id}>`
-                        }))
+                        await message.channel.send({
+                            embeds: [new MessageEmbed({
+                                color: Colors.Success,
+                                description: `Zedytowano wiadomość na kanale <#${channel.id}>`
+                            })]
+                        })
                     }
                 } catch (exception) {
-                    await message.channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'nie znaleziono wiadomości'
-                    }))
-                }
-            }
-        },
-
-        {
-            name: 'rosyjska ruletka',
-            description: 'muahahahahaha',
-            requireArgs: true,
-            usage: '<"nagroda"> <użytkownicy (max. 20)>\nNagrody: `ban`, `mute`, `kick`, `nic`',
-            precondition: RequireAdmin,
-
-            execute: async function (message, args) {
-                const { channel } = message
-
-                const type = args.shift().toLowerCase()
-                const members: GuildMember[] = []
-
-                for (let i = 0; i < args.length; ++i) {
-                    members.push(await Utils.getMember(message, args[i]))
-                }
-
-                if (members.length > 20 || members.length < 2) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: `Podano błędną ilość użytkowników!`
-                    }))
-                    return
-                }
-
-                const winner = members[Math.floor(Math.random() * members.length)]
-
-                await channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `Zwycięscą został ${winner.nickname ? winner.nickname : winner.user.username}`
-                }))
-
-                if (['ban', 'mute', 'kick'].includes(type)) {
-                    new Moderations().commands.find(command => command.name === type).execute(message, [winner.id, `${type === 'mute' ? 24 : ''}`, 'Źli moderatorzy znowu się bawią kosztem użytkowników'])
+                    await message.channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'nie znaleziono wiadomości'
+                        })]
+                    })
                 }
             }
         },
@@ -551,13 +576,13 @@ export class Moderations implements Module {
             usage: '[polecenie]',
             precondition: RequireAdminOrMod,
 
-            execute: async function (message, args) {
-                await message.channel.send(getHelpForModule(new Moderations(), args.join(' ').toLowerCase()))
+            execute: async (message, args) => {
+                await message.channel.send({ embeds: this.help.getHelp(args.join(' ').toLowerCase()) })
             }
         }
     ]
 
-    public static getEmbed(color: Colors | string, messageContent: string): MessageEmbed {
+    public static getEmbed(color: ColorResolvable, messageContent: string): MessageEmbed {
         const regex = /(https:\/\/)\S*[(.png)(.jpg)(.gif)(.jpeg)(.mp4)(.mp3)]/gm
         const links: string[] = messageContent.match(regex)
         const content = messageContent.replace(regex, '')
@@ -589,8 +614,9 @@ export class Moderations implements Module {
     }
 
     public static async notifyAboutPenalty(guild: Guild, user: User, penalty: PenaltyEntity, by: string): Promise<void> {
-        const config = new Config()
-        const modlogChannel = guild.channels.cache.get(config.channels.modLogs)
+        const modLogs = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.modLogs })
+        if (!modLogs) return
+        const modlogChannel = guild.channels.cache.get(modLogs.id)
         const { reason, startDate, duration, type } = penalty
         const embed = new MessageEmbed({
             color: this.getColorFromType(type),
@@ -618,7 +644,7 @@ export class Moderations implements Module {
         }
 
         if (modlogChannel.isText()) {
-            await modlogChannel.send(embed)
+            await modlogChannel.send({ embeds: [embed] })
         }
     }
 

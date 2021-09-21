@@ -1,6 +1,8 @@
 import { Message, MessageEmbed, Permissions } from "discord.js";
 import { Colors } from "../api/colors";
-import { Config } from "../config";
+import { DatabaseManager } from "../database/databaseManager";
+import { ChannelEntity, ChannelType } from "../database/entity/Channel";
+import { RoleEntity, RoleType } from "../database/entity/Role";
 
 export enum channelType {
     normal,
@@ -11,20 +13,32 @@ export enum channelType {
 }
 
 export const RequireChannel = async (message: Message, channel: channelType): Promise<boolean> => {
-    if (message.member.hasPermission(Permissions.FLAGS.ADMINISTRATOR) || channel === channelType.normal || !channel || getChannelByChannelType(channel) === message.channel.id) return true
+    const { guild, member } = message
+    const modRole = await DatabaseManager.getEntity(RoleEntity, { guild: message.guild.id, type: RoleType.mod })
 
-    await message.channel.send(new MessageEmbed({
-        color: Colors.Error,
-        description: `Polecenia można używać jedynie na kanale <#${getChannelByChannelType(channel)}>`
-    }))
+    if (member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) || (modRole && member.roles.cache.get(modRole.id)) || channel === channelType.normal || !channel || await (await getChannelByChannelType(guild.id, channel)).includes(message.channel.id)) return true
+
+    await message.channel.send({
+        embeds: [new MessageEmbed({
+            color: Colors.Error,
+            description: `Polecenia można używać jedynie na kanale <#${await getChannelByChannelType(guild.id, channel)}>`
+        })]
+    })
     return false
 }
 
-const getChannelByChannelType = (type: channelType): string => {
-    const config = new Config()
-    if (type === channelType.commands) return config.channels.commands
-    if (type === channelType.arts) return config.channels.arts
-    if (type === channelType.reports) return config.channels.reports
-    if (type === channelType.upload) return config.channels.upload
-    return ''
+const getChannelByChannelType = async (guildid: string, type: channelType): Promise<string[]> => {
+    const channelType = getChannelType(type)
+    if (!channelType) return []
+    const channels = await DatabaseManager.getEntities(ChannelEntity, { guild: guildid, type: channelType })
+    if (!channels) return []
+    return channels.map(channel => channel.id)
+}
+
+const getChannelType = (type: channelType): ChannelType => {
+    if (type === channelType.commands) return ChannelType.commands
+    if (type === channelType.arts) return ChannelType.arts
+    if (type === channelType.reports) return ChannelType.reports
+    if (type === channelType.upload) return ChannelType.upload
+    return null
 }

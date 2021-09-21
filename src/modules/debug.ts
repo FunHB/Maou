@@ -1,5 +1,5 @@
 import { MessageEmbed } from "discord.js";
-import { getHelpForModule } from '../extensions/help'
+import { Help } from '../extensions/help'
 import { Colors } from "../api/colors";
 import { Module } from "../api/module";
 import { Command } from "../api/command";
@@ -9,9 +9,16 @@ import { Config } from "../config";
 import fs from 'fs'
 import { ChannelEntity, ChannelType } from "../database/entity/Channel";
 import { RoleEntity, RoleType } from "../database/entity/Role";
+import { Utils } from "../extensions/utils";
 
 export class Debug implements Module {
+    public name = 'Administration'
     public group = 'dev'
+    public help: Help
+
+    constructor(...modules: Module[]) {
+        this.help = new Help(this, ...modules)
+    }
 
     public commands: Command[] = [
         {
@@ -20,10 +27,12 @@ export class Debug implements Module {
             precondition: RequireAdmin,
 
             execute: async function (message) {
-                await message.channel.send(new MessageEmbed({
-                    color: Colors.Info,
-                    description: 'Pora na nowe funkcje. Ciekawe co tym razem zepsułem.'
-                }))
+                await message.channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Info,
+                        description: 'Pora na nowe funkcje. Ciekawe co tym razem nie działa.'
+                    })]
+                })
 
                 message.client.destroy()
                 fs.writeFileSync('./updateNow', '')
@@ -37,22 +46,24 @@ export class Debug implements Module {
             precondition: RequireAdmin,
 
             execute: async function (message) {
-                const { channel } = message
+                const { guild, channel } = message
 
-                const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { id: channel.id, type: ChannelType.withExp })
+                const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { id: channel.id, guild: guild.id, type: ChannelType.withExp })
                 let status = true
 
                 if (channelEntity) {
                     status = false;
                     await DatabaseManager.remove(channelEntity)
                 } else {
-                    await DatabaseManager.save(new ChannelEntity(channel.id, ChannelType.withExp))
+                    await DatabaseManager.save(new ChannelEntity(channel.id, guild.id, ChannelType.withExp))
                 }
 
-                channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `${status ? 'Włączono' : 'Wyłączono'} doświadczenie na kanale <#${channel.id}>`
-                }))
+                channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `${status ? 'Włączono' : 'Wyłączono'} doświadczenie na kanale <#${channel.id}>`
+                    })]
+                })
             }
         },
 
@@ -62,22 +73,24 @@ export class Debug implements Module {
             precondition: RequireAdmin,
 
             execute: async function (message) {
-                const { channel } = message
+                const { guild, channel } = message
 
-                const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { id: channel.id, type: ChannelType.supervisor })
+                const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { id: channel.id, guild: guild.id, type: ChannelType.supervisor })
                 let status = true
 
                 if (channelEntity) {
                     status = false;
                     await DatabaseManager.remove(channelEntity)
                 } else {
-                    await DatabaseManager.save(new ChannelEntity(channel.id, ChannelType.supervisor))
+                    await DatabaseManager.save(new ChannelEntity(channel.id, guild.id, ChannelType.supervisor))
                 }
 
-                channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `${status ? 'Włączono' : 'Wyłączono'} nadzór na kanale <#${channel.id}>`
-                }))
+                channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `${status ? 'Włączono' : 'Wyłączono'} nadzór na kanale <#${channel.id}>`
+                    })]
+                })
             }
         },
 
@@ -87,30 +100,61 @@ export class Debug implements Module {
             precondition: RequireAdmin,
 
             execute: async function (message) {
-                const { channel } = message
+                const { guild, channel } = message
 
-                if (channel.type !== 'news') {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: `<#${channel.id}> nie jest kanałem ogłoszeń!`
-                    }))
+                if (channel.type !== 'GUILD_NEWS' && channel.type !== 'GUILD_NEWS_THREAD') {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: `<#${channel.id}> nie jest kanałem ogłoszeń!`
+                        })]
+                    })
                     return
                 }
 
-                const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { id: channel.id, type: ChannelType.autoPublic })
+                const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { id: channel.id, guild: guild.id, type: ChannelType.autoPublic })
                 let status = true
 
                 if (channelEntity) {
                     status = false
                     await DatabaseManager.remove(channelEntity)
                 } else {
-                    await DatabaseManager.save(new ChannelEntity(channel.id, ChannelType.autoPublic))
+                    await DatabaseManager.save(new ChannelEntity(channel.id, guild.id, ChannelType.autoPublic))
                 }
 
-                channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `${status ? `Dodano <#${channel.id}> do` : `Usunięto <#${channel.id}> z`} kanałów z auto publikacją.`
-                }))
+                channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `${status ? `Dodano <#${channel.id}> do` : `Usunięto <#${channel.id}> z`} kanałów z auto publikacją.`
+                    })]
+                })
+            }
+        },
+
+        {
+            name: 'commands',
+            description: 'Włącza polecenia na kanale',
+            precondition: RequireAdmin,
+
+            execute: async function (message) {
+                const { guild, channel } = message
+
+                const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { id: channel.id, guild: guild.id, type: ChannelType.commands })
+                let status = true
+
+                if (channelEntity) {
+                    status = false;
+                    await DatabaseManager.remove(channelEntity)
+                } else {
+                    await DatabaseManager.save(new ChannelEntity(channel.id, guild.id, ChannelType.commands))
+                }
+
+                channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `${status ? 'Włączono' : 'Wyłączono'} polecenia na kanale <#${channel.id}>`
+                    })]
+                })
             }
         },
 
@@ -128,27 +172,31 @@ export class Debug implements Module {
                 const role = guild.roles.cache.get(roleID)
 
                 if (!role) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Nie znaleziono roli o podanym id'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Nie znaleziono roli o podanym id'
+                        })]
+                    })
                     return
                 }
 
-                const roleEntity = await DatabaseManager.getEntity(RoleEntity, { id: role.id, type: RoleType.addable })
+                const roleEntity = await DatabaseManager.getEntity(RoleEntity, { id: role.id, guild: guild.id, type: RoleType.addable })
                 let status = true
 
                 if (roleEntity) {
                     status = false
                     await DatabaseManager.remove(roleEntity)
                 } else {
-                    await DatabaseManager.save(new RoleEntity(role.id, RoleType.addable))
+                    await DatabaseManager.save(new RoleEntity(role.id, guild.id, RoleType.addable))
                 }
 
-                channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `${status ? `Dodano <@&${role.id}> do` : `Usunięto <@&${role.id}> z`} możliwych do samodzielnego nadania`
-                }))
+                channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `${status ? `Dodano <@&${role.id}> do` : `Usunięto <@&${role.id}> z`} możliwych do samodzielnego nadania`
+                    })]
+                })
             }
         },
 
@@ -166,40 +214,48 @@ export class Debug implements Module {
                 const role = guild.roles.cache.get(roleID)
 
                 if (!role) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Nie znaleziono roli o podanym ID!'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Nie znaleziono roli o podanym ID!'
+                        })]
+                    })
                     return
                 }
 
-                const roleEntity = await DatabaseManager.getEntity(RoleEntity, { id: role.id, type: RoleType.level })
+                const roleEntity = await DatabaseManager.getEntity(RoleEntity, { id: role.id, guild: guild.id, type: RoleType.level })
 
                 if (roleEntity) {
                     await DatabaseManager.remove(roleEntity)
-                    channel.send(new MessageEmbed({
-                        color: Colors.Success,
-                        description: `Usunięto <@&${role.id}> z możliwych do uzyskania za poziom`
-                    }))
+                    channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Success,
+                            description: `Usunięto <@&${role.id}> z możliwych do uzyskania za poziom`
+                        })]
+                    })
                     return
                 }
 
                 const minLevel = parseInt(args.shift())
 
                 if (isNaN(minLevel)) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Minimalny poziom musi być liczbą!'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Minimalny poziom musi być liczbą!'
+                        })]
+                    })
                     return
                 }
 
-                await DatabaseManager.save(new RoleEntity(role.id, RoleType.level, minLevel))
+                await DatabaseManager.save(new RoleEntity(role.id, guild.id, RoleType.level, minLevel))
 
-                channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `Dodano <@&${role.id}> do możliwych do uzyskania za poziom`
-                }))
+                channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Dodano <@&${role.id}> do możliwych do uzyskania za poziom`
+                    })]
+                })
             }
         },
 
@@ -209,22 +265,38 @@ export class Debug implements Module {
             precondition: RequireAdmin,
 
             execute: async function (message) {
-                const { channel } = message
+                const { guild, channel } = message
                 const config = new Config()
 
-                const expChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { type: ChannelType.withExp })).map(channel => `<#${channel.id}>`)
-                const supervisorChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { type: ChannelType.supervisor })).map(channel => `<#${channel.id}>`)
-                const autopublicChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { type: ChannelType.autoPublic })).map(channel => `<#${channel.id}>`)
-                const addableRoles: string[] = (await DatabaseManager.getEntities(RoleEntity, { type: RoleType.addable })).map(role => `<@&${role.id}>`)
-                const levelRoles = (await DatabaseManager.getEntities(RoleEntity, { type: RoleType.level })).map(role => `<@&${role.id}> - ${role.minLevel}`)
+                const expChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { guild: guild.id, type: ChannelType.withExp })).map(channel => `<#${channel.id}>`)
+                const supervisorChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { guild: guild.id, type: ChannelType.supervisor })).map(channel => `<#${channel.id}>`)
+                const autopublicChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { guild: guild.id, type: ChannelType.autoPublic })).map(channel => `<#${channel.id}>`)
+                const commandsChannel: string[] = (await DatabaseManager.getEntities(ChannelEntity, { guild: guild.id, type: ChannelType.commands })).map(channel => `<#${channel.id}>`)
+                const addableRoles: string[] = (await DatabaseManager.getEntities(RoleEntity, { guild: guild.id, type: RoleType.addable })).map(role => `<@&${role.id}>`)
+                const levelRoles: string[] = (await DatabaseManager.getEntities(RoleEntity, { guild: guild.id, type: RoleType.level })).map(role => `<@&${role.id}> - ${role.minLevel}`)
 
-                await channel.send(config.toEmbed().addFields([
-                    { name: 'Channels with exp', value: expChannels.join('\n') || 'Brak.' },
-                    { name: 'Channels with supervisor', value: supervisorChannels.join('\n') || 'Brak.' },
-                    { name: 'Channels with autopublic', value: autopublicChannels.join('\n') || 'Brak.' },
-                    { name: 'addable roles', value: addableRoles.join('\n') || 'Brak.' },
-                    { name: 'level roles', value: levelRoles.join('\n') || 'Brak.' }
-                ]))
+                const reportsChannel = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.reports })
+                const modLogsChannel = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.modLogs })
+                const artsChannel = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.arts })
+                const messageDeleteLogsChannel = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.messageDeleteLogs })
+                const recrutationChannel = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.recrutation })
+
+                const modRole = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: RoleType.mod })
+                const muteRole = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: RoleType.mute })
+                const recrutationRole = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: RoleType.recrutation })
+
+                await channel.send({
+                    embeds: [config.toEmbed().addFields([
+                        { name: 'Channels with exp', value: expChannels.join('\n') || 'Brak.' },
+                        { name: 'Channels with supervisor', value: supervisorChannels.join('\n') || 'Brak.' },
+                        { name: 'Channels with autopublic', value: autopublicChannels.join('\n') || 'Brak.' },
+                        { name: 'Channels with commands', value: commandsChannel.join('\n') || 'Brak.' },
+                        { name: 'addable roles', value: addableRoles.join('\n') || 'Brak.' },
+                        { name: 'level roles', value: levelRoles.join('\n') || 'Brak.' },
+                        { name: 'other channels', value: `reports - ${reportsChannel ? `<#${reportsChannel.id}>` : 'Brak.'}\nmodLogs = ${modLogsChannel ? `<#${modLogsChannel.id}>` : 'Brak.'}\narts - ${artsChannel ? `<#${artsChannel.id}>` : 'Brak.'}\nmessageDeleteLogs - ${messageDeleteLogsChannel ? `<#${messageDeleteLogsChannel.id}>` : 'Brak.'}\nrecrutation - ${recrutationChannel ? `<#${recrutationChannel.id}>` : 'Brak.'}` },
+                        { name: 'other roles', value: `mod - ${modRole ? `<@&${modRole.id}>` : 'Brak.'}\nmute = ${muteRole ? `<@&${muteRole.id}>` : 'Brak.'}\nrecrutation - ${recrutationRole ? `<@&${recrutationRole.id}>` : 'Brak.'}` }
+                    ])]
+                })
             }
         },
 
@@ -242,10 +314,12 @@ export class Debug implements Module {
                 config.prefix = value
                 config.save()
 
-                message.channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `Zmieniono prefix na ${value}`
-                }))
+                message.channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Zmieniono prefix na ${value}`
+                    })]
+                })
             }
         },
 
@@ -257,41 +331,52 @@ export class Debug implements Module {
             precondition: RequireAdmin,
 
             execute: async function (message, args) {
-                const { channel } = message
-                const role = args.shift()
+                const { guild, channel } = message
+                const role: RoleType = (<any>RoleType)[args.shift().toLowerCase()]
                 const value = args.shift()
-                const config = new Config()
                 const regex = new RegExp('[0-9]{18}')
 
-                const roles = [
-                    'mod',
-                    'mute',
-                    'recrutation'
+                const roles: RoleType[] = [
+                    RoleType.mod,
+                    RoleType.mute,
+                    RoleType.recrutation
                 ]
 
                 if (!roles.includes(role)) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Podano błędną rolę'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Podano błędną rolę'
+                        })]
+                    })
                     return
                 }
 
                 if (!regex.test(value)) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Podano błędne Id roli'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Podano błędne Id roli'
+                        })]
+                    })
                     return
                 }
 
-                config.roles[role] = value
-                config.save()
+                const roleEntity = await DatabaseManager.getEntity(RoleEntity, { id: value, guild: guild.id, type: role })
 
-                await channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `Zmieniono role \`${role}\` na <@&${value}>`
-                }))
+                if (roleEntity) {
+                    roleEntity.id = value
+                    await DatabaseManager.save(roleEntity)
+                } else {
+                    await DatabaseManager.save(new RoleEntity(value, guild.id, role))
+                }
+
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Zmieniono role \`${role}\` na <@&${value}>`
+                    })]
+                })
             }
         },
 
@@ -299,49 +384,58 @@ export class Debug implements Module {
             name: 'set channel',
             description: 'Ustawia podany kanał',
             requireArgs: true,
-            usage: '<kanał> <id kanału>\nKanały:\nPolecenia - `commands`\nzgłoszenia - `reports`\n"Nagrody" - `modLogs`\nObrazki - `arts`\nUsunięte wiadomości - `messageDeleteLogs`\nUpload - `upload`\nRekrutacja (kategoria) - `recrutation`',
+            usage: '<kanał> <id kanału>\nKanały:\nzgłoszenia - `reports`\n"Nagrody" - `modLogs`\nObrazki - `arts`\nUsunięte wiadomości - `messageDeleteLogs`\nUpload - `upload`\nRekrutacja (kategoria) - `recrutation`',
             precondition: RequireAdmin,
 
             execute: async function (message, args) {
-                const { channel } = message
-                const channelType = args.shift()
+                const { guild, channel } = message
+                const channelType: ChannelType = Utils.getChannelType(args.shift())
                 const value = args.shift()
-                const config = new Config()
                 const regex = new RegExp('[0-9]{18}')
 
-                const channels = [
-                    'commands',
-                    'reports',
-                    'modLogs',
-                    'arts',
-                    'messageDeleteLogs',
-                    'upload',
-                    'recrutation',
+                const channels: ChannelType[] = [
+                    ChannelType.reports,
+                    ChannelType.modLogs,
+                    ChannelType.arts,
+                    ChannelType.messageDeleteLogs,
+                    ChannelType.recrutation,
                 ]
 
                 if (!channels.includes(channelType)) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Podano błędny kanał'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Podano błędny kanał'
+                        })]
+                    })
                     return
                 }
 
                 if (!regex.test(value)) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Podano błędne ID kanału'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Podano błędne ID kanału'
+                        })]
+                    })
                     return
                 }
 
-                config.channels[channelType] = value
-                config.save()
+                const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { id: value, guild: guild.id, type: channelType })
 
-                await channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `Ustawiono Kanał \`${channelType}\` na <#${value}>`
-                }))
+                if (channelEntity) {
+                    channelEntity.id = value
+                    await DatabaseManager.save(channelEntity)
+                } else {
+                    await DatabaseManager.save(new ChannelEntity(value, guild.id, channelType))
+                }
+
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Ustawiono Kanał \`${channelType}\` na <#${value}>`
+                    })]
+                })
             }
         },
 
@@ -366,28 +460,34 @@ export class Debug implements Module {
                 ]
 
                 if (!messages.includes(messageType)) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Podano błędną rolę'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Podano błędną rolę'
+                        })]
+                    })
                     return
                 }
 
                 if (!regex.test(value)) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Podano błędne Id roli'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Podano błędne Id roli'
+                        })]
+                    })
                     return
                 }
 
-                config.roles[messageType] = value
+                config.messages[messageType] = value
                 config.save()
 
-                await channel.send(new MessageEmbed({
-                    color: Colors.Success,
-                    description: `Zmieniono role \`${messageType}\` na \`${value}\``
-                }))
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Zmieniono role \`${messageType}\` na \`${value}\``
+                    })]
+                })
             }
         },
 
@@ -398,8 +498,8 @@ export class Debug implements Module {
             usage: '[polecenie]',
             precondition: RequireAdmin,
 
-            execute: async function (message, args) {
-                await message.channel.send(getHelpForModule(new Debug(), args.join(' ').toLowerCase()))
+            execute: async (message, args) => {
+                await message.channel.send({ embeds: this.help.getHelp(args.join(' ').toLowerCase()) })
             }
         }
     ]

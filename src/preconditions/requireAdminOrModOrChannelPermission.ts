@@ -1,6 +1,7 @@
 import { Message, MessageEmbed, PermissionResolvable, Permissions } from "discord.js"
 import { Colors } from "../api/colors"
-import { Config } from "../config"
+import { DatabaseManager } from "../database/databaseManager"
+import { RoleEntity, RoleType } from "../database/entity/Role"
 
 let _permission: PermissionResolvable
 
@@ -11,19 +12,21 @@ export const requireAdminOrModOrChannelPermission = (permission: PermissionResol
 
 const checkPermissions = async (message: Message): Promise<boolean> => {
     const { member, channel } = message
-    const config = new Config()
+    const modRole = await DatabaseManager.getEntity(RoleEntity, { guild: message.guild.id, type: RoleType.mod })
 
-    if (member.hasPermission(Permissions.FLAGS.ADMINISTRATOR) || (config.roles.mod && member.roles.cache.get(config.roles.mod))) return true
+    if (member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) || (modRole && member.roles.cache.get(modRole.id))) return true
 
-    if (channel.type !== 'dm') {
-        if (channel.permissionOverwrites.get(member.id) && channel.permissionOverwrites.get(member.id).allow.has(_permission)) return true
+    if (channel.type !== 'DM') {
+        if (channel.permissionsFor(member.id) && channel.permissionsFor(member.id).has(_permission)) return true
     }
 
-    await channel.send(new MessageEmbed({
-        color: Colors.Error,
-        image: {
-            url: `https://i.giphy.com/RX3vhj311HKLe.gif`
-        }
-    }))
+    await channel.send({
+        embeds: [new MessageEmbed({
+            color: Colors.Error,
+            image: {
+                url: `https://i.giphy.com/RX3vhj311HKLe.gif`
+            }
+        })]
+    })
     return false
 }

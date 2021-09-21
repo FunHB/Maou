@@ -1,19 +1,25 @@
-import { DMChannel, MessageEmbed, NewsChannel, TextChannel } from "discord.js"
+import { MessageEmbed, TextBasedChannels } from "discord.js"
 import { Colors } from "../api/colors"
 import { Command } from "../api/command"
 import { Module } from "../api/module"
 import { Config } from "../config"
-import { getHelpForModule } from "../extensions/help"
+import { Help } from "../extensions/help"
 import { channelType } from "../preconditions/requireChannel"
 
 export class Upload implements Module {
+    public name = 'Upload'
     public group = 'upload'
+    public help: Help
+
+    constructor(...modules: Module[]) {
+        this.help = new Help(this, ...modules)
+    }
 
     public commands: Command[] = [
         {
             name: 'dood',
             description: 'Uploaduje z gdriva na dood',
-            aliases: ['up'],
+            requireArgs: true,
             usage: '[GdriveLink]',
             channelType: channelType.upload,
 
@@ -26,18 +32,22 @@ export class Upload implements Module {
                 const regexGdrive = new RegExp('(https:\/\/drive\.google\.com\/file\/)\S*', 'gm')
 
                 if (!config.upload.dood) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Brak klucza do API'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Brak klucza do API'
+                        })]
+                    })
                     return
                 }
-                
+
                 if (!sourceUrl.match(regexGdrive)) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Nieprawidłowy link'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Nieprawidłowy link'
+                        })]
+                    })
                     return
                 }
 
@@ -66,10 +76,12 @@ export class Upload implements Module {
                     await Upload.notifyAboutLink(channel, this.name, `https://dood.to/e/${result.filecode}`)
                 } catch (exception) {
                     console.error(`[Upload] Error: ${exception}`)
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: `Błąd api`
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: `Błąd api`
+                        })]
+                    })
                 }
             }
         },
@@ -88,18 +100,22 @@ export class Upload implements Module {
                 const baseApiUrl = "https://streamsb.com/api"
 
                 if (!config.upload.dood) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Brak klucza do API'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Brak klucza do API'
+                        })]
+                    })
                     return
                 }
 
                 if (!sourceUrl.match(new RegExp('(https:\/\/drive\.google\.com\/file\/)\S*', 'm'))) {
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: 'Nieprawidłowy link'
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Nieprawidłowy link'
+                        })]
+                    })
                     return
                 }
 
@@ -119,10 +135,12 @@ export class Upload implements Module {
                     await Upload.notifyAboutLink(channel, this.name, `https://sbembed3.com/${filecode}.html`)
                 } catch (exception) {
                     console.error(`[Upload] Error: ${exception}`)
-                    await channel.send(new MessageEmbed({
-                        color: Colors.Error,
-                        description: `Błąd api`
-                    }))
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: `Błąd api`
+                        })]
+                    })
                 }
             }
         },
@@ -134,21 +152,23 @@ export class Upload implements Module {
             usage: '[polecenie]',
             channelType: channelType.upload,
 
-            execute: async function (message, args) {
-                await message.channel.send(getHelpForModule(new Upload(), args.join(' ').toLowerCase()))
+            execute: async (message, args) => {
+                await message.channel.send({ embeds: this.help.getHelp(args.join(' ').toLowerCase()) })
             }
         }
     ]
 
-    private static async notifyAboutLink(channel: TextChannel | DMChannel | NewsChannel, hosting: string, url: string) {
-        await channel.send(new MessageEmbed({
-            color: Colors.Success,
-            fields: [
-                { name: hosting, value: url }
-            ],
-            footer: {
-                text: 'Jeśli nie działa to poczekaj! A jeśli dalej nie działa to zgłoś do ZYGl'
-            }
-        }))
+    private static async notifyAboutLink(channel: TextBasedChannels, hosting: string, url: string) {
+        await channel.send({
+            embeds: [new MessageEmbed({
+                color: Colors.Success,
+                fields: [
+                    { name: hosting, value: url }
+                ],
+                footer: {
+                    text: 'Jeśli nie działa to poczekaj! A jeśli dalej nie działa to zgłoś do ZYGl'
+                }
+            })]
+        })
     }
 }

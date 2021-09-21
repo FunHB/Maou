@@ -3,8 +3,6 @@ export interface IConfig {
     readonly databaseString: string
     readonly upload: Record<string, string>
     prefix: string
-    channels: Record<string, string>
-    roles: Record<string, string>
     messages: Record<string, string>
     exp: IExp
 }

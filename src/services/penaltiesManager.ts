@@ -1,22 +1,14 @@
-import { Client } from "discord.js";
-import { IConfig } from "../api/IConfig";
-import { Config } from "../config";
+import { Client, GuildMember } from "discord.js";
 import { DatabaseManager } from "../database/databaseManager";
 import { PenaltyEntity, PenaltyType } from "../database/entity/Penalty";
+import { RoleEntity, RoleType } from "../database/entity/Role";
 import { Utils } from "../extensions/utils";
 
 export class PenaltiesManager {
-    private config: IConfig
     private client: Client
 
     constructor(client: Client) {
-        this.config = new Config()
         this.client = client
-
-        if (!this.config.roles.mute) {
-            console.error('[Penalties Manager] mute role not set!')
-            return
-        }
 
         setInterval(async () => {
             try {
@@ -34,6 +26,9 @@ export class PenaltiesManager {
         const penalties: PenaltyEntity[] = await PenaltiesManager.getPenaltiesByTypeOrGuild(PenaltyType.mute)
 
         penalties.forEach(async penalty => {
+            const muteRole = await DatabaseManager.getEntity(RoleEntity, { guild: penalty.guild, type: RoleType.mute })
+            if (!muteRole) return
+
             try {
                 const guild = await this.client.guilds.fetch(penalty.guild)
                 if (!guild) return
@@ -41,14 +36,14 @@ export class PenaltiesManager {
                 const member = await guild.members.fetch(penalty.user)
                 if (member) {
                     if ((Date.now() - penalty.startDate.getTime()) / 1000 / 60 / 60 < penalty.duration) {
-                        if (!member.roles.cache.has(this.config.roles.mute)) {
-                            await member.roles.add(this.config.roles.mute)
+                        if (!member.roles.cache.has(muteRole.id)) {
+                            await member.roles.add(muteRole.id)
                         }
                         return
                     }
                     await DatabaseManager.remove(penalty)
-                    if (member.roles.cache.has(this.config.roles.mute)) {
-                        await member.roles.remove(this.config.roles.mute)
+                    if (member.roles.cache.has(muteRole.id)) {
+                        await member.roles.remove(muteRole.id)
                     }
                     return
                 }
@@ -60,6 +55,15 @@ export class PenaltiesManager {
                 console.error(`[Penalties Manager] ${exception}`)
             }
         })
+    }
+
+    public static async addPenalty(member: GuildMember, penalty: PenaltyEntity) {
+        const muteRole = await DatabaseManager.getEntity(RoleEntity, { guild: penalty.guild, type: RoleType.mute })
+
+        if (muteRole) {
+            await member.roles.add(muteRole.id)
+        }
+        await DatabaseManager.save(penalty)
     }
 
     public static async removePenalty(user: string, type: PenaltyType): Promise<void> {

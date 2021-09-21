@@ -1,5 +1,5 @@
 {
-  "version": "2.2.0",
+  "version": "2.2.6",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -7,18 +7,17 @@
     "src"
   ],
   "engines": {
-    "node": ">=14.15.2",
-    "npm": ">=6.14.9"
+    "node": ">=16.6.0",
+    "npm": ">=7.0.0"
   },
   "scripts": {
     "start": "node ./dist/index.js",
-    "build": "tsdx build",
-    "update": "git pull git@github.com:Sygnator/maou-bot.git dev"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
-    }
+    "update": "git pull git@github.com:FunHB/maou-bot.git dev",
+    "type-check": "tsc --noEmit",
+    "watch": "npm run type-check -- --watch",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src --out-dir dist --extensions \".ts,.tsx\" --source-maps inline"
   },
   "prettier": {
     "printWidth": 80,
@@ -29,28 +28,23 @@
   "name": "maou-bot",
   "author": "FunHB",
   "module": "commonjs",
-  "size-limit": [
-    {
-      "path": "dist/mylib.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/mylib.esm.js",
-      "limit": "10 KB"
-    }
-  ],
   "devDependencies": {
+    "@babel/cli": "^7.15.4",
+    "@babel/core": "^7.15.5",
+    "@babel/plugin-proposal-decorators": "^7.15.4",
+    "@babel/plugin-transform-runtime": "^7.15.0",
+    "@babel/preset-env": "^7.15.6",
+    "@babel/preset-typescript": "^7.15.0",
     "@size-limit/preset-small-lib": "^4.5.5",
     "@types/node": "^14.17.3",
     "@types/node-fetch": "^2.5.10",
-    "husky": "^5.0.9",
-    "size-limit": "^4.9.2",
-    "tsdx": "^0.14.1",
+    "ts-node": "^10.2.1",
     "tslib": "^2.1.0",
     "typescript": "^4.1.5"
   },
   "dependencies": {
-    "discord.js": "^12.5.3",
+    "@babel/runtime": "^7.15.4",
+    "discord.js": "^13.1.0",
     "node-fetch": "^2.6.1",
     "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",

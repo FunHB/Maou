@@ -1,12 +1,12 @@
 import { Message, MessageEmbed, Permissions } from "discord.js"
 import { Colors } from "../../api/colors"
-import { IConfig } from "../../api/IConfig"
-import { CommandHandler } from "../../command-handler"
-import { Config } from "../../config"
+import { CommandHandler } from "../../commandHandler"
 import { DatabaseManager } from "../../database/databaseManager"
 import { ChannelEntity, ChannelType } from "../../database/entity/Channel"
 import { PenaltyEntity, PenaltyType } from "../../database/entity/Penalty"
+import { RoleEntity, RoleType } from "../../database/entity/Role"
 import { Moderations } from "../../modules/moderations"
+import { PenaltiesManager } from "../penaltiesManager"
 import { SupervisorEntity } from "./supervisorEntity"
 import { SupervisorMessage } from "./SupervisorMessage"
 
@@ -23,11 +23,9 @@ export class Supervisor {
     private readonly COMMAND_MOD = 2
 
     private suspects: Map<string, SupervisorEntity>
-    private config: IConfig
 
     constructor() {
         this.suspects = new Map<string, SupervisorEntity>()
-        this.config = new Config()
 
         setInterval(() => {
             this.autoValidate()
@@ -37,16 +35,18 @@ export class Supervisor {
     }
 
     public async handleMessage(message: Message): Promise<void> {
-        if (message.author.bot || message.webhookID) return
+        if (message.author.bot || message.webhookId) return
         await this.analize(message)
     }
 
     private async analize(message: Message): Promise<void> {
-        const { member, channel } = message
-        const supervisorChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { type: ChannelType.supervisor })).map(channel => channel.id)
+        const { guild, member, channel } = message
 
+        const supervisorChannels: string[] = (await DatabaseManager.getEntities(ChannelEntity, { guild: guild.id, type: ChannelType.supervisor })).map(channel => channel.id)
         if (supervisorChannels.length < 1 || !supervisorChannels.includes(channel.id)) return
-        if (member.hasPermission(Permissions.FLAGS.ADMINISTRATOR) || (this.config.roles.mod && member.roles.cache.has(this.config.roles.mod))) return
+
+        const modRole = await DatabaseManager.getEntity(RoleEntity, { guild: message.guild.id, type: RoleType.mod })
+        if (member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) || (modRole && member.roles.cache.has(modRole.id))) return
 
         const messageContent = this.getMessageContent(message)
 
@@ -74,7 +74,6 @@ export class Supervisor {
 
     private async makeAction(action: Action, message: Message): Promise<void> {
         const { guild, channel, member } = message
-        const config = new Config()
         let penalty: PenaltyEntity
 
         if (action === Action.mute) {
@@ -87,15 +86,17 @@ export class Supervisor {
                 type: PenaltyType.mute
             })
 
-            await member.roles.add(config.roles.mute)
+            await PenaltiesManager.addPenalty(member, penalty)
             await DatabaseManager.save(penalty)
-            if (config.channels.modLogs) {
-                await Moderations.notifyAboutPenalty(guild, member.user, penalty, 'automat')
-            }
-            await channel.send(new MessageEmbed({
-                color: Colors.Success,
-                description: `<@${member.id}> został wyciszony`
-            }))
+
+            await Moderations.notifyAboutPenalty(guild, member.user, penalty, 'automat')
+
+            await channel.send({
+                embeds: [new MessageEmbed({
+                    color: Colors.Success,
+                    description: `<@${member.id}> został wyciszony`
+                })]
+            })
             return
         }
 
@@ -111,13 +112,15 @@ export class Supervisor {
 
             await member.ban({ reason: penalty.reason })
             await DatabaseManager.save(penalty)
-            if (config.channels.modLogs) {
-                await Moderations.notifyAboutPenalty(guild, member.user, penalty, 'automat')
-            }
-            await channel.send(new MessageEmbed({
-                color: Colors.Success,
-                description: `<@${member.id}> został zbanowany`
-            }))
+
+            await Moderations.notifyAboutPenalty(guild, member.user, penalty, 'automat')
+
+            await channel.send({
+                embeds: [new MessageEmbed({
+                    color: Colors.Success,
+                    description: `<@${member.id}> został zbanowany`
+                })]
+            })
             return
         }
     }

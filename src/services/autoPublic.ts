@@ -4,11 +4,11 @@ import { ChannelEntity, ChannelType } from "../database/entity/Channel";
 
 export class AutoPublic {
     public static async public(message: Message) {
-        const { channel } = message
+        const { guild, channel } = message
 
-        if (!(message.channel.type == 'news')) return
+        if (!(channel.type == 'GUILD_NEWS' || channel.type == 'GUILD_NEWS_THREAD')) return
 
-        const channelsWithAutoPublic: string[] = (await DatabaseManager.getEntities(ChannelEntity, { type: ChannelType.autoPublic })).map(channel => channel.id)
+        const channelsWithAutoPublic: string[] = (await DatabaseManager.getEntities(ChannelEntity, { guild: guild.id, type: ChannelType.autoPublic })).map(channel => channel.id)
 
         if (channelsWithAutoPublic.includes(channel.id)) {
             message.crosspost()

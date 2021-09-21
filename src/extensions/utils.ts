@@ -1,5 +1,6 @@
-import { Guild, GuildMember, Message, User } from "discord.js"
+import { ColorResolvable, Guild, GuildMember, HexColorString, Message, User } from "discord.js"
 import { Colors } from "../api/colors"
+import { ChannelType } from "../database/entity/Channel"
 
 export class Utils {
     public static dateToString(date: Date, seconds = true): string {
@@ -17,18 +18,22 @@ export class Utils {
         return user.avatarURL({ size: 128, format: "jpg" }) || user.defaultAvatarURL
     }
 
-    public static getColor(color: string): Colors | string {
+    public static getColor(color: string | HexColorString): ColorResolvable {
         if (color === 'error') return Colors.Error
         if (color === 'success') return Colors.Success
         if (color === 'warning') return Colors.Warning
         if (color === 'info') return Colors.Info
         if (color === 'neutral') return Colors.Neutral
         if (color === 'random') return 'RANDOM'
-        if ((/^#[0-9A-Fa-f]{6}$/).test(color)) return color
+        if ((/^#[0-9A-Fa-f]{6}$/).test(color)) return color as HexColorString
         return null
     }
 
     public static getChannelCount(guild: Guild, type: string): number {
-        return guild.channels.cache.array().filter(channel => channel.type === type).length
+        return guild.channels.cache.filter(channel => channel.type === type).map(channel => channel).length
+    }
+
+    public static getChannelType(channel: string): ChannelType {
+        return (<any>ChannelType)[channel]
     }
 }
