@@ -445,7 +445,7 @@ export class Debug implements Module {
             name: 'set message',
             description: 'Ustawia podaną wiadomość',
             requireArgs: true,
-            usage: '<wiadomość> <treść wiadomości>\nWiadomości:\nPowitalna - `welcome`\nPożegnalna - `farewell`\nRekrutacja - `recrutation`\nAby ustawić wzmiankę użyj `{user}`',
+            usage: '<typ wiadomości> <treść wiadomości>\nWiadomości:\nPowitalna - `welcome`\nPożegnalna - `farewell`\nRekrutacja - `recrutation`\nAby ustawić wzmiankę użyj `{user}`',
             precondition: RequireAdmin,
 
             execute: async function (message, args) {
@@ -453,7 +453,6 @@ export class Debug implements Module {
                 const messageType = args.shift()
                 const value = args.join()
                 const config = new Config()
-                const regex = new RegExp('[0-9]{18}')
 
                 const messages = [
                     'welcome',
@@ -465,17 +464,7 @@ export class Debug implements Module {
                     await channel.send({
                         embeds: [new MessageEmbed({
                             color: Colors.Error,
-                            description: 'Podano błędną rolę'
-                        })]
-                    })
-                    return
-                }
-
-                if (!regex.test(value)) {
-                    await channel.send({
-                        embeds: [new MessageEmbed({
-                            color: Colors.Error,
-                            description: 'Podano błędne Id roli'
+                            description: 'Podano błędny typ wiadomości'
                         })]
                     })
                     return
@@ -487,7 +476,7 @@ export class Debug implements Module {
                 await channel.send({
                     embeds: [new MessageEmbed({
                         color: Colors.Success,
-                        description: `Zmieniono role \`${messageType}\` na \`${value}\``
+                        description: `Zmieniono wiadomość \`${messageType}\` na \`${value}\``
                     })]
                 })
             }
