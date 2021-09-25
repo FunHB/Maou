@@ -238,7 +238,7 @@ export class Helper implements Module {
                     })]
                 })
                 if (!config.messages.recrutation || config.messages.recrutation === 'off') return
-                await recrutationChannel.send(`${config.messages.recrutation.replace(/({user})/g, `<@${member.id}>`)} (<@&${recrutationRole}>)`)
+                await recrutationChannel.send(`${config.messages.recrutation.replace(/({user})/g, `<@${member.id}>`)} (<@&${recrutationRole.id}>)`)
             }
         },
 
