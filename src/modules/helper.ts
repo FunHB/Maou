@@ -17,6 +17,7 @@ import { ChannelEntity, ChannelType } from '../database/entity/Channel'
 import { RoleEntity, RoleType } from '../database/entity/Role'
 import { PenaltiesManager } from '../services/penaltiesManager'
 import { ExpManager } from '../services/expManager'
+import { MessageEntity, MessageType } from '../database/entity/Message'
 
 export class Helper implements Module {
     public name = 'Podstawowe'
@@ -174,7 +175,6 @@ export class Helper implements Module {
 
             execute: async function (message) {
                 const { guild, channel, member } = message
-                const config = new Config()
 
                 if (!fs.existsSync('recrutation')) {
                     await channel.send({
@@ -237,8 +237,11 @@ export class Helper implements Module {
                         description: 'Zgłoszenie zostało przyjęte.'
                     })]
                 })
-                if (!config.messages.recrutation || config.messages.recrutation === 'off') return
-                await recrutationChannel.send(`${config.messages.recrutation.replace(/({user})/g, `<@${member.id}>`)} (<@&${recrutationRole.id}>)`)
+
+                const recrutationMessage = await DatabaseManager.getEntity(MessageEntity, { guild: member.guild.id, type: MessageType.recrutation })
+
+                if (!recrutationMessage || recrutationMessage.value === 'off') return
+                await recrutationChannel.send(`${recrutationMessage.value.replace(/({user})/g, `<@${member.id}>`)} (<@&${recrutationRole.id}>)`)
             }
         },
 

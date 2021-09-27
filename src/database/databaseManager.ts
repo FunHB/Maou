@@ -1,6 +1,7 @@
 import { Connection, ConnectionManager, EntityTarget, FindConditions } from 'typeorm'
 import { Config } from '../config'
 import { ChannelEntity } from './entity/Channel'
+import { MessageEntity } from './entity/Message'
 import { PenaltyEntity } from './entity/Penalty'
 import { ReportEntity } from './entity/Report'
 import { RoleEntity } from './entity/Role'
@@ -26,7 +27,8 @@ export class DatabaseManager {
                 PenaltyEntity,
                 ReportEntity,
                 RoleEntity,
-                UserEntity
+                UserEntity,
+                MessageEntity
             ]
         })
 

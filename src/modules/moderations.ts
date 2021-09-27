@@ -317,6 +317,7 @@ export class Moderations implements Module {
         {
             name: 'rekrutacja',
             description: 'Rozpoczyna, lub kończy rekrutacje!',
+            aliases: ['recrutation'],
             precondition: RequireAdminOrMod,
 
             execute: async function (message) {

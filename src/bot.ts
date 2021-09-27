@@ -8,6 +8,7 @@ import { Supervisor } from './services/supervisor/supervisor'
 import { PenaltiesManager } from './services/penaltiesManager'
 import { AutoPublic } from './services/autoPublic'
 import { CommandHandler } from "./commandHandler";
+import { MessageEntity, MessageType } from "./database/entity/Message";
 
 export default class Bot {
     private readonly client: Client
@@ -36,13 +37,15 @@ export default class Bot {
         })
 
         this.client.on('guildMemberAdd', async member => {
-            if (!config.messages.welcome || config.messages.welcome === 'off') return
-            await member.guild.systemChannel.send(config.messages.welcome.replace(/({user})/g, `<@${member.id}>`))
+            const welcomeMessage = await DatabaseManager.getEntity(MessageEntity, { guild: member.guild.id, type: MessageType.welcome })
+            if (!welcomeMessage || welcomeMessage.value === 'off') return
+            await member.guild.systemChannel.send(welcomeMessage.value.replace(/({user})/g, `<@${member.id}>`))
         })
 
         this.client.on('guildMemberRemove', async member => {
-            if (!config.messages.farewell || config.messages.farewell === 'off') return
-            await member.guild.systemChannel.send(config.messages.farewell.replace(/({user})/g, member.nickname || member.user.username))
+            const farewellMessage = await DatabaseManager.getEntity(MessageEntity, { guild: member.guild.id, type: MessageType.farewell })
+            if (!farewellMessage || farewellMessage.value === 'off') return
+            await member.guild.systemChannel.send(farewellMessage.value.replace(/({user})/g, member.nickname || member.user.username))
         })
 
         this.client.on('messageCreate', async message => {

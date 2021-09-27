@@ -8,7 +8,6 @@ export class Config {
     public readonly databaseString: string
     public readonly upload: Record<string, string>
     public prefix: string
-    public messages: Record<string, string>
     public exp: IExp
     public readonly creator: string
     public readonly version: string
@@ -20,7 +19,6 @@ export class Config {
         this.databaseString = config.databaseString
         this.upload = config.upload
         this.prefix = config.prefix
-        this.messages = config.messages
         this.exp = config.exp
         this.creator = packageJson.author
         this.version = packageJson.version
@@ -33,9 +31,6 @@ export class Config {
     public toEmbed(): MessageEmbed {
         const showInConfig = [
             'prefix',
-            'channels',
-            'roles',
-            'messages',
             'exp'
         ]
         const config = Object.entries(new Config()).filter(([key]) => showInConfig.includes(key))
@@ -57,8 +52,7 @@ export class Config {
             databaseString: this.databaseString,
             prefix: this.prefix,
             upload: this.upload,
-            exp: this.exp,
-            messages: this.messages
+            exp: this.exp
         }
 
         fs.writeFileSync('./config.json', JSON.stringify(config))

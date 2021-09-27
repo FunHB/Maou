@@ -10,6 +10,7 @@ import fs from 'fs'
 import { ChannelEntity, ChannelType } from "../database/entity/Channel";
 import { RoleEntity, RoleType } from "../database/entity/Role";
 import { Utils } from "../extensions/utils";
+import { MessageEntity, MessageType } from "../database/entity/Message";
 
 export class Debug implements Module {
     public name = 'Administacyjne'
@@ -286,16 +287,21 @@ export class Debug implements Module {
                 const muteRole = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: RoleType.mute })
                 const recrutationRole = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: RoleType.recrutation })
 
+                const welcomeMessage = await DatabaseManager.getEntity(MessageEntity, { guild: guild.id, type: MessageType.welcome })
+                const farewellMessage = await DatabaseManager.getEntity(MessageEntity, { guild: guild.id, type: MessageType.farewell })
+                const recrutationMessage = await DatabaseManager.getEntity(MessageEntity, { guild: guild.id, type: MessageType.recrutation })
+
                 await channel.send({
                     embeds: [config.toEmbed().addFields([
                         { name: 'Channels with exp', value: expChannels.join('\n') || 'Brak.' },
                         { name: 'Channels with supervisor', value: supervisorChannels.join('\n') || 'Brak.' },
                         { name: 'Channels with autopublic', value: autopublicChannels.join('\n') || 'Brak.' },
                         { name: 'Channels with commands', value: commandsChannel.join('\n') || 'Brak.' },
-                        { name: 'addable roles', value: addableRoles.join('\n') || 'Brak.' },
-                        { name: 'level roles', value: levelRoles.join('\n') || 'Brak.' },
-                        { name: 'other channels', value: `reports - ${reportsChannel ? `<#${reportsChannel.id}>` : 'Brak.'}\nmodLogs = ${modLogsChannel ? `<#${modLogsChannel.id}>` : 'Brak.'}\narts - ${artsChannel ? `<#${artsChannel.id}>` : 'Brak.'}\nmessageDeleteLogs - ${messageDeleteLogsChannel ? `<#${messageDeleteLogsChannel.id}>` : 'Brak.'}\nrecrutation - ${recrutationChannel ? `<#${recrutationChannel.id}>` : 'Brak.'}\nupload - ${uploadChannel ? `<#${uploadChannel.id}>` : 'Brak.'}` },
-                        { name: 'other roles', value: `mod - ${modRole ? `<@&${modRole.id}>` : 'Brak.'}\nmute = ${muteRole ? `<@&${muteRole.id}>` : 'Brak.'}\nrecrutation - ${recrutationRole ? `<@&${recrutationRole.id}>` : 'Brak.'}` }
+                        { name: 'Addable roles', value: addableRoles.join('\n') || 'Brak.' },
+                        { name: 'Level roles', value: levelRoles.join('\n') || 'Brak.' },
+                        { name: 'Other channels', value: `reports - ${reportsChannel ? `<#${reportsChannel.id}>` : 'Brak.'}\nmodLogs = ${modLogsChannel ? `<#${modLogsChannel.id}>` : 'Brak.'}\narts - ${artsChannel ? `<#${artsChannel.id}>` : 'Brak.'}\nmessageDeleteLogs - ${messageDeleteLogsChannel ? `<#${messageDeleteLogsChannel.id}>` : 'Brak.'}\nrecrutation - ${recrutationChannel ? `<#${recrutationChannel.id}>` : 'Brak.'}\nupload - ${uploadChannel ? `<#${uploadChannel.id}>` : 'Brak.'}` },
+                        { name: 'Other roles', value: `mod - ${modRole ? `<@&${modRole.id}>` : 'Brak.'}\nmute = ${muteRole ? `<@&${muteRole.id}>` : 'Brak.'}\nrecrutation - ${recrutationRole ? `<@&${recrutationRole.id}>` : 'Brak.'}` },
+                        { name: 'Messages', value: `welcome - ${welcomeMessage.value || 'Brak.'}\nfarewell = ${farewellMessage.value || 'Brak.'}\nrecrutation - ${recrutationMessage.value || 'Brak.'}` }
                     ])]
                 })
             }
@@ -445,19 +451,18 @@ export class Debug implements Module {
             name: 'set message',
             description: 'Ustawia podaną wiadomość',
             requireArgs: true,
-            usage: '<typ wiadomości> <treść wiadomości>\nWiadomości:\nPowitalna - `welcome`\nPożegnalna - `farewell`\nRekrutacja - `recrutation`\nAby ustawić wzmiankę użyj `{user}`',
+            usage: '<typ wiadomości> <treść wiadomości>\nWiadomości:\nPowitalna - `welcome`\nPożegnalna - `farewell`\nRekrutacja - `recrutation`\nAby ustawić wzmiankę użyj `{user}`\nAby wyłączyć ustaw na `off`',
             precondition: RequireAdmin,
 
             execute: async function (message, args) {
-                const { channel } = message
-                const messageType = args.shift()
-                const value = args.join()
-                const config = new Config()
+                const { guild, channel } = message
+                const messageType = (<any>MessageType)[args.shift().toLowerCase()]
+                const value = args.join(' ')
 
                 const messages = [
-                    'welcome',
-                    'farewell',
-                    'recrutation'
+                    MessageType.welcome,
+                    MessageType.farewell,
+                    MessageType.recrutation
                 ]
 
                 if (!messages.includes(messageType)) {
@@ -470,8 +475,13 @@ export class Debug implements Module {
                     return
                 }
 
-                config.messages[messageType] = value
-                config.save()
+                const messageEntity = await DatabaseManager.getEntity(MessageEntity, { guild: guild.id, type: messageType })
+
+                if (messageEntity) {
+                    await DatabaseManager.save(messageEntity)
+                } else {
+                    await DatabaseManager.save(new MessageEntity(guild.id, messageType, value))
+                }
 
                 await channel.send({
                     embeds: [new MessageEmbed({
