@@ -301,7 +301,7 @@ export class Debug implements Module {
                         { name: 'Level roles', value: levelRoles.join('\n') || 'Brak.' },
                         { name: 'Other channels', value: `reports - ${reportsChannel ? `<#${reportsChannel.id}>` : 'Brak.'}\nmodLogs = ${modLogsChannel ? `<#${modLogsChannel.id}>` : 'Brak.'}\narts - ${artsChannel ? `<#${artsChannel.id}>` : 'Brak.'}\nmessageDeleteLogs - ${messageDeleteLogsChannel ? `<#${messageDeleteLogsChannel.id}>` : 'Brak.'}\nrecrutation - ${recrutationChannel ? `<#${recrutationChannel.id}>` : 'Brak.'}\nupload - ${uploadChannel ? `<#${uploadChannel.id}>` : 'Brak.'}` },
                         { name: 'Other roles', value: `mod - ${modRole ? `<@&${modRole.id}>` : 'Brak.'}\nmute = ${muteRole ? `<@&${muteRole.id}>` : 'Brak.'}\nrecrutation - ${recrutationRole ? `<@&${recrutationRole.id}>` : 'Brak.'}` },
-                        { name: 'Messages', value: `welcome - ${welcomeMessage.value || 'Brak.'}\nfarewell = ${farewellMessage.value || 'Brak.'}\nrecrutation - ${recrutationMessage.value || 'Brak.'}` }
+                        { name: 'Messages', value: `welcome - ${welcomeMessage ? welcomeMessage.value : 'Brak.'}\nfarewell = ${farewellMessage ? farewellMessage.value : 'Brak.'}\nrecrutation - ${recrutationMessage ? recrutationMessage.value : 'Brak.'}` }
                     ])]
                 })
             }
