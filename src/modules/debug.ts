@@ -478,6 +478,7 @@ export class Debug implements Module {
                 const messageEntity = await DatabaseManager.getEntity(MessageEntity, { guild: guild.id, type: messageType })
 
                 if (messageEntity) {
+                    messageEntity.value = value
                     await DatabaseManager.save(messageEntity)
                 } else {
                     await DatabaseManager.save(new MessageEntity(guild.id, messageType, value))
