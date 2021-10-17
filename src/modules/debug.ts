@@ -541,7 +541,7 @@ export class Debug implements Module {
                 const member = await Utils.getMember(message, args.shift())
                 const exp = +args.shift()
 
-                if (!exp || isNaN(exp) || exp < 0) {
+                if (isNaN(exp) || exp < 0) {
                     await channel.send({
                         embeds: [new MessageEmbed({
                             color: Colors.Error,
@@ -553,6 +553,7 @@ export class Debug implements Module {
 
                 const user = await ExpManager.getUserOrCreate(member.id)
                 user.exp = exp
+                user.level = ExpManager.getLevelFromExp(user.exp)
                 DatabaseManager.save(user)
 
                 await channel.send({

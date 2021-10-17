@@ -38,9 +38,9 @@ export class ExpManager {
 
         user.exp += expFromMessage
         const toNextLvl = ExpManager.expToNextLevel(user.level)
+        
 
         if (user.exp >= toNextLvl) {
-            user.exp -= toNextLvl
             ++user.level
 
             const roles: RoleEntity[] = await DatabaseManager.getEntities(RoleEntity, { guild: guild.id, type: RoleType.level })
@@ -78,6 +78,10 @@ export class ExpManager {
         return level <= 0 ? 0 : Math.floor(Math.pow(level / this.levelMultiplier, 2)) + 1
     }
 
+    public static getLevelFromExp(exp: number): number {
+        return Math.floor(this.levelMultiplier * Math.sqrt(exp))
+    }
+
     public static async getUserOrCreate(memberID: string): Promise<UserEntity> {
         const user = await DatabaseManager.getEntity(UserEntity, { id: memberID })
         if (user) return user
@@ -87,7 +91,6 @@ export class ExpManager {
     public static async getTopUsers(limit?: number) {
         return await DatabaseManager.findEntities(UserEntity, {
             order: {
-                level: 'DESC',
                 exp: 'DESC'
             },
             skip: 0,
