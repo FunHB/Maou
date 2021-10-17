@@ -530,6 +530,41 @@ export class Debug implements Module {
         },
 
         {
+            name: 'exp',
+            description: 'Ustawia użytkownikowi podaną ilość punków doświadczenia.',
+            aliases: ['xp'],
+            requireArgs: true,
+            usage: '<user> <exp>',
+
+            execute: async function (message, args) {
+                const { channel } = message
+                const member = await Utils.getMember(message, args.shift())
+                const exp = +args.shift()
+
+                if (!exp || isNaN(exp) || exp < 0) {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Podano błędną ilość doświadczenia!'
+                        })]
+                    })
+                    return
+                }
+
+                const user = await ExpManager.getUserOrCreate(member.id)
+                user.exp = exp
+                DatabaseManager.save(user)
+
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Zmieniono poziom <@${member.id}> na ${exp}`
+                    })]
+                })
+            }
+        },
+
+        {
             name: 'pomoc',
             description: 'Wyświetla listę wszystkich poleceń lub informacje o danym poleceniu',
             aliases: ['help', 'h', ''],

@@ -70,7 +70,7 @@ export class Profile implements Module {
                 const type = args.shift()
 
                 if (!type || ['level', 'lvl', 'poziom'].includes(type)) {
-                    const users = await ExpManager.getUsers()
+                    const users = await ExpManager.getTopUsers()
                     await channel.send({
                         embeds: [new MessageEmbed({
                             color: Colors.Success,

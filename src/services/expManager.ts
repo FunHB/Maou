@@ -84,10 +84,11 @@ export class ExpManager {
         return new UserEntity({ id: memberID, exp: 0, level: 0 })
     }
 
-    public static async getUsers(limit?: number) {
+    public static async getTopUsers(limit?: number) {
         return await DatabaseManager.findEntities(UserEntity, {
             order: {
-                level: 'DESC'
+                level: 'DESC',
+                exp: 'DESC'
             },
             skip: 0,
             take: limit || 10
