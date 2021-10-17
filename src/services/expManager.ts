@@ -37,7 +37,7 @@ export class ExpManager {
         const expFromMessage = this.getExpFromMsg(this.charCount(message.content, config.prefix), this.minCharInMsg, this.maxCharInMsg, this.minExpFromMsg, this.maxExpFromMsg, this.expMultiplier);
 
         user.exp += expFromMessage
-        const toNextLvl = ExpManager.expToNextLevel(user.level)
+        const toNextLvl = ExpManager.expToNextLevel(user.level + 1)
         
 
         if (user.exp >= toNextLvl) {

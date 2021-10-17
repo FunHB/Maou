@@ -27,7 +27,7 @@ export class Profile implements Module {
 
                 const member = await Utils.getMember(message, args.shift(), true)
                 const user = await ExpManager.getUserOrCreate(member.id)
-                const diff = ExpManager.expToNextLevel(user.level) - user.exp
+                const diff = ExpManager.expToNextLevel(user.level + 1) - user.exp
 
                 channel.send({
                     embeds: [new MessageEmbed({

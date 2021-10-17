@@ -506,7 +506,7 @@ export class Debug implements Module {
                 const member = await Utils.getMember(message, args.shift())
                 const level = +args.shift()
 
-                if (!level || isNaN(level) || level < 0) {
+                if (isNaN(level) || level <= 0) {
                     await channel.send({
                         embeds: [new MessageEmbed({
                             color: Colors.Error,
@@ -518,6 +518,7 @@ export class Debug implements Module {
 
                 const user = await ExpManager.getUserOrCreate(member.id)
                 user.level = level
+                user.exp = ExpManager.expToNextLevel(user.level)
                 DatabaseManager.save(user)
 
                 await channel.send({
