@@ -16,7 +16,6 @@ import fs from 'fs'
 import { ChannelEntity, ChannelType } from '../database/entity/Channel'
 import { RoleEntity, RoleType } from '../database/entity/Role'
 import { PenaltiesManager } from '../services/penaltiesManager'
-import { ExpManager } from '../services/expManager'
 import { MessageEntity, MessageType } from '../database/entity/Message'
 
 export class Helper implements Module {
@@ -487,45 +486,6 @@ export class Helper implements Module {
                             { name: 'Dołączono', value: Utils.dateToString(member.joinedAt) },
                             { name: `Role:[${roles.length}]`, value: roles.join(', ').length > 1024 ? roles.join(', ').substring(0, 1023) : roles.join(', ') || 'brak' }
                         ]
-                    })]
-                })
-            }
-        },
-
-        {
-            name: 'iledopoziomu',
-            description: 'Pokazuje brakujące punkty doświadczenia do awansu na kolejny poziom',
-            aliases: ['idp', 'howmuchtolevelup', 'hmtlu', 'xp'],
-
-            execute: async function (message) {
-                const { channel, member } = message
-
-                const user = await ExpManager.getUserOrCreate(member.id)
-                const diff = ExpManager.expToNextLevel(user) - user.exp
-
-                channel.send({
-                    embeds: [new MessageEmbed({
-                        color: Colors.Info,
-                        description: `<@${member.id}> potrzebuje ${diff.toFixed(0)} punktów doświadczenia do następnego poziomu.`
-                    })]
-                })
-            }
-        },
-
-        {
-            name: 'poziom',
-            description: 'Pokazuje aktualny poziom użytkownika',
-            aliases: ['level', 'lvl'],
-
-            execute: async function (message) {
-                const { channel, member } = message
-
-                const user = await ExpManager.getUserOrCreate(member.id)
-
-                channel.send({
-                    embeds: [new MessageEmbed({
-                        color: Colors.Info,
-                        description: `<@${member.id}> ma poziom **${user.level}**`
                     })]
                 })
             }

@@ -11,6 +11,7 @@ import { ChannelEntity, ChannelType } from "../database/entity/Channel";
 import { RoleEntity, RoleType } from "../database/entity/Role";
 import { Utils } from "../extensions/utils";
 import { MessageEntity, MessageType } from "../database/entity/Message";
+import { ExpManager } from "../services/expManager";
 
 export class Debug implements Module {
     public name = 'Administacyjne'
@@ -237,7 +238,7 @@ export class Debug implements Module {
                     return
                 }
 
-                const minLevel = parseInt(args.shift())
+                const minLevel = +args.shift()
 
                 if (isNaN(minLevel)) {
                     await channel.send({
@@ -488,6 +489,41 @@ export class Debug implements Module {
                     embeds: [new MessageEmbed({
                         color: Colors.Success,
                         description: `Zmieniono wiadomość \`${messageType}\` na \`${value}\``
+                    })]
+                })
+            }
+        },
+
+        {
+            name: 'level',
+            description: 'Ustawia użytkownikowi podany poziom',
+            aliases: ['lvl', 'poziom'],
+            requireArgs: true,
+            usage: '<user> <level>',
+
+            execute: async function (message, args) {
+                const { channel } = message
+                const member = await Utils.getMember(message, args.shift())
+                const level = +args.shift()
+
+                if (!level || isNaN(level) || level < 0) {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Podano błędny poziom!'
+                        })]
+                    })
+                    return
+                }
+
+                const user = await ExpManager.getUserOrCreate(member.id)
+                user.level = level
+                DatabaseManager.save(user)
+
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Zmieniono poziom <@${member.id}> na ${level}`
                     })]
                 })
             }

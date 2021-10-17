@@ -141,7 +141,7 @@ export class Moderations implements Module {
                 }
 
                 const member = await Utils.getMember(message, args.shift())
-                const duration = parseInt(args.shift())
+                const duration = +args.shift()
                 const reason = args.join(' ') || 'Brak.'
 
                 if (duration < 1) return

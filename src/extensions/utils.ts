@@ -9,6 +9,12 @@ export class Utils {
         return `${out}:${('0' + date.getSeconds()).slice(-2)}`
     }
 
+    /**
+     * Returning a GuildMember object for specified identificator
+     * @param {Message} message - Message send by user.
+     * @param {string} identificator - Identificator, may be user id, username, user nickname.
+     * @param {boolean} selfOnNone - Whether to return a message author if identificator is not specified. Default false.
+     */
     public static async getMember(message: Message, identificator: string, selfOnNone = false): Promise<GuildMember> {
         await message.guild.members.fetch()
         return (message.guild.members.cache.find(member => member.user === message.mentions.users.first() || member.id === identificator || member.user.username.toLowerCase() === identificator.toLowerCase() || (member.nickname && member.nickname.toLowerCase() === identificator.toLowerCase()))) || ((!identificator && selfOnNone) ? message.member : null)

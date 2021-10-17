@@ -1,4 +1,4 @@
-import { Connection, ConnectionManager, EntityTarget, FindConditions } from 'typeorm'
+import { Connection, ConnectionManager, EntityTarget, FindConditions, FindManyOptions } from 'typeorm'
 import { Config } from '../config'
 import { ChannelEntity } from './entity/Channel'
 import { MessageEntity } from './entity/Message'
@@ -36,11 +36,15 @@ export class DatabaseManager {
     }
 
     public static async getEntity<T>(target: EntityTarget<T>, filter?: FindConditions<T>): Promise<T> {
-        return await this.connection.createEntityManager().findOne(target, filter)
+        return this.connection.createEntityManager().findOne(target, filter)
     }
 
     public static async getEntities<T>(target: EntityTarget<T>, filter?: FindConditions<T>): Promise<T[]> {
-        return await this.connection.createEntityManager().find(target, filter)
+        return this.connection.createEntityManager().find(target, filter)
+    }
+
+    public static async findEntities<T>(target: EntityTarget<T>, filter?: FindManyOptions<T>): Promise<T[]> {
+        return this.connection.getRepository(target).find(filter)
     }
 
     public static async save<T>(entity: T): Promise<void> {

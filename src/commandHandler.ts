@@ -10,6 +10,7 @@ import { Helper } from "./modules/helper"
 import { Moderations } from "./modules/moderations"
 import { Debug } from './modules/debug'
 import { Upload } from './modules/upload'
+import { Profile } from './modules/profile'
 //
 
 export class CommandHandler {
@@ -21,12 +22,14 @@ export class CommandHandler {
         const mod = new Moderations()
         const dev = new Debug()
         const upload = new Upload()
-        const helper = new Helper()
+        const profile = new Profile()
+        const helper = new Helper(profile)
 
         this._modules = new Collection([
             [dev.name, dev],
             [mod.name, mod],
             [upload.name, upload],
+            [profile.name, profile],
             [helper.name, helper]
         ])
     }

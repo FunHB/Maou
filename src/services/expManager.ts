@@ -37,7 +37,7 @@ export class ExpManager {
         const expFromMessage = this.getExpFromMsg(this.charCount(message.content, config.prefix), this.minCharInMsg, this.maxCharInMsg, this.minExpFromMsg, this.maxExpFromMsg, this.expMultiplier);
 
         user.exp += expFromMessage
-        const toNextLvl = ExpManager.expToNextLevel(user)
+        const toNextLvl = ExpManager.expToNextLevel(user.level)
 
         if (user.exp >= toNextLvl) {
             user.exp -= toNextLvl
@@ -74,13 +74,23 @@ export class ExpManager {
         return charCount * expMultiplier;
     }
 
-    public static expToNextLevel(user: UserEntity): number {
-        return user.level <= 0 ? 0 : Math.floor(Math.pow(user.level / this.levelMultiplier, 2)) + 1
+    public static expToNextLevel(level: number): number {
+        return level <= 0 ? 0 : Math.floor(Math.pow(level / this.levelMultiplier, 2)) + 1
     }
 
     public static async getUserOrCreate(memberID: string): Promise<UserEntity> {
         const user = await DatabaseManager.getEntity(UserEntity, { id: memberID })
         if (user) return user
         return new UserEntity({ id: memberID, exp: 0, level: 0 })
+    }
+
+    public static async getUsers(limit?: number) {
+        return await DatabaseManager.findEntities(UserEntity, {
+            order: {
+                level: 'DESC'
+            },
+            skip: 0,
+            take: limit || 10
+        })
     }
 }
