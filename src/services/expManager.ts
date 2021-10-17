@@ -85,7 +85,7 @@ export class ExpManager {
     public static async getUserOrCreate(memberID: string): Promise<UserEntity> {
         const user = await DatabaseManager.getEntity(UserEntity, { id: memberID })
         if (user) return user
-        return new UserEntity({ id: memberID, exp: 0, level: 0 })
+        return new UserEntity({ id: memberID, exp: 9, level: 1 })
     }
 
     public static async getTopUsers(limit?: number) {
