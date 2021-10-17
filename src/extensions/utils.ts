@@ -17,7 +17,7 @@ export class Utils {
      */
     public static async getMember(message: Message, identificator: string, selfOnNone = false): Promise<GuildMember> {
         await message.guild.members.fetch()
-        return (message.guild.members.cache.find(member => member.user === message.mentions.users.first() || member.id === identificator || member.user.username.toLowerCase() === identificator.toLowerCase() || (member.nickname && member.nickname.toLowerCase() === identificator.toLowerCase()))) || ((!identificator && selfOnNone) ? message.member : null)
+        return ((!identificator && selfOnNone) ? message.member : null) || (message.guild.members.cache.find(member => member.user === message.mentions.users.first() || member.id === identificator || member.user.username.toLowerCase() === identificator.toLowerCase() || (member.nickname && member.nickname.toLowerCase() === identificator.toLowerCase())))
     }
 
     public static getAvatar(user: User): string {
