@@ -50,7 +50,7 @@ export class Profile implements Module {
                 const member = await Utils.getMember(message, args.shift(), true)
                 const user = await ExpManager.getUserOrCreate(member.id)
 
-                const PrevExp = Math.floor(user.exp - ExpManager.expToNextLevel(user.level - 1))
+                const PrevExp = Math.floor(user.exp - ExpManager.expToNextLevel(user.level))
                 const NextExp = ExpManager.expToNextLevel(user.level + 1) - ExpManager.expToNextLevel(user.level)
 
                 channel.send({
