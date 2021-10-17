@@ -50,10 +50,16 @@ export class Profile implements Module {
                 const member = await Utils.getMember(message, args.shift(), true)
                 const user = await ExpManager.getUserOrCreate(member.id)
 
+                const PrevExp = Math.floor(user.exp - ExpManager.expToNextLevel(user.level - 1))
+                const NextExp = ExpManager.expToNextLevel(user.level + 1) - ExpManager.expToNextLevel(user.level)
+
                 channel.send({
                     embeds: [new MessageEmbed({
                         color: Colors.Info,
-                        description: `<@${member.id}> ma poziom **${user.level}**`
+                        description: `<@${member.id}> ma poziom **${user.level}**`,
+                        footer: {
+                            text: `${PrevExp} / ${NextExp}`
+                        }
                     })]
                 })
             }
