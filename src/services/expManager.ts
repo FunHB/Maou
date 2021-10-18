@@ -65,7 +65,7 @@ export class ExpManager {
     }
 
     private charCount(messageContent: string, prefix: string): number {
-        return messageContent.startsWith(prefix) ? 1 : messageContent.replace(/\s+/g, '').replace(/:[\S]+:/g, '').replace(/https:\/\/[\S]+/g, '').replace(/http:\/\/[\S]+/g, '').length
+        return messageContent.startsWith(prefix) ? 1 : messageContent.replace(/(https|http):\/\/[\S]+/g, '').replace(/:[\S]+:/g, '').replace(/\s+/g, '').length
     }
 
     private getExpFromMsg(charCount: number, minCharInMsg: number, maxCharInMsg: number, minExpFromMsg: number, maxExpFromMsg: number, expMultiplier: number): number {
