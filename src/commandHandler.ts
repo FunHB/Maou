@@ -1,9 +1,9 @@
 import { Collection, Message, MessageEmbed } from 'discord.js'
 import { RequireChannel } from './preconditions/requireChannel'
-import { Command } from './api/command'
-import { Colors } from './api/colors'
+import { Command } from './api/interfaces/command'
+import { Colors } from './api/types/colors'
 import { Config } from './config'
-import { Module } from './api/module'
+import { Module } from './api/interfaces/module'
 
 // modules
 import { Helper } from "./modules/helper"
@@ -91,7 +91,7 @@ export class CommandHandler {
                     description: 'Wystąpił nieoczekiwany błąd. Zgłoś go do administracji!'
                 })]
             })
-            console.error(`[${command.name}] Error: ${exception}`)
+            console.error(`[Command ${command.name}] Error: ${exception}`)
         }
     }
 

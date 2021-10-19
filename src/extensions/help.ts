@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js"
-import { Colors } from "../api/colors"
-import { Command } from "../api/command"
-import { Module } from "../api/module"
+import { Colors } from "../api/types/colors"
+import { Command } from "../api/interfaces/command"
+import { Module } from "../api/interfaces/module"
 import { Config } from "../config"
 
 export class Help {

@@ -1,10 +1,12 @@
 import { MessageEmbed } from "discord.js"
-import { Colors } from "../api/colors"
-import { Command } from "../api/command"
-import { Module } from "../api/module"
+import { Colors } from "../api/types/colors"
+import { Command } from "../api/interfaces/command"
+import { Module } from "../api/interfaces/module"
 import { Help } from "../extensions/help"
 import { Utils } from "../extensions/utils"
 import { ExpManager } from "../services/expManager"
+import { UserManager } from "../services/userManager"
+import { TopType } from "../api/types/topType"
 
 export class Profile implements Module {
     public name = 'Profil'
@@ -26,7 +28,7 @@ export class Profile implements Module {
                 const { channel } = message
 
                 const member = await Utils.getMember(message, args.shift(), true)
-                const user = await ExpManager.getUserOrCreate(member.id)
+                const user = await UserManager.getUserOrCreate(member.id)
                 const diff = ExpManager.expToNextLevel(user.level + 1) - user.exp
 
                 channel.send({
@@ -48,7 +50,7 @@ export class Profile implements Module {
                 const { channel } = message
 
                 const member = await Utils.getMember(message, args.shift(), true)
-                const user = await ExpManager.getUserOrCreate(member.id)
+                const user = await UserManager.getUserOrCreate(member.id)
 
                 const PrevExp = Math.floor(user.exp - ExpManager.expToNextLevel(user.level))
                 const NextExp = ExpManager.expToNextLevel(user.level + 1) - ExpManager.expToNextLevel(user.level)
@@ -73,22 +75,24 @@ export class Profile implements Module {
 
             execute: async function (message, args) {
                 const { channel } = message
-                const type = args.shift()
+                let type = args.shift() as TopType
 
-                if (!type || ['level', 'lvl', 'poziom'].includes(type)) {
-                    const users = await ExpManager.getTopUsers()
-                    await channel.send({
-                        embeds: [new MessageEmbed({
-                            color: Colors.Success,
-                            title: 'Top poziomów',
-                            description: (await Promise.all(users.map(async user => {
-                                const member = await Utils.getMember(message, user.id)
-                                if (!member) return ''
-                                return `**${users.indexOf(user) + 1}**: <@${member.id}>: ${user.level} **LVL** (${user.exp.toFixed(0)} **EXP**)`
-                            }))).filter(user => !!user).join('\n')
-                        })]
-                    })
-                }
+                if (!type) type = 'level'
+
+                const users = await UserManager.getTopUsers(type)
+                if (!users) return
+
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        title: `Top ${UserManager.getTopName(type)}`,
+                        description: (await Promise.all(users.map(async user => {
+                            const member = await Utils.getMember(message, user.id)
+                            if (!member) return ''
+                            return UserManager.getTopInfo(users.indexOf(user) + 1, user, type)
+                        }))).filter(user => !!user).join('\n')
+                    })]
+                })
             }
         }
     ]

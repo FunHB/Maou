@@ -1,5 +1,5 @@
 import { Message, MessageEmbed, PermissionResolvable, Permissions } from "discord.js"
-import { Colors } from "../api/colors"
+import { Colors } from "../api/types/colors"
 import { DatabaseManager } from "../database/databaseManager"
 import { RoleEntity, RoleType } from "../database/entity/Role"
 

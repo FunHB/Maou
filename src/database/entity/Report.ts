@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { IReport } from "../../api/IReport";
+import { IReport } from "../../api/interfaces/IReport";
 
 @Entity()
 export class ReportEntity {

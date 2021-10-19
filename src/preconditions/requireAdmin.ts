@@ -1,5 +1,5 @@
 import { Message, MessageEmbed, Permissions } from "discord.js"
-import { Colors } from "../api/colors"
+import { Colors } from "../api/types/colors"
 
 export const RequireAdmin = async (message: Message): Promise<boolean> => {
     if (message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return true

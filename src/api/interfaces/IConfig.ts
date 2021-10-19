@@ -5,6 +5,7 @@ export interface IConfig {
     prefix: string
     messages: Record<string, string>
     exp: IExp
+    measureDate: Date
 }
 
 export interface IExp {

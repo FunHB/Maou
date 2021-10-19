@@ -1,5 +1,5 @@
 import { Message, MessageEmbed, PartialMessage, User } from "discord.js";
-import { Colors } from "../api/colors";
+import { Colors } from "../api/types/colors";
 import { DatabaseManager } from "../database/databaseManager";
 import { ChannelEntity, ChannelType } from "../database/entity/Channel";
 import { Utils } from "../extensions/utils";

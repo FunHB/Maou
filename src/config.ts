@@ -1,7 +1,7 @@
-import { IConfig, IExp } from './api/IConfig'
+import { IConfig, IExp } from './api/interfaces/IConfig'
 import fs from 'fs'
 import { MessageEmbed } from 'discord.js'
-import { Colors } from './api/colors'
+import { Colors } from './api/types/colors'
 
 export class Config {
     public readonly token: string
@@ -11,6 +11,8 @@ export class Config {
     public exp: IExp
     public readonly creator: string
     public readonly version: string
+
+    public measureDate: Date
 
     constructor() {
         const config: IConfig = JSON.parse(fs.readFileSync('./config.json').toString())
@@ -22,6 +24,7 @@ export class Config {
         this.exp = config.exp
         this.creator = packageJson.author
         this.version = packageJson.version
+        this.measureDate = config.measureDate ? new Date(config.measureDate) : null
     }
 
     public toString(): string {
@@ -52,7 +55,8 @@ export class Config {
             databaseString: this.databaseString,
             prefix: this.prefix,
             upload: this.upload,
-            exp: this.exp
+            exp: this.exp,
+            measureDate: this.measureDate
         }
 
         fs.writeFileSync('./config.json', JSON.stringify(config))

@@ -1,8 +1,8 @@
 import { MessageEmbed } from "discord.js";
 import { Help } from '../extensions/help'
-import { Colors } from "../api/colors";
-import { Module } from "../api/module";
-import { Command } from "../api/command";
+import { Colors } from "../api/types/colors";
+import { Module } from "../api/interfaces/module";
+import { Command } from "../api/interfaces/command";
 import { RequireAdmin } from "../preconditions/requireAdmin";
 import { DatabaseManager } from "../database/databaseManager";
 import { Config } from "../config";
@@ -12,6 +12,7 @@ import { RoleEntity, RoleType } from "../database/entity/Role";
 import { Utils } from "../extensions/utils";
 import { MessageEntity, MessageType } from "../database/entity/Message";
 import { ExpManager } from "../services/expManager";
+import { UserManager } from "../services/userManager";
 
 export class Debug implements Module {
     public name = 'Administacyjne'
@@ -516,10 +517,10 @@ export class Debug implements Module {
                     return
                 }
 
-                const user = await ExpManager.getUserOrCreate(member.id)
+                const user = await UserManager.getUserOrCreate(member.id)
                 user.level = level
                 user.exp = ExpManager.expToNextLevel(user.level)
-                DatabaseManager.save(user)
+                await DatabaseManager.save(user)
 
                 await channel.send({
                     embeds: [new MessageEmbed({
@@ -552,10 +553,10 @@ export class Debug implements Module {
                     return
                 }
 
-                const user = await ExpManager.getUserOrCreate(member.id)
+                const user = await UserManager.getUserOrCreate(member.id)
                 user.exp = exp
                 user.level = ExpManager.getLevelFromExp(user.exp)
-                DatabaseManager.save(user)
+                await DatabaseManager.save(user)
 
                 await channel.send({
                     embeds: [new MessageEmbed({

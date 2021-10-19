@@ -1,4 +1,4 @@
-import { Help } from "../extensions/help";
+import { Help } from "../../extensions/help";
 import { Command } from "./command";
 
 export interface Module {

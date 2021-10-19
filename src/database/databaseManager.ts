@@ -1,4 +1,5 @@
 import { Connection, ConnectionManager, EntityTarget, FindConditions, FindManyOptions } from 'typeorm'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { Config } from '../config'
 import { ChannelEntity } from './entity/Channel'
 import { MessageEntity } from './entity/Message'
@@ -45,6 +46,15 @@ export class DatabaseManager {
 
     public static async findEntities<T>(target: EntityTarget<T>, filter?: FindManyOptions<T>): Promise<T[]> {
         return this.connection.getRepository(target).find(filter)
+    }
+
+    public static async updateEntites<T>(target: EntityTarget<T>, filter?: FindConditions<T>, changes?: QueryDeepPartialEntity<T>) {
+        await this.connection
+            .createQueryBuilder()
+            .update(target)
+            .set(changes)
+            .where(filter)
+            .execute();
     }
 
     public static async save<T>(entity: T): Promise<void> {

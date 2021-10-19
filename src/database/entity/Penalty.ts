@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { IPenalty } from "../../api/IPenalty";
+import { IPenalty } from "../../api/interfaces/IPenalty";
 
 export enum PenaltyType {
     mute = 'mute',

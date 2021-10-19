@@ -9,18 +9,21 @@ import { PenaltiesManager } from './services/penaltiesManager'
 import { AutoPublic } from './services/autoPublic'
 import { CommandHandler } from "./commandHandler";
 import { MessageEntity, MessageType } from "./database/entity/Message";
+import { UserManager } from "./services/userManager";
 
 export default class Bot {
     private readonly client: Client
     private readonly commandHandler: CommandHandler
     private readonly supervisor: Supervisor
     private readonly expManager: ExpManager
+    private readonly userManager: UserManager
 
     constructor(client: Client) {
         this.client = client
         this.commandHandler = new CommandHandler()
         this.supervisor = new Supervisor()
         this.expManager = new ExpManager()
+        this.userManager = new UserManager()
         new PenaltiesManager(client)
     }
 
@@ -52,6 +55,7 @@ export default class Bot {
             await this.commandHandler.handleMessage(message)
             await this.supervisor.handleMessage(message)
             await this.expManager.handleMessage(message)
+            await this.userManager.handleMessage(message)
             await AutoPublic.public(message)
         })
 

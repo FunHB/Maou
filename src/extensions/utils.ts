@@ -1,5 +1,5 @@
 import { ColorResolvable, Guild, GuildMember, HexColorString, Message, User } from "discord.js"
-import { Colors } from "../api/colors"
+import { Colors } from "../api/types/colors"
 import { ChannelType } from "../database/entity/Channel"
 
 export class Utils {

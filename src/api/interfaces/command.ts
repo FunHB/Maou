@@ -1,5 +1,5 @@
 import { Message } from 'discord.js'
-import { channelType } from '../preconditions/requireChannel'
+import { channelType } from '../../preconditions/requireChannel'
 
 export interface Command {
   name: string

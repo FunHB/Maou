@@ -3,7 +3,7 @@ import { Config } from '../config'
 import { DatabaseManager } from '../database/databaseManager'
 import { ChannelEntity, ChannelType } from '../database/entity/Channel';
 import { RoleEntity, RoleType } from '../database/entity/Role';
-import { UserEntity } from '../database/entity/User';
+import { UserManager } from './userManager';
 
 export class ExpManager {
     private static levelMultiplier = 0.35
@@ -33,7 +33,7 @@ export class ExpManager {
 
         if (!channelsWithExp.includes(channel.id)) return
 
-        const user = await ExpManager.getUserOrCreate(member.id)
+        const user = await UserManager.getUserOrCreate(member.id)
         const expFromMessage = this.getExpFromMsg(this.charCount(message.content, config.prefix), this.minCharInMsg, this.maxCharInMsg, this.minExpFromMsg, this.maxExpFromMsg, this.expMultiplier);
 
         user.exp += expFromMessage
@@ -80,21 +80,5 @@ export class ExpManager {
 
     public static getLevelFromExp(exp: number): number {
         return Math.floor(this.levelMultiplier * Math.sqrt(exp))
-    }
-
-    public static async getUserOrCreate(memberID: string): Promise<UserEntity> {
-        const user = await DatabaseManager.getEntity(UserEntity, { id: memberID })
-        if (user) return user
-        return new UserEntity({ id: memberID, exp: 9, level: 1 })
-    }
-
-    public static async getTopUsers(limit?: number) {
-        return await DatabaseManager.findEntities(UserEntity, {
-            order: {
-                exp: 'DESC'
-            },
-            skip: 0,
-            take: limit || 10
-        })
     }
 }

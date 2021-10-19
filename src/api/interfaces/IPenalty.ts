@@ -1,4 +1,4 @@
-import { PenaltyType } from "../database/entity/Penalty";
+import { PenaltyType } from "../../database/entity/Penalty";
 
 export interface IPenalty {
     user: string

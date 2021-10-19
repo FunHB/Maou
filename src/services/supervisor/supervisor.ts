@@ -1,5 +1,5 @@
 import { Message, MessageEmbed, Permissions } from "discord.js"
-import { Colors } from "../../api/colors"
+import { Colors } from "../../api/types/colors"
 import { CommandHandler } from "../../commandHandler"
 import { DatabaseManager } from "../../database/databaseManager"
 import { ChannelEntity, ChannelType } from "../../database/entity/Channel"
