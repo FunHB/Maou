@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js'
+import { Message, MessageEmbed, Presence } from 'discord.js'
 import { AddableRoles } from '../extensions/addableRoles'
 import { Utils } from '../extensions/utils'
 import { Command } from '../api/interfaces/command'
@@ -480,7 +480,7 @@ export class Helper implements Module {
                         fields: [
                             { name: 'id', value: member.id, inline: true },
                             { name: 'Pseudo', value: member.nickname || 'Brak', inline: true },
-                            { name: 'Status', value: member.presence.status, inline: true },
+                            { name: 'Status', value: Helper.memberStatus(member.presence), inline: true },
                             { name: 'Bot', value: user.bot ? 'Tak' : 'Nie', inline: true },
                             { name: 'Utworzono', value: Utils.dateToString(user.createdAt) },
                             { name: 'Dołączono', value: Utils.dateToString(member.joinedAt) },
@@ -606,4 +606,10 @@ export class Helper implements Module {
             }
         }
     ]
+
+    public static memberStatus(presence: Presence): string {
+        if (!presence) return 'offline'
+        if (presence.status === 'dnd') return 'Do not Disturb'
+        return presence.status
+    }
 }
