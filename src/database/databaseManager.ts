@@ -49,6 +49,7 @@ export class DatabaseManager {
     }
 
     public static async updateEntites<T>(target: EntityTarget<T>, filter?: FindConditions<T>, changes?: QueryDeepPartialEntity<T>) {
+        if (!this.connection) return
         await this.connection
             .createQueryBuilder()
             .update(target)
