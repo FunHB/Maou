@@ -19,11 +19,6 @@ Create a `config.json` file in the root directory and enter the following inform
         "minExpFromMsg": 1, // minimal amount of exp given to user
         "maxExpFromMsg": 100, // maximal amount of exp given to user
         "expMultiplier": 0.05 // exp per char multiplier
-    },
-    "messages": {
-        "welcome": "<message>", // welcome message. Use "{user}" for guild member mention
-        "farewell": "<message>", // farewell message. Use "{user}" for guild member mention
-        "recrutation": "<message>" // recrutation message. Use "{user}" for guild member mention
     }
 }
 ```
