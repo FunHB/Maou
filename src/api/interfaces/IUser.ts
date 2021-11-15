@@ -4,4 +4,5 @@ export interface IUser {
     level: number
     totalMessages: number
     messagesInMonth: number
+    totalCommands: number
 }

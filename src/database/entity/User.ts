@@ -22,6 +22,9 @@ export class UserEntity {
     @Column('integer')
     public messagesInMonth: number
 
+    @Column('integer')
+    public totalCommands: number
+
     constructor(user: IUser) {
         if (!user) return
         this.id = user.id
@@ -29,5 +32,6 @@ export class UserEntity {
         this.level = user.level
         this.totalMessages = user.totalMessages
         this.messagesInMonth = user.messagesInMonth
+        this.totalCommands = user.totalCommands
     }
 }

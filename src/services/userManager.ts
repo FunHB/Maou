@@ -1,11 +1,24 @@
 import { Message } from "discord.js"
 import { MoreThan } from "typeorm"
+import { IUser } from "../api/interfaces/IUser"
 import { TopType } from "../api/types/topType"
 import { Config } from "../config"
 import { DatabaseManager } from "../database/databaseManager"
+import { ChannelEntity, ChannelType } from "../database/entity/Channel"
 import { UserEntity } from "../database/entity/User"
 
 export class UserManager {
+    private static defaultUser(id: string): IUser {
+        return {
+            id: id,
+            exp: 9,
+            level: 1,
+            totalMessages: 0,
+            messagesInMonth: 0,
+            totalCommands: 0
+        }
+    }
+
     private measureDate: Date
 
     constructor() {
@@ -52,12 +65,23 @@ export class UserManager {
     }
 
     public async handleMessage(message: Message): Promise<void> {
-        const { author } = message
+        const { guild, channel, author } = message
+
         if (author.bot) return
 
         const user = await UserManager.getUserOrCreate(author.id)
-        ++user.totalMessages
-        ++user.messagesInMonth
+        const { prefix } = new Config()
+
+        if (message.content.startsWith(prefix)) {
+            ++user.totalCommands
+        }
+
+        const channelsWithExp: string[] = (await DatabaseManager.getEntities(ChannelEntity, { guild: guild.id, type: ChannelType.withExp })).map(channel => channel.id)
+        if (channelsWithExp.includes(channel.id)) {
+            ++user.totalMessages
+            ++user.messagesInMonth
+        }
+
         await DatabaseManager.save(user)
     }
 
@@ -65,13 +89,7 @@ export class UserManager {
         const user = await DatabaseManager.getEntity(UserEntity, { id: memberID })
         if (user) return user
 
-        return new UserEntity({
-            id: memberID,
-            exp: 9,
-            level: 1,
-            totalMessages: 0,
-            messagesInMonth: 0
-        })
+        return new UserEntity(UserManager.defaultUser(memberID))
     }
 
     public static async getTopUsers(type: TopType, limit?: number): Promise<UserEntity[]> {
