@@ -141,12 +141,38 @@ export class Moderations implements Module {
                 }
 
                 const member = await Utils.getMember(message, args.shift())
-                const duration = +args.shift()
+                const duration = +args.shift().replace(/\D/, '')
                 const reason = args.join(' ') || 'Brak.'
 
-                if (duration < 1) return
-                if (!member) return
-                if (member.user.bot) return
+                if (isNaN(duration) || duration < 1) {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Godzina to minimum!'
+                        })]
+                    })
+                    return
+                }
+
+                if (!member) {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Nie znaleziono użytkownika!'
+                        })]
+                    })
+                    return
+                }
+
+                if (member.user.bot) {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Ale co ci ten biedny bot zrobił?'
+                        })]
+                    })
+                    return
+                }
 
                 if (member.roles.cache.has(muteRole.id)) {
                     await channel.send({
