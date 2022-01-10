@@ -1,7 +1,8 @@
 node_modules
 dist
 LICENSE
-rekrutacja
+recrutation
 config.json
 package-lock.json
 run.sh
+logs

@@ -1,4 +1,4 @@
-import "reflect-metadata";
+import "reflect-metadata"
 import { Client } from 'discord.js'
 import { Config } from './config'
 import { MessageDelete } from './services/messageDelete'
@@ -7,35 +7,42 @@ import { ExpManager } from './services/expManager'
 import { Supervisor } from './services/supervisor/supervisor'
 import { PenaltiesManager } from './services/penaltiesManager'
 import { AutoPublic } from './services/autoPublic'
-import { CommandHandler } from "./commandHandler";
-import { MessageEntity, MessageType } from "./database/entity/Message";
-import { UserManager } from "./services/userManager";
+import { CommandHandler } from "./services/commandHandler"
+import { MessageEntity, MessageType } from "./database/entity/Message"
+import { UserManager } from "./services/userManager"
+import { Logger } from "./services/logger"
 
 export default class Bot {
     private readonly client: Client
+    private readonly logger: Logger
     private readonly commandHandler: CommandHandler
     private readonly supervisor: Supervisor
     private readonly expManager: ExpManager
     private readonly userManager: UserManager
+    private readonly messageDelete: MessageDelete
 
     constructor(client: Client) {
         this.client = client
-        this.commandHandler = new CommandHandler()
-        this.supervisor = new Supervisor()
+        this.logger = new Logger()
+        this.commandHandler = new CommandHandler(this.logger)
+        this.supervisor = new Supervisor(this.commandHandler, this.logger)
         this.expManager = new ExpManager()
-        this.userManager = new UserManager()
-        new PenaltiesManager(client)
+        this.userManager = new UserManager(this.logger)
+        this.messageDelete = new MessageDelete(this.logger)
+        new PenaltiesManager(client, this.logger)
     }
 
     public async start(): Promise<void> {
         const config = new Config()
 
-        if (!config.token) { throw new Error('invalid discord token') }
+        if (!config.token) { throw new Error('invalid Discord token') }
 
         await DatabaseManager.connect()
 
         this.client.on('ready', () => {
-            console.info(`[Info] Logged in as ${this.client.user.tag}!`)
+            const loginMessage = `[Info] Logged in as ${this.client.user.tag}!`
+            this.logger.HandleMessage(loginMessage)
+            console.info(loginMessage)
             this.client.user.setActivity(`${config.prefix}pomoc`)
         })
 
@@ -60,7 +67,7 @@ export default class Bot {
         })
 
         this.client.on('messageDelete', async message => {
-            await MessageDelete.handleMessage(message)
+            await this.messageDelete.handleMessage(message)
         })
 
         this.client.login(config.token)

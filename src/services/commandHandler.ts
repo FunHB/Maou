@@ -1,16 +1,17 @@
 import { Collection, Message, MessageEmbed } from 'discord.js'
-import { RequireChannel } from './preconditions/requireChannel'
-import { Command } from './api/interfaces/command'
-import { Colors } from './api/types/colors'
-import { Config } from './config'
-import { Module } from './api/interfaces/module'
+import { RequireChannel } from '../preconditions/requireChannel'
+import { Command } from '../api/interfaces/command'
+import { Colors } from '../api/types/colors'
+import { Config } from '../config'
+import { Module } from '../api/interfaces/module'
 
 // modules
-import { Helper } from "./modules/helper"
-import { Moderations } from "./modules/moderations"
-import { Debug } from './modules/debug'
-import { Upload } from './modules/upload'
-import { Profile } from './modules/profile'
+import { Helper } from "../modules/helper"
+import { Moderations } from "../modules/moderations"
+import { Debug } from '../modules/debug'
+import { Upload } from '../modules/upload'
+import { Profile } from '../modules/profile'
+import { Logger } from './logger'
 //
 
 export class CommandHandler {
@@ -18,7 +19,11 @@ export class CommandHandler {
 
     private _modules: Collection<string, Module>
 
-    constructor() {
+    private readonly logger: Logger;
+
+    constructor(logger: Logger) {
+        this.logger = logger;
+
         const mod = new Moderations()
         const dev = new Debug()
         const upload = new Upload()
@@ -70,7 +75,9 @@ export class CommandHandler {
         }
 
         // log of command
-        console.info(`[Command Handler] Command: ${command.name} by: ${author.tag}`)
+        const infoMessage = `[Command Handler] Command: ${command.name} by: ${author.tag}`
+        this.logger.HandleMessage(infoMessage)
+        console.info(infoMessage)
 
         if (command.precondition && !(await command.precondition(message))) return
 
@@ -91,7 +98,10 @@ export class CommandHandler {
                     description: 'Wystąpił nieoczekiwany błąd. Zgłoś go do administracji!'
                 })]
             })
-            console.error(`[Command ${command.name}] Error: ${exception}`)
+            
+            const messageError = `[Command ${command.name}] Error: ${exception}`
+            this.logger.HandleMessage(messageError)
+            console.error(messageError)
         }
     }
 

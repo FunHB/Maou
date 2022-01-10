@@ -1,11 +1,12 @@
 import { Message, MessageEmbed, Permissions } from "discord.js"
 import { Colors } from "../../api/types/colors"
-import { CommandHandler } from "../../commandHandler"
+import { CommandHandler } from "../commandHandler"
 import { DatabaseManager } from "../../database/databaseManager"
 import { ChannelEntity, ChannelType } from "../../database/entity/Channel"
 import { PenaltyEntity, PenaltyType } from "../../database/entity/Penalty"
 import { RoleEntity, RoleType } from "../../database/entity/Role"
 import { Moderations } from "../../modules/moderations"
+import { Logger } from "../logger"
 import { PenaltiesManager } from "../penaltiesManager"
 import { SupervisorEntity } from "./supervisorEntity"
 import { SupervisorMessage } from "./SupervisorMessage"
@@ -24,7 +25,13 @@ export class Supervisor {
 
     private suspects: Map<string, SupervisorEntity>
 
-    constructor() {
+    private readonly commandHandler: CommandHandler
+    private readonly logger: Logger
+
+    constructor(commandHandler: CommandHandler, logger: Logger) {
+        this.commandHandler = commandHandler
+        this.logger = logger
+
         this.suspects = new Map<string, SupervisorEntity>()
 
         setInterval(() => {
@@ -129,7 +136,7 @@ export class Supervisor {
         let mSpecified = this.MAX_SPECIFIED
         let mTotal = this.MAX_TOTAL
 
-        if (new CommandHandler().isCommand(content)) {
+        if (this.commandHandler.isCommand(content)) {
             mTotal += this.COMMAND_MOD
             mSpecified += this.COMMAND_MOD
         }
@@ -164,7 +171,9 @@ export class Supervisor {
                 this.suspects.set(uId, new SupervisorEntity())
             })
         } catch (exception) {
-            console.error(`[Supervisor] autovalidate error: ${exception}`)
+            const errorMessage = `[Supervisor] autovalidate error: ${exception}`
+            this.logger.HandleMessage(errorMessage)
+            console.error(errorMessage)
         }
     }
 }

@@ -3,9 +3,16 @@ import { Colors } from "../api/types/colors";
 import { DatabaseManager } from "../database/databaseManager";
 import { ChannelEntity, ChannelType } from "../database/entity/Channel";
 import { Utils } from "../extensions/utils";
+import { Logger } from "./logger";
 
 export class MessageDelete {
-    public static async handleMessage(message: Message | PartialMessage): Promise<void> {
+    private readonly logger: Logger
+
+    constructor(logger: Logger) {
+        this.logger = logger
+    }
+
+    public async handleMessage(message: Message | PartialMessage): Promise<void> {
         const { guild, member, channel } = message
         const { user } = member
         const messageDeleteLogChannel = guild.channels.cache.get((await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.messageDeleteLogs })).id)
@@ -14,7 +21,9 @@ export class MessageDelete {
 
         if (executor.bot || !messageContent) return
 
-        console.info(`[Message Delete] by: ${user.tag} content: ${messageContent}`)
+        const deleteMessage = `[Message Delete] by: ${user.tag} content: ${messageContent}`
+        this.logger.HandleMessage(deleteMessage)
+        console.info(deleteMessage)
 
         if (messageDeleteLogChannel.isText()) {
             await messageDeleteLogChannel.send({
@@ -39,18 +48,20 @@ export class MessageDelete {
         }
     }
 
-    private static async getExecutor(message: Message | PartialMessage): Promise<User> {
+    private async getExecutor(message: Message | PartialMessage): Promise<User> {
         const { guild, author } = message
         try {
             const { executor, target, createdTimestamp } = await guild.fetchAuditLogs({ limit: 1, type: 'MESSAGE_DELETE' }).then(audit => audit.entries.first())
             if (target.valueOf() === author.id && createdTimestamp > (Date.now() - 5000)) return executor
         } catch (exception) {
-            console.error(`[Message Delete] get Executor exception: ${exception}`)
+            const errorMessage = `[Message Delete] get Executor exception: ${exception}`
+            this.logger.HandleMessage(errorMessage)
+            console.error(errorMessage)
         }
         return author
     }
 
-    private static async getMessageContentOrAttachments(message: Message | PartialMessage): Promise<string> {
+    private async getMessageContentOrAttachments(message: Message | PartialMessage): Promise<string> {
         let output: string[] = []
         if (message.content) output.push(message.content)
         if (message.attachments) output.push(message.attachments.map(attachment => attachment.attachment).join('\n'))

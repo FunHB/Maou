@@ -3,18 +3,23 @@ import { DatabaseManager } from "../database/databaseManager";
 import { PenaltyEntity, PenaltyType } from "../database/entity/Penalty";
 import { RoleEntity, RoleType } from "../database/entity/Role";
 import { Utils } from "../extensions/utils";
+import { Logger } from "./logger";
 
 export class PenaltiesManager {
-    private client: Client
+    private readonly client: Client
+    private readonly logger: Logger
 
-    constructor(client: Client) {
+    constructor(client: Client, logger: Logger) {
         this.client = client
+        this.logger = logger
 
         setInterval(async () => {
             try {
                 await this.autoValidate()
             } catch (exception) {
-                console.error(`[Penalties Manager] ${exception}`)
+                const errorMessage = `[Penalties Manager] ${exception}`
+                this.logger.HandleMessage(errorMessage)
+                console.error(errorMessage)
             }
         },
             30000
@@ -52,7 +57,9 @@ export class PenaltiesManager {
                     await DatabaseManager.remove(penalty)
                 }
             } catch (exception) {
-                console.error(`[Penalties Manager] ${exception}`)
+                const errorMessage = `[Penalties Manager] ${exception}`
+                this.logger.HandleMessage(errorMessage)
+                console.error(errorMessage)
             }
         })
     }

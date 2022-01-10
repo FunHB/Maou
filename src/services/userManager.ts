@@ -6,6 +6,7 @@ import { Config } from "../config"
 import { DatabaseManager } from "../database/databaseManager"
 import { ChannelEntity, ChannelType } from "../database/entity/Channel"
 import { UserEntity } from "../database/entity/User"
+import { Logger } from "./logger"
 
 export class UserManager {
     private static defaultUser(id: string): IUser {
@@ -21,7 +22,7 @@ export class UserManager {
 
     private measureDate: Date
 
-    constructor() {
+    constructor(logger: Logger) {
         const date = new Date()
         const config = new Config()
 
@@ -41,7 +42,9 @@ export class UserManager {
             try {
                 await this.autoValidate()
             } catch (exception) {
-                console.error(`[UserManager] ${exception}`)
+                const errorMessage = `[UserManager] ${exception}`
+                logger.HandleMessage(errorMessage)
+                console.error(errorMessage)
             }
         },
             30000
