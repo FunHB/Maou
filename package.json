@@ -12,7 +12,7 @@
   },
   "scripts": {
     "start": "node ./dist/index.js",
-    "update": "git pull git@github.com:Sygnator/maou-bot.git dev",
+    "update": "git pull git@github.com:FunHB/Maou.git",
     "type-check": "tsc --noEmit",
     "watch": "npm run type-check -- --watch",
     "build": "npm run build:types && npm run build:js",
