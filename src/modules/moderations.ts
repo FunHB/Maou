@@ -219,7 +219,7 @@ export class Moderations implements Module {
                     embeds: [new MessageEmbed({
                         color: Colors.Info,
                         title: 'Wyciszeni:',
-                        description: mutes.map(penalty => `<@!${penalty.user}> [do: ${penalty.startDate.setHours(penalty.startDate.getHours() + penalty.duration) && Utils.dateToString(penalty.startDate, false)}] - ${penalty.reason}`).join('\n')
+                        description: mutes.map(penalty => `<@!${penalty.user}> [do: ${penalty.startDate.setHours(penalty.startDate.getHours() + penalty.duration) && Utils.dateToString(penalty.startDate, true, true, false)}] - ${penalty.reason}`).join('\n')
                     })]
                 })
             }
@@ -659,7 +659,7 @@ export class Moderations implements Module {
             fields: [
                 { name: 'UserId:', value: `${user.id}`, inline: true },
                 { name: 'Typ:', value: type, inline: true },
-                { name: 'Kiedy:', value: Utils.dateToString(startDate, false), inline: true }
+                { name: 'Kiedy:', value: Utils.dateToString(startDate, true, true, false), inline: true }
             ],
             footer: { text: `Przez: ${by}` }
         })

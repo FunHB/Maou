@@ -300,7 +300,12 @@ export class Helper implements Module {
 
             execute: async function (message, args) {
                 const { channel, member, guild } = message
-                const reportChannel = message.guild.channels.cache.get((await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.reports })).id)
+                
+                const reportChannelId = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.reports })
+
+                if (!reportChannelId) return
+
+                const reportChannel = message.guild.channels.cache.get(reportChannelId.id)
                 const reportedID = args.shift()
                 const reason = args.join(' ')
 

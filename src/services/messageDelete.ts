@@ -15,7 +15,12 @@ export class MessageDelete {
     public async handleMessage(message: Message | PartialMessage): Promise<void> {
         const { guild, member, channel } = message
         const { user } = member
-        const messageDeleteLogChannel = guild.channels.cache.get((await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.messageDeleteLogs })).id)
+
+        const messageDeleteLogChannelId = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.messageDeleteLogs })
+
+        if (!messageDeleteLogChannelId) return
+
+        const messageDeleteLogChannel = guild.channels.cache.get(messageDeleteLogChannelId.id)
         const executor = await this.getExecutor(message)
         const messageContent = await this.getMessageContentOrAttachments(message)
 
