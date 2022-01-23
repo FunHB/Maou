@@ -10,16 +10,12 @@ export class ExpManager {
 
     private minCharInMsg: number
     private maxCharInMsg: number
-    private minExpFromMsg: number
-    private maxExpFromMsg: number
     private expMultiplier: number
 
     constructor() {
         const config = new Config()
         this.minCharInMsg = config.exp.minCharInMsg
         this.maxCharInMsg = config.exp.maxCharInMsg
-        this.minExpFromMsg = config.exp.minExpFromMsg
-        this.maxExpFromMsg = config.exp.maxExpFromMsg
         this.expMultiplier = config.exp.expMultiplier
     }
 
@@ -34,7 +30,7 @@ export class ExpManager {
         if (!channelsWithExp.includes(channel.id)) return
 
         const user = await UserManager.getUserOrCreate(member.id)
-        const expFromMessage = this.getExpFromMsg(this.charCount(message.content, config.prefix), this.minCharInMsg, this.maxCharInMsg, this.minExpFromMsg, this.maxExpFromMsg, this.expMultiplier);
+        const expFromMessage = this.charCount(message.content, config.prefix) * this.expMultiplier
 
         user.exp += expFromMessage
         const toNextLvl = ExpManager.expToNextLevel(user.level + 1)
@@ -65,13 +61,10 @@ export class ExpManager {
     }
 
     private charCount(messageContent: string, prefix: string): number {
-        return messageContent.startsWith(prefix) ? 1 : messageContent.replace(/(https|http):\/\/[\S]+/g, '').replace(/:[\S]+:/g, '').replace(/\s+/g, '').length
-    }
-
-    private getExpFromMsg(charCount: number, minCharInMsg: number, maxCharInMsg: number, minExpFromMsg: number, maxExpFromMsg: number, expMultiplier: number): number {
-        if (charCount <= minCharInMsg) return minExpFromMsg;
-        if (charCount >= maxCharInMsg) return maxExpFromMsg;
-        return charCount * expMultiplier;
+        const charCount = messageContent.startsWith(prefix) ? 1 : messageContent.replace(/(https|http):\/\/[\S]+/g, '').replace(/:[\S]+:/g, '').replace(/\s+/g, '').length
+        if (charCount <= this.minCharInMsg) return this.minCharInMsg
+        if (charCount >= this.maxCharInMsg) return this.maxCharInMsg
+        return charCount
     }
 
     public static expToNextLevel(level: number): number {
