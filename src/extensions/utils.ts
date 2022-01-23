@@ -3,10 +3,13 @@ import { Colors } from "../api/types/colors"
 import { ChannelType } from "../database/entity/Channel"
 
 export class Utils {
-    public static dateToString(date: Date, seconds = true): string {
-        const out = `${('0' + date.getDate()).slice(-2)}.${('0' + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()} ${date.getHours() !== 24 ? ('0' + (date.getHours())).slice(-2) : '00'}:${('0' + date.getMinutes()).slice(-2)}`
-        if (!seconds) return out
-        return `${out}:${('0' + date.getSeconds()).slice(-2)}`
+    public static dateToString(date: Date, showDate = true, showTime = true, showSeconds = true): string {
+        let out = ''
+        if (showDate) out += `${('0' + date.getDate()).slice(-2)}.${('0' + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`
+        if (showDate && showTime) out += ' '
+        if (showTime) out += `${date.getHours() !== 24 ? ('0' + (date.getHours())).slice(-2) : '00'}:${('0' + date.getMinutes()).slice(-2)}`
+        if (showTime && showSeconds) out += `:${('0' + date.getSeconds()).slice(-2)}`
+        return out 
     }
 
     /**

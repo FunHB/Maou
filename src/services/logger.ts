@@ -1,12 +1,13 @@
 import { createWriteStream, existsSync, mkdirSync, WriteStream } from 'fs'
 import { join } from 'path';
+import { Utils } from '../extensions/utils';
 
 export class Logger {
     private date: Date
     private stream: WriteStream;
 
     private readonly directory: string = './logs'
-    private get path(): string { return join(this.directory, `${('00' + this.date.getDate()).slice(-2)}.${('00' + (this.date.getMonth() + 1)).slice(-2)}.${this.date.getFullYear()}.txt`) }
+    private get path(): string { return join(this.directory, `${Utils.dateToString(this.date, true, false)}`) }
 
     constructor() {
         if (!existsSync(this.directory)) {
@@ -45,6 +46,7 @@ export class Logger {
 
     public HandleMessage(message: string): void {
         this.createStream()
-        this.stream.write(`\n${message}`)
+        const date = new Date()
+        this.stream.write(`(${Utils.dateToString(date, false, true, true)}) ${message}\n`)
     }
 }
