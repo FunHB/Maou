@@ -5,7 +5,7 @@ export class Arts {
 
     public static async getRandomImage(): Promise<string> {
         const response = await fetch(this.url)
-        const body = await response.json()
-        return body.tags[0].images[0].url
+        const { images } = await response.json()
+        return (images.shift()).url
     }
 }
