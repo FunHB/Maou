@@ -19,7 +19,9 @@ export class Help {
             const prefix = group.length > 1 ? `${config.prefix}${group} ` : config.prefix
             return [new MessageEmbed({
                 color: Colors.Info,
-                fields: this.modules.map(module => { return { name: `Lista poleceń - ${module.name}:`, value: module.commands.map(command => command.name).join(", ") } }),
+                fields: this.modules.map(module => {
+                    return { name: `Lista poleceń - ${module.name}:`, value: module.commands.map(command => command.name).join(", ")
+                }}),
                 footer: { text: `Aby wyświetlić informacje na temat konkretnego polecenia wpisz: ${prefix}pomoc <nazwa polecenia>` },
             })]
         }

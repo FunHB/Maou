@@ -11,7 +11,5 @@ export interface IConfig {
 export interface IExp {
     minCharInMsg: number
     maxCharInMsg: number
-    minExpFromMsg: number
-    maxExpFromMsg: number
     expMultiplier: number
 }

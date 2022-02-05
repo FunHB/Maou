@@ -71,7 +71,7 @@ export class Profile implements Module {
             name: 'top',
             description: 'Pokazuje najlepszych użytkowników',
             aliases: ['topka'],
-            usage: '[typ topki]\ntypy: level',
+            usage: '[typ topki]\ntypy: `poziom`, `posty`, `postym`',
 
             execute: async (message, args) => {
                 const { channel } = message
@@ -91,6 +91,40 @@ export class Profile implements Module {
                             if (!member) return ''
                             return UserManager.getTopInfo(users.indexOf(user) + 1, user, type)
                         }))).filter(user => !!user).join('\n')
+                    })]
+                })
+            }
+        },
+
+        {
+            name: 'profil',
+            description: 'Pokazuje profil użytkownika',
+            aliases: ['profile'],
+            usage: '[użytkownik]',
+
+            execute: async (message, args) => {
+                const { channel } = message
+                const target = args.shift()
+                const member = await Utils.getMember(message, target, true)
+                const user = await UserManager.getUserOrCreate(member.id)
+
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: member.displayHexColor,
+                        title: member.user.username,
+                        thumbnail: {
+                            url: member.displayAvatarURL() || member.user.defaultAvatarURL,
+                        },
+                        fields: [
+                            { name: 'Poziom', value: `${user.level}`, inline: true },
+                            { name: 'Exp', value: user.exp.toFixed(2), inline: true },
+                            { name: '\u200b', value: '\u200b', inline: true },
+                            { name: 'Wiadomości', value: `${user.totalMessages}`, inline: true },
+                            { name: 'Poleceń', value: `${user.totalCommands}`, inline: true },
+                            { name: '\u200b', value: '\u200b', inline: true },
+                            { name: 'Wiadomości w miesiącu', value: `${user.messagesInMonth}` },
+                            { name: 'Doświadczenie do następnego poziomu', value: (ExpManager.expToNextLevel(user.level + 1) - user.exp).toFixed(2) },
+                        ]
                     })]
                 })
             }

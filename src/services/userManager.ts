@@ -34,10 +34,6 @@ export class UserManager {
             this.measureDate = config.measureDate;
         }
 
-        (async () => {
-            await this.autoValidate()
-        })()
-
         setInterval(async () => {
             try {
                 await this.autoValidate()
@@ -53,16 +49,16 @@ export class UserManager {
         const date = new Date()
         if (this.measureDate.getFullYear() == date.getFullYear() && this.measureDate.getMonth() == date.getMonth()) return
 
-        this.measureDate = new Date(date.getFullYear(), date.getMonth(), 1)
-        const config = new Config()
-        config.measureDate = this.measureDate
-        config.save()
-
         await DatabaseManager.updateEntites(UserEntity, {
             messagesInMonth: MoreThan(0)
         }, {
             messagesInMonth: 0
         })
+
+        this.measureDate = new Date(date.getFullYear(), date.getMonth(), 1)
+        const config = new Config()
+        config.measureDate = this.measureDate
+        config.save()
     }
 
     public async handleMessage(message: Message): Promise<void> {
