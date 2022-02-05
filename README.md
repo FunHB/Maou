@@ -22,7 +22,7 @@ Create a `config.json` file in the root directory and enter the following inform
 ```
 
 #### Instalation
-Install dependencies: npm i
-Build project: npm run build
-Start bot: npm start
-Build and Start (on linux only): ./run.sh
+Install dependencies: npm i  
+Build project: npm run build  
+Start bot: npm start  
+Build and Start (on linux only): ./run.sh  
