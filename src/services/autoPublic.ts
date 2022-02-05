@@ -3,7 +3,7 @@ import { DatabaseManager } from "../database/databaseManager";
 import { ChannelEntity, ChannelType } from "../database/entity/Channel";
 
 export class AutoPublic {
-    public static async public(message: Message) {
+    public async public(message: Message) {
         const { guild, channel } = message
 
         if (!(channel.type == 'GUILD_NEWS' || channel.type == 'GUILD_NEWS_THREAD')) return

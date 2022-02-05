@@ -20,6 +20,7 @@ export default class Bot {
     private readonly expManager: ExpManager
     private readonly userManager: UserManager
     private readonly messageDelete: MessageDelete
+    private readonly autoPublic: AutoPublic
 
     constructor(client: Client) {
         this.client = client
@@ -29,6 +30,7 @@ export default class Bot {
         this.expManager = new ExpManager()
         this.userManager = new UserManager(this.logger)
         this.messageDelete = new MessageDelete(this.logger)
+        this.autoPublic = new AutoPublic()
         new PenaltiesManager(client, this.logger)
     }
 
@@ -61,11 +63,15 @@ export default class Bot {
             await this.supervisor.handleMessage(message)
             await this.expManager.handleMessage(message)
             await this.userManager.handleMessage(message)
-            await AutoPublic.public(message)
+            await this.autoPublic.public(message)
         })
 
         this.client.on('messageDelete', async message => {
             await this.messageDelete.handleMessage(message)
+        })
+
+        this.client.on('error', (error) => {
+            this.logger.HandleMessage(`[Client] ${error.name}: ${error.message}`)
         })
 
         this.client.login(config.token)
