@@ -20,10 +20,7 @@ export class Logger {
             try {
                 this.autoValidate()
             } catch (exception) {
-                const errorMessage = `[Logger] ${exception}`
-
-                this.HandleMessage(errorMessage)
-                console.error(errorMessage)
+                this.HandleMessage(`[Logger] ${exception}`)
             }
         },
             30000
@@ -44,7 +41,10 @@ export class Logger {
         }
     }
 
-    public HandleMessage(message: string): void {
+    public HandleMessage(message: string, error = true): void {
+        if (error) console.error(message)
+        else console.info(message)
+
         this.createStream()
         const date = new Date()
         this.stream.write(`(${Utils.dateToString(date, false, true, true)}) ${message}\n`)

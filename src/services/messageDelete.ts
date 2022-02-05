@@ -26,9 +26,7 @@ export class MessageDelete {
 
         if (executor.bot || !messageContent) return
 
-        const deleteMessage = `[Message Delete] by: ${user.tag} content: ${messageContent}`
-        this.logger.HandleMessage(deleteMessage)
-        console.info(deleteMessage)
+        this.logger.HandleMessage(`[Message Delete] by: ${user.tag} content: ${messageContent}`, false)
 
         if (messageDeleteLogChannel.isText()) {
             await messageDeleteLogChannel.send({
@@ -59,9 +57,7 @@ export class MessageDelete {
             const { executor, target, createdTimestamp } = await guild.fetchAuditLogs({ limit: 1, type: 'MESSAGE_DELETE' }).then(audit => audit.entries.first())
             if (target.valueOf() === author.id && createdTimestamp > (Date.now() - 5000)) return executor
         } catch (exception) {
-            const errorMessage = `[Message Delete] get Executor exception: ${exception}`
-            this.logger.HandleMessage(errorMessage)
-            console.error(errorMessage)
+            this.logger.HandleMessage(`[Message Delete] get Executor exception: ${exception}`)
         }
         return author
     }

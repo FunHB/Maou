@@ -42,9 +42,7 @@ export class UserManager {
             try {
                 await this.autoValidate()
             } catch (exception) {
-                const errorMessage = `[UserManager] ${exception}`
-                logger.HandleMessage(errorMessage)
-                console.error(errorMessage)
+                logger.HandleMessage(`[UserManager] ${exception}`)
             }
         },
             30000

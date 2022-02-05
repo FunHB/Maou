@@ -17,13 +17,17 @@ import { ChannelEntity, ChannelType } from '../database/entity/Channel'
 import { RoleEntity, RoleType } from '../database/entity/Role'
 import { PenaltiesManager } from '../services/penaltiesManager'
 import { MessageEntity, MessageType } from '../database/entity/Message'
+import { Logger } from '../services/logger'
 
 export class Helper implements Module {
     public name = 'Podstawowe'
     public group = ''
     public help: Help
 
-    constructor(...modules: Module[]) {
+    private readonly logger: Logger
+
+    constructor(logger: Logger, ...modules: Module[]) {
+        this.logger = logger
         this.help = new Help(this, ...modules)
     }
 
@@ -36,7 +40,7 @@ export class Helper implements Module {
             usage: '<nazwa roli>',
             channelType: channelType.commands,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { guild, channel, member } = message
                 const identificator = args.join(' ')
                 const roles = await AddableRoles.getRoles(guild)
@@ -99,7 +103,7 @@ export class Helper implements Module {
             usage: '[użytkownik]',
             channelType: channelType.commands,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const member = await Utils.getMember(message, args.join(' '), true)
 
                 if (!member) return
@@ -254,7 +258,7 @@ export class Helper implements Module {
             usage: '<nazwa roli>',
             channelType: channelType.commands,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { guild, channel, member } = message
                 const identificator = args.join(' ')
                 const roles = await AddableRoles.getRoles(guild)
@@ -298,7 +302,7 @@ export class Helper implements Module {
             requireArgs: true,
             usage: '<id wiadomości> <powód zgłoszenia>',
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel, member, guild } = message
                 
                 const reportChannelId = await DatabaseManager.getEntity(ChannelEntity, { guild: guild.id, type: ChannelType.reports })
@@ -330,7 +334,7 @@ export class Helper implements Module {
                             description: 'nie znaleziono wiadomości, lub wiadomość jest starsza niż 3 godziny!'
                         })]
                     })
-                    console.info(`[Report] ${exception}`)
+                    this.logger.HandleMessage(`[Report] ${exception}`)
                     return
                 }
 
@@ -466,7 +470,7 @@ export class Helper implements Module {
             usage: '[użytkownik]',
             channelType: channelType.commands,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const member = await Utils.getMember(message, args.join(' '), true)
 
                 if (!member) return
@@ -504,7 +508,7 @@ export class Helper implements Module {
         //     requireArgs: true,
         //     usage: '<użytkownik>',
 
-        //     execute: async function (message, args) {
+        //     execute: async (message, args) => {
         //         const { member, guild, channel } = message
         //         const config = new Config()
         //         const emoji = '723131979540725841'

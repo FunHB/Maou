@@ -14,13 +14,17 @@ import fs from 'fs'
 import { Help } from '../extensions/help'
 import { ChannelEntity, ChannelType } from '../database/entity/Channel'
 import { RoleEntity, RoleType } from '../database/entity/Role'
+import { Logger } from '../services/logger'
 
 export class Moderations implements Module {
     public name = 'Moderatorskie'
     public group = 'mod'
     public help: Help
 
-    constructor(...modules: Module[]) {
+    private readonly logger: Logger
+
+    constructor(logger: Logger, ...modules: Module[]) {
+        this.logger = logger
         this.help = new Help(this, ...modules)
     }
 
@@ -32,7 +36,7 @@ export class Moderations implements Module {
             usage: '<użytkownik> [powód]',
             precondition: RequireAdminOrMod,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel } = message
                 const member = await Utils.getMember(message, args.shift())
                 const reason = args.join(' ') || 'Brak.'
@@ -79,7 +83,7 @@ export class Moderations implements Module {
             usage: '<użytkownik> [powód]',
             precondition: RequireAdminOrMod,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel } = message
                 const member = await Utils.getMember(message, args.shift())
                 const reason = args.join(' ') || 'Brak.'
@@ -126,7 +130,7 @@ export class Moderations implements Module {
             usage: '<użytkownik> <czas trwania> [powód]',
             precondition: RequireAdminOrMod,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel, guild } = message
                 const muteRole = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: RoleType.mute })
 
@@ -212,7 +216,7 @@ export class Moderations implements Module {
             description: 'Pokazuje wszystkich wyciszonych!',
             precondition: RequireAdminOrMod,
 
-            execute: async function (message) {
+            execute: async (message) => {
                 const mutes = await PenaltiesManager.getPenaltiesByTypeOrGuild(PenaltyType.mute, message.guild.id)
 
                 await message.channel.send({
@@ -232,7 +236,7 @@ export class Moderations implements Module {
             usage: '<użytkownik>',
             precondition: RequireAdminOrMod,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel, guild } = message
                 const muteRole = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: RoleType.mute })
 
@@ -280,7 +284,7 @@ export class Moderations implements Module {
             usage: '<id użytkownika>',
             precondition: RequireAdminOrMod,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel, guild } = message
                 const memberId = args.join(' ')
 
@@ -314,7 +318,7 @@ export class Moderations implements Module {
             usage: '<użytkownik> [nowy pseudonim]',
             precondition: RequireAdminOrMod,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const member = await Utils.getMember(message, args.shift())
                 const oldNickname = member.nickname
 
@@ -346,7 +350,7 @@ export class Moderations implements Module {
             aliases: ['recrutation'],
             precondition: RequireAdminOrMod,
 
-            execute: async function (message) {
+            execute: async (message) => {
                 if (fs.existsSync('recrutation')) {
                     fs.unlinkSync('recrutation')
                     return
@@ -369,7 +373,7 @@ export class Moderations implements Module {
             usage: '<id zgłoszenia> <zatwierdź / odrzuć> [czas trwania] [powód]',
             channelType: channelType.reports,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { guild, channel } = message
                 const reportId = args.shift()
                 const report: ReportEntity = await DatabaseManager.getEntity(ReportEntity, { reportId: reportId, guild: guild.id })
@@ -390,7 +394,8 @@ export class Moderations implements Module {
                             description: 'coś poszło nie tak'
                         })]
                     })
-                    console.error(`[Resolve] ${exception}`)
+
+                    this.logger.HandleMessage(`[Resolve] ${exception}`)
                     return
                 }
 
@@ -405,7 +410,7 @@ export class Moderations implements Module {
                 if (!reported || !report || decision === -1) return
 
                 if (decision) {
-                    await new Moderations().commands.find(command => command.name === 'mute').execute(message, [member.id, ...args])
+                    await this.commands.find(command => command.name === 'mute').execute(message, [member.id, ...args])
                 }
 
                 await message.delete()
@@ -422,7 +427,7 @@ export class Moderations implements Module {
             usage: '<id wiadomości> <id kanału>',
             precondition: requireAdminOrModOrChannelPermission(Permissions.FLAGS.MANAGE_MESSAGES),
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 let quoted: Message
 
                 try {
@@ -434,7 +439,7 @@ export class Moderations implements Module {
                             description: 'nie znaleziono wiadomości'
                         })]
                     })
-                    console.error(`[Quote] ${exception}`)
+                    this.logger.HandleMessage(`[Quote] ${exception}`)
                     return
                 }
 
@@ -464,7 +469,7 @@ export class Moderations implements Module {
             usage: '<id kanału> <id wiadomości> <reakcja>',
             precondition: RequireAdminOrMod,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const channel = message.guild.channels.cache.get(args.shift())
 
                 if (!channel) return
@@ -480,7 +485,7 @@ export class Moderations implements Module {
                             description: 'nie znaleziono wiadomości'
                         })]
                     })
-                    console.error(`[r2msg] ${exception}`)
+                    this.logger.HandleMessage(`[r2msg] ${exception}`)
                     return
                 }
 
@@ -506,7 +511,7 @@ export class Moderations implements Module {
             usage: '<id kanału> <kolor> <treść wiadomości>\nkolory: `error`, `info`, `success`, `warning`, `neutral`',
             precondition: RequireAdminOrMod,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const channel = message.guild.channels.cache.get(args.shift())
 
                 if (!channel) return
@@ -535,7 +540,7 @@ export class Moderations implements Module {
             usage: '<id kanału> <wiadomość>',
             precondition: RequireAdminOrMod,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const channel = message.guild.channels.cache.get(args.shift())
 
                 if (!channel) return
@@ -565,7 +570,7 @@ export class Moderations implements Module {
             usage: '<id kanału> <wiadomość> <nowa wiadomość>',
             precondition: RequireAdminOrMod,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const channel = message.guild.channels.cache.get(args.shift())
 
                 if (!channel) return
@@ -592,6 +597,7 @@ export class Moderations implements Module {
                             description: 'nie znaleziono wiadomości'
                         })]
                     })
+                    this.logger.HandleMessage(`[editmsg] ${exception}`)
                 }
             }
         },

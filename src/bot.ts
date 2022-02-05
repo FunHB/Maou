@@ -40,9 +40,7 @@ export default class Bot {
         await DatabaseManager.connect()
 
         this.client.on('ready', () => {
-            const loginMessage = `[Info] Logged in as ${this.client.user.tag}!`
-            this.logger.HandleMessage(loginMessage)
-            console.info(loginMessage)
+            this.logger.HandleMessage(`[Info] Logged in as ${this.client.user.tag}!`, false)
             this.client.user.setActivity(`${config.prefix}pomoc`)
         })
 

@@ -5,13 +5,17 @@ import { Module } from "../api/interfaces/module"
 import { Config } from "../config"
 import { Help } from "../extensions/help"
 import { channelType } from "../preconditions/requireChannel"
+import { Logger } from "../services/logger"
 
 export class Upload implements Module {
     public name = 'Upload'
     public group = 'upload'
     public help: Help
 
-    constructor(...modules: Module[]) {
+    private readonly logger: Logger
+
+    constructor(logger: Logger, ...modules: Module[]) {
+        this.logger = logger
         this.help = new Help(this, ...modules)
     }
 
@@ -23,7 +27,7 @@ export class Upload implements Module {
             usage: '[GdriveLink]',
             channelType: channelType.upload,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel } = message
                 const config = new Config()
                 const sourceUrl = args.join()
@@ -75,7 +79,7 @@ export class Upload implements Module {
 
                     await Upload.notifyAboutLink(channel, this.name, `https://dood.to/e/${result.filecode}`)
                 } catch (exception) {
-                    console.error(`[Upload] Error: ${exception}`)
+                    this.logger.HandleMessage(`[Upload] Error: ${exception}`)
                     await channel.send({
                         embeds: [new MessageEmbed({
                             color: Colors.Error,
@@ -93,7 +97,7 @@ export class Upload implements Module {
             channelType: channelType.upload,
             usage: '<link do gdrive>',
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel } = message
                 const config = new Config()
                 const sourceUrl = args.shift()
@@ -134,7 +138,7 @@ export class Upload implements Module {
                     const { filecode } = (await reponse.json()).result
                     await Upload.notifyAboutLink(channel, this.name, `https://sbembed3.com/${filecode}.html`)
                 } catch (exception) {
-                    console.error(`[Upload] Error: ${exception}`)
+                    this.logger.HandleMessage(`[Upload] Error: ${exception}`)
                     await channel.send({
                         embeds: [new MessageEmbed({
                             color: Colors.Error,

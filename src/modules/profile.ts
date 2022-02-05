@@ -24,7 +24,7 @@ export class Profile implements Module {
             aliases: ['idp', 'howmuchtolevelup', 'hmtlu', 'xp'],
             usage: '[użytkownik]',
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel } = message
 
                 const member = await Utils.getMember(message, args.shift(), true)
@@ -46,7 +46,7 @@ export class Profile implements Module {
             aliases: ['level', 'lvl'],
             usage: '[użytkownik]',
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel } = message
 
                 const member = await Utils.getMember(message, args.shift(), true)
@@ -73,7 +73,7 @@ export class Profile implements Module {
             aliases: ['topka'],
             usage: '[typ topki]\ntypy: level',
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel } = message
                 let type = args.shift() as TopType
 

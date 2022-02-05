@@ -171,9 +171,7 @@ export class Supervisor {
                 this.suspects.set(uId, new SupervisorEntity())
             })
         } catch (exception) {
-            const errorMessage = `[Supervisor] autovalidate error: ${exception}`
-            this.logger.HandleMessage(errorMessage)
-            console.error(errorMessage)
+            this.logger.HandleMessage(`[Supervisor] autovalidate error: ${exception}`)
         }
     }
 }

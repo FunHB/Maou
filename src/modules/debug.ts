@@ -13,13 +13,17 @@ import { Utils } from "../extensions/utils";
 import { MessageEntity, MessageType } from "../database/entity/Message";
 import { ExpManager } from "../services/expManager";
 import { UserManager } from "../services/userManager";
+import { Logger } from "../services/logger";
 
 export class Debug implements Module {
     public name = 'Administacyjne'
     public group = 'dev'
     public help: Help
 
-    constructor(...modules: Module[]) {
+    private readonly logger: Logger
+
+    constructor(logger: Logger, ...modules: Module[]) {
+        this.logger = logger
         this.help = new Help(this, ...modules)
     }
 
@@ -29,13 +33,15 @@ export class Debug implements Module {
             description: 'Wykonuje restart z aktualizacją',
             precondition: RequireAdmin,
 
-            execute: async function (message) {
+            execute: async (message) => {
                 await message.channel.send({
                     embeds: [new MessageEmbed({
                         color: Colors.Info,
                         description: 'Pora na nowe funkcje. Ciekawe co tym razem nie działa.'
                     })]
                 })
+
+                this.logger.HandleMessage('[Update] Restarting process', false)
 
                 message.client.destroy()
                 fs.writeFileSync('./updateNow', '')
@@ -48,7 +54,7 @@ export class Debug implements Module {
             description: 'Włącza otrzymywanie doświadczenia na kanale',
             precondition: RequireAdmin,
 
-            execute: async function (message) {
+            execute: async (message) => {
                 const { guild, channel } = message
 
                 const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { id: channel.id, guild: guild.id, type: ChannelType.withExp })
@@ -75,7 +81,7 @@ export class Debug implements Module {
             description: 'Włącza nadzór kanału',
             precondition: RequireAdmin,
 
-            execute: async function (message) {
+            execute: async (message) => {
                 const { guild, channel } = message
 
                 const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { id: channel.id, guild: guild.id, type: ChannelType.supervisor })
@@ -102,7 +108,7 @@ export class Debug implements Module {
             description: 'Dodaje kanał do auto publikacji',
             precondition: RequireAdmin,
 
-            execute: async function (message) {
+            execute: async (message) => {
                 const { guild, channel } = message
 
                 if (channel.type !== 'GUILD_NEWS' && channel.type !== 'GUILD_NEWS_THREAD') {
@@ -139,7 +145,7 @@ export class Debug implements Module {
             description: 'Włącza polecenia na kanale',
             precondition: RequireAdmin,
 
-            execute: async function (message) {
+            execute: async (message) => {
                 const { guild, channel } = message
 
                 const channelEntity = await DatabaseManager.getEntity(ChannelEntity, { id: channel.id, guild: guild.id, type: ChannelType.commands })
@@ -168,7 +174,7 @@ export class Debug implements Module {
             usage: '<id roli>',
             precondition: RequireAdmin,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { guild, channel } = message
 
                 const roleID = args.shift()
@@ -210,7 +216,7 @@ export class Debug implements Module {
             usage: '<id roli> <minimalny poziom do zdobycia>',
             precondition: RequireAdmin,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { guild, channel } = message
 
                 const roleID = args.shift()
@@ -267,7 +273,7 @@ export class Debug implements Module {
             description: 'Wyświetla aktualną configuracje',
             precondition: RequireAdmin,
 
-            execute: async function (message) {
+            execute: async (message) => {
                 const { guild, channel } = message
                 const config = new Config()
 
@@ -316,7 +322,7 @@ export class Debug implements Module {
             usage: '<nowy prefix>',
             precondition: RequireAdmin,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const value = args.join(' ')
                 const config = new Config()
 
@@ -339,7 +345,7 @@ export class Debug implements Module {
             usage: '<rola> <id roli>\nRole:\nModeratorów - `mod`\nWyciszonych - `mute`\nRekruterów - `recrutation`',
             precondition: RequireAdmin,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { guild, channel } = message
                 const role: RoleType = (<any>RoleType)[args.shift().toLowerCase()]
                 const value = args.shift()
@@ -396,7 +402,7 @@ export class Debug implements Module {
             usage: '<kanał> <id kanału>\nKanały:\nzgłoszenia - `reports`\n"Nagrody" - `modLogs`\nObrazki - `arts`\nUsunięte wiadomości - `messageDeleteLogs`\nUpload - `upload`\nRekrutacja (kategoria) - `recrutation`',
             precondition: RequireAdmin,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { guild, channel } = message
                 const channelType: ChannelType = Utils.getChannelType(args.shift())
                 const value = args.shift()
@@ -456,7 +462,7 @@ export class Debug implements Module {
             usage: '<typ wiadomości> <treść wiadomości>\nWiadomości:\nPowitalna - `welcome`\nPożegnalna - `farewell`\nRekrutacja - `recrutation`\nAby ustawić wzmiankę użyj `{user}`\nAby wyłączyć ustaw na `off`',
             precondition: RequireAdmin,
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { guild, channel } = message
                 const messageType = (<any>MessageType)[args.shift().toLowerCase()]
                 const value = args.join(' ')
@@ -502,7 +508,7 @@ export class Debug implements Module {
             requireArgs: true,
             usage: '<user> <level>',
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel } = message
                 const member = await Utils.getMember(message, args.shift())
                 const level = +args.shift()
@@ -538,7 +544,7 @@ export class Debug implements Module {
             requireArgs: true,
             usage: '<user> <exp>',
 
-            execute: async function (message, args) {
+            execute: async (message, args) => {
                 const { channel } = message
                 const member = await Utils.getMember(message, args.shift())
                 const exp = +args.shift()

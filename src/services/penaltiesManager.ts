@@ -17,9 +17,7 @@ export class PenaltiesManager {
             try {
                 await this.autoValidate()
             } catch (exception) {
-                const errorMessage = `[Penalties Manager] ${exception}`
-                this.logger.HandleMessage(errorMessage)
-                console.error(errorMessage)
+                this.logger.HandleMessage(`[Penalties Manager] ${exception}`)
             }
         },
             30000
@@ -57,9 +55,7 @@ export class PenaltiesManager {
                     await DatabaseManager.remove(penalty)
                 }
             } catch (exception) {
-                const errorMessage = `[Penalties Manager] ${exception}`
-                this.logger.HandleMessage(errorMessage)
-                console.error(errorMessage)
+                this.logger.HandleMessage(`[Penalties Manager] ${exception}`)
             }
         })
     }

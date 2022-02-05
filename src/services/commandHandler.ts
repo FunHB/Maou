@@ -19,16 +19,16 @@ export class CommandHandler {
 
     private _modules: Collection<string, Module>
 
-    private readonly logger: Logger;
+    public readonly logger: Logger;
 
     constructor(logger: Logger) {
         this.logger = logger;
 
-        const mod = new Moderations()
-        const dev = new Debug()
-        const upload = new Upload()
+        const mod = new Moderations(logger)
+        const dev = new Debug(logger)
+        const upload = new Upload(logger)
         const profile = new Profile()
-        const helper = new Helper(profile)
+        const helper = new Helper(logger, profile)
 
         this._modules = new Collection([
             [dev.name, dev],
@@ -75,9 +75,7 @@ export class CommandHandler {
         }
 
         // log of command
-        const infoMessage = `[Command Handler] Command: ${command.name} by: ${author.tag}`
-        this.logger.HandleMessage(infoMessage)
-        console.info(infoMessage)
+        this.logger.HandleMessage(`[Command Handler] Command: ${command.name} by: ${author.tag}`, false)
 
         if (command.precondition && !(await command.precondition(message))) return
 
@@ -99,9 +97,7 @@ export class CommandHandler {
                 })]
             })
             
-            const messageError = `[Command ${command.name}] Error: ${exception}`
-            this.logger.HandleMessage(messageError)
-            console.error(messageError)
+            this.logger.HandleMessage(`[Command ${command.name}] Error: ${exception}`)
         }
     }
 
