@@ -1,4 +1,4 @@
-import { MessageEmbed, TextBasedChannels } from "discord.js"
+import { MessageEmbed, TextBasedChannel } from "discord.js"
 import { Colors } from "../api/types/colors"
 import { Command } from "../api/interfaces/command"
 import { Module } from "../api/interfaces/module"
@@ -162,7 +162,7 @@ export class Upload implements Module {
         }
     ]
 
-    private static async notifyAboutLink(channel: TextBasedChannels, hosting: string, url: string) {
+    private static async notifyAboutLink(channel: TextBasedChannel, hosting: string, url: string) {
         await channel.send({
             embeds: [new MessageEmbed({
                 color: Colors.Success,

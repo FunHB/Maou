@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.15.4",
-    "discord.js": "^13.1.0",
+    "discord.js": "^13.6.0",
     "node-fetch": "^2.6.1",
     "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
