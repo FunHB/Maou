@@ -1,7 +1,7 @@
 import { Message } from "discord.js"
 import { MoreThan } from "typeorm"
 import { IUser } from "../api/interfaces/IUser"
-import { TopType } from "../api/types/topType"
+import { checkType, TopType } from "../api/types/topType"
 import { Config } from "../config"
 import { DatabaseManager } from "../database/databaseManager"
 import { ChannelEntity, ChannelType } from "../database/entity/Channel"
@@ -90,27 +90,14 @@ export class UserManager {
     }
 
     public static async getTopUsers(type: TopType, limit?: number): Promise<UserEntity[]> {
-        let order = {}
+        const orderType = ['exp', 'totalMessages', 'messagesInMonth']
+        const order: { [key: string]: string } = {}
+        const typeCode = checkType(type)
 
-        if (type == 'level' || type == 'lvl' || type == 'poziom') {
-            order = {
-                exp: 'DESC'
-            }
-        }
+        if (typeCode === -1) return null
 
-        if (type == 'posty' || type == 'posts') {
-            order = {
-                totalMessages: 'DESC'
-            }
-        }
+        order[`${orderType[typeCode]}`] = 'DESC'
 
-        if (type == 'mposts' || type == 'mposty' || type == 'postym') {
-            order = {
-                messagesInMonth: 'DESC'
-            }
-        }
-
-        if (Object.keys(order).length === 0) return null
         return await DatabaseManager.findEntities(UserEntity, {
             order: order,
             skip: 0,
@@ -119,25 +106,16 @@ export class UserManager {
     }
 
     public static getTopName(type: TopType): string {
-        if (type == 'level' || type == 'lvl' || type == 'poziom') return 'Poziomów'
-        if (type == 'posty' || type == 'posts') return 'Wiadomości'
-        if (type == 'mposts' || type == 'mposty' || type == 'postym') return 'Wiadomości w miesiącu'
-        return ''
+        const topNames = ['Poziomów', 'Wiadomości', 'Wiadomości w miesiącu']
+        return topNames[checkType(type)]
     }
 
     public static getTopInfo(position: number, user: UserEntity, type: TopType): string {
-        if (type == 'level' || type == 'lvl' || type == 'poziom') {
-            return `**${position}**: <@${user.id}>: ${user.level} **LVL** (${user.exp.toFixed(0)} **EXP**)`
-        }
-
-        if (type == 'posty' || type == 'posts') {
-            return `**${position}**: <@${user.id}>: ${user.totalMessages} **Wiadomości**`
-        }
-
-        if (type == 'mposts' || type == 'mposty' || type == 'postym') {
-            return `**${position}**: <@${user.id}>: ${user.messagesInMonth} **Wiadomości**`
-        }
-
-        return ''
+        const topInfo = [
+            `**${position}**: <@${user.id}>: ${user.level} **LVL** (${user.exp.toFixed(0)} **EXP**)`,
+            `**${position}**: <@${user.id}>: ${user.totalMessages} **Wiadomości**`,
+            `**${position}**: <@${user.id}>: ${user.messagesInMonth} **Wiadomości**`
+        ]
+        return topInfo[checkType(type)]
     }
 }
