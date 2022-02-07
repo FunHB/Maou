@@ -7,7 +7,6 @@ import { Config } from '../config'
 import { Module } from '../api/interfaces/module'
 import { Arts } from '../extensions/arts'
 import { Moderations } from './moderations'
-import { channelType } from '../preconditions/requireChannel'
 import { PenaltyEntity, PenaltyType } from '../database/entity/Penalty'
 import { ReportEntity } from '../database/entity/Report'
 import { DatabaseManager } from '../database/databaseManager'
@@ -38,7 +37,7 @@ export class Helper implements Module {
             aliases: ['add role'],
             requireArgs: true,
             usage: '<nazwa roli>',
-            channelType: channelType.commands,
+            channelType: ChannelType.commands,
 
             execute: async (message, args) => {
                 const { guild, channel, member } = message
@@ -81,7 +80,7 @@ export class Helper implements Module {
             name: 'art',
             description: 'Wyświetla losowy obrazke z anime',
             aliases: ['obrazek', 'fanart'],
-            channelType: channelType.arts,
+            channelType: ChannelType.arts,
 
             execute: async function (message) {
                 const artUrl = await Arts.getRandomImage()
@@ -101,7 +100,7 @@ export class Helper implements Module {
             description: 'Wyświetla twój lub czyjś avatar',
             aliases: ['avatar'],
             usage: '[użytkownik]',
-            channelType: channelType.commands,
+            channelType: ChannelType.commands,
 
             execute: async (message, args) => {
                 const member = await Utils.getMember(message, args.join(' '), true)
@@ -128,7 +127,7 @@ export class Helper implements Module {
             name: 'info',
             description: 'Wyświetla informacje o bocie',
             aliases: ['informacje'],
-            channelType: channelType.commands,
+            channelType: ChannelType.commands,
 
             execute: async function (message) {
                 const config = new Config()
@@ -157,7 +156,7 @@ export class Helper implements Module {
         {
             name: 'ping',
             description: 'Sprawdza opóźnienie między botem a serwerem',
-            channelType: channelType.commands,
+            channelType: ChannelType.commands,
 
             execute: async function (message) {
                 const pingMessage = await message.channel.send('Ping?')
@@ -256,7 +255,7 @@ export class Helper implements Module {
             aliases: ['zdejmij role'],
             requireArgs: true,
             usage: '<nazwa roli>',
-            channelType: channelType.commands,
+            channelType: ChannelType.commands,
 
             execute: async (message, args) => {
                 const { guild, channel, member } = message
@@ -410,7 +409,7 @@ export class Helper implements Module {
             name: 'serverinfo',
             description: 'Wyświetla informacje o serwerze',
             aliases: ['sinfo'],
-            channelType: channelType.commands,
+            channelType: ChannelType.commands,
 
             execute: async function (message) {
                 const { guild, channel } = message
@@ -448,7 +447,7 @@ export class Helper implements Module {
             name: 'wypisz role',
             description: 'Wypisuje możliwe do nadania sobie role',
             aliases: ['show roles'],
-            channelType: channelType.commands,
+            channelType: ChannelType.commands,
 
             execute: async function (message) {
                 const { guild, channel } = message
@@ -468,7 +467,7 @@ export class Helper implements Module {
             description: 'wyświetla informacje o użytkowniku',
             aliases: ['who is'],
             usage: '[użytkownik]',
-            channelType: channelType.commands,
+            channelType: ChannelType.commands,
 
             execute: async (message, args) => {
                 const member = await Utils.getMember(message, args.join(' '), true)
@@ -610,7 +609,7 @@ export class Helper implements Module {
             description: 'Wyświetla listę wszystkich poleceń lub informacje o danym poleceniu',
             aliases: ['help', 'h'],
             usage: '[polecenie]',
-            channelType: channelType.commands,
+            channelType: ChannelType.commands,
 
             execute: async (message, args) => {
                 await message.channel.send({ embeds: this.help.getHelp(args.join(' ').toLowerCase()) })

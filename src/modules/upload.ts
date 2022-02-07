@@ -4,8 +4,8 @@ import { Command } from "../api/interfaces/command"
 import { Module } from "../api/interfaces/module"
 import { Config } from "../config"
 import { Help } from "../extensions/help"
-import { channelType } from "../preconditions/requireChannel"
 import { Logger } from "../services/logger"
+import { ChannelType } from "../database/entity/Channel"
 
 export class Upload implements Module {
     public name = 'Upload'
@@ -25,7 +25,7 @@ export class Upload implements Module {
             description: 'Uploaduje z gdriva na dood',
             requireArgs: true,
             usage: '[GdriveLink]',
-            channelType: channelType.upload,
+            channelType: ChannelType.upload,
 
             execute: async (message, args) => {
                 const { channel } = message
@@ -94,7 +94,7 @@ export class Upload implements Module {
             name: 'streamsb',
             description: 'Uploaduje z gdriva na steamsb',
             requireArgs: true,
-            channelType: channelType.upload,
+            channelType: ChannelType.upload,
             usage: '<link do gdrive>',
 
             execute: async (message, args) => {
@@ -154,7 +154,7 @@ export class Upload implements Module {
             description: 'Wyświetla listę wszystkich poleceń lub informacje o danym poleceniu',
             aliases: ['help', 'h'],
             usage: '[polecenie]',
-            channelType: channelType.upload,
+            channelType: ChannelType.upload,
 
             execute: async (message, args) => {
                 await message.channel.send({ embeds: this.help.getHelp(args.join(' ').toLowerCase()) })

@@ -7,7 +7,6 @@ import { RequireAdminOrMod } from '../preconditions/requireAdminOrMod'
 import { requireAdminOrModOrChannelPermission } from '../preconditions/requireAdminOrModOrChannelPermission'
 import { DatabaseManager } from '../database/databaseManager'
 import { PenaltiesManager } from '../services/penaltiesManager'
-import { channelType } from '../preconditions/requireChannel'
 import { PenaltyEntity, PenaltyType } from '../database/entity/Penalty'
 import { ReportEntity } from '../database/entity/Report'
 import fs from 'fs'
@@ -371,7 +370,7 @@ export class Moderations implements Module {
             description: 'rozwiązuje zgłoszenie!\nDecyzje:\n\t**zatwierdź** Aliasy: `approve`, `zatwierdz`, `ok`\n\t**odrzuć** Aliasy: `reject`, `odrzuc`, `nah`\nPrzy zatwierdzeniu wymagane jest podanie czasu trwania!',
             requireArgs: true,
             usage: '<id zgłoszenia> <zatwierdź / odrzuć> [czas trwania] [powód]',
-            channelType: channelType.reports,
+            channelType: ChannelType.reports,
 
             execute: async (message, args) => {
                 const { guild, channel } = message

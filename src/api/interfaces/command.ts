@@ -1,5 +1,5 @@
 import { Message } from 'discord.js'
-import { channelType } from '../../preconditions/requireChannel'
+import { ChannelType } from '../../database/entity/Channel';
 
 export interface Command {
   name: string
@@ -7,7 +7,7 @@ export interface Command {
   aliases?: string[]
   requireArgs?: boolean
   usage?: string
-  channelType?: channelType
+  channelType?: ChannelType
   guildonly?: boolean
   precondition?: (...args: any) => any
 

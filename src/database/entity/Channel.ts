@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 export enum ChannelType {
+    normal = '',
     autoPublic = 'autopublic',
     withExp = 'withexp',
     supervisor = 'supervisor',
