@@ -137,7 +137,7 @@ export class Upload implements Module {
                     // }
 
                     const { filecode } = (await reponse.json()).result
-                    await Upload.notifyAboutLink(channel, this.name, `https://sbembed3.com/${filecode}.html`)
+                    await Upload.notifyAboutLink(channel, this.name, `https://sbfast.com/e/${filecode}.html`)
                 } catch (exception) {
                     this.logger.HandleMessage(`[Upload] Error: ${exception}`)
                     await channel.send({
