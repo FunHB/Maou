@@ -6,6 +6,7 @@ import { Config } from "../config"
 import { Help } from "../extensions/help"
 import { Logger } from "../services/logger"
 import { ChannelType } from "../database/entity/Channel"
+import fetch from "node-fetch"
 
 export class Upload implements Module {
     public name = 'Upload'
