@@ -174,6 +174,7 @@ export class Helper implements Module {
             name: 'rekrutacja',
             description: 'Pozwala przystąpić do rekrutacji',
             aliases: ['recrutation'],
+            channelType: ChannelType.commands,
 
             execute: async function (message) {
                 const { guild, channel, member } = message
