@@ -2,7 +2,7 @@ import { Message, MessageEmbed, Permissions } from "discord.js"
 import { Colors } from "../api/types/colors"
 
 export const RequireAdmin = async (message: Message): Promise<boolean> => {
-    if (message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return true
+    if (message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) || message.member.permissions.has(Permissions.FLAGS.MANAGE_GUILD)) return true
 
     await message.channel.send({
         embeds: [new MessageEmbed({

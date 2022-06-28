@@ -6,6 +6,7 @@ import { Config } from "../config"
 import { Help } from "../extensions/help"
 import { Logger } from "../services/logger"
 import { ChannelType } from "../database/entity/Channel"
+import fetch from "node-fetch"
 
 export class Upload implements Module {
     public name = 'Upload'
@@ -136,7 +137,7 @@ export class Upload implements Module {
                     // }
 
                     const { filecode } = (await reponse.json()).result
-                    await Upload.notifyAboutLink(channel, this.name, `https://sbembed3.com/${filecode}.html`)
+                    await Upload.notifyAboutLink(channel, this.name, `https://sbfast.com/e/${filecode}.html`)
                 } catch (exception) {
                     this.logger.HandleMessage(`[Upload] Error: ${exception}`)
                     await channel.send({
