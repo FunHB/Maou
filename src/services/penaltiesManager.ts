@@ -27,9 +27,19 @@ export class PenaltiesManager {
 
     private async autoValidate(): Promise<void> {
         console.info(`[Penalties Manager] Auto validate at ${Utils.dateToString(new Date())}`)
-        const penalties: PenaltyEntity[] = await PenaltiesManager.getPenaltiesByTypeOrGuild(PenaltyType.mute)
 
-        penalties.forEach(async penalty => {
+        const bans: PenaltyEntity[] = await PenaltiesManager.getPenaltiesByTypeOrGuild(PenaltyType.ban)
+        bans.forEach(async penalty => {
+            try {
+                const user = await UserManager.getUserOrCreate(penalty.user)    
+                await DatabaseManager.remove(user)
+            } catch (exception) {
+                this.logger.HandleMessage(`[Penalties Manager] ${exception}`)
+            }
+        })
+
+        const mutes: PenaltyEntity[] = await PenaltiesManager.getPenaltiesByTypeOrGuild(PenaltyType.mute)
+        mutes.forEach(async penalty => {
             const muteRole = await DatabaseManager.getEntity(RoleEntity, { guild: penalty.guild, type: RoleType.mute })
             if (!muteRole) return
 
@@ -45,17 +55,11 @@ export class PenaltiesManager {
                         }
                         return
                     }
-                    
+
                     await DatabaseManager.remove(penalty)
                     if (member.roles.cache.has(muteRole.id)) {
                         await member.roles.remove(muteRole.id)
                     }
-                    return
-                }
-
-                if (penalty.type == PenaltyType.ban) {
-                    const user = await UserManager.getUserOrCreate(penalty.user)
-                    await DatabaseManager.remove(user)
                     return
                 }
 
