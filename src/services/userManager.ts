@@ -105,6 +105,7 @@ export class UserManager {
         })
     }
 
+
     public static getTopName(type: TopType): string {
         const topNames = ['Poziomów', 'Wiadomości', 'Wiadomości w miesiącu']
         return topNames[checkType(type)]

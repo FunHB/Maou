@@ -4,6 +4,7 @@ import { PenaltyEntity, PenaltyType } from "../database/entity/Penalty";
 import { RoleEntity, RoleType } from "../database/entity/Role";
 import { Utils } from "../extensions/utils";
 import { Logger } from "./logger";
+import { UserManager } from "./userManager";
 
 export class PenaltiesManager {
     private readonly client: Client
@@ -38,12 +39,19 @@ export class PenaltiesManager {
 
                 const member = await guild.members.fetch(penalty.user)
                 if (member) {
+                    if (penalty.type == PenaltyType.ban) {
+                        const user = await UserManager.getUserOrCreate(member.id)
+                        await DatabaseManager.remove(user)
+                        return
+                    }
+
                     if ((Date.now() - penalty.startDate.getTime()) / 1000 / 60 / 60 < penalty.duration) {
                         if (!member.roles.cache.has(muteRole.id)) {
                             await member.roles.add(muteRole.id)
                         }
                         return
                     }
+                    
                     await DatabaseManager.remove(penalty)
                     if (member.roles.cache.has(muteRole.id)) {
                         await member.roles.remove(muteRole.id)

@@ -77,6 +77,70 @@ export class Helper implements Module {
         },
 
         {
+            name: 'zdejmij role',
+            description: 'Zdejmuje użytkownikowi role',
+            aliases: ['zdejmij role'],
+            requireArgs: true,
+            usage: '<nazwa roli>',
+            channelType: ChannelType.commands,
+
+            execute: async (message, args) => {
+                const { guild, channel, member } = message
+                const identificator = args.join(' ')
+                const roles = await AddableRoles.getRoles(guild)
+                const role = roles.find(role => role.id == identificator || role.name.toLowerCase() == identificator.toLowerCase())
+
+                if (!role) {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: 'Nie znaleziono podanej roli!'
+                        })]
+                    })
+                    return
+                }
+
+                if (!member.roles.cache.has(role.id)) {
+                    await channel.send({
+                        embeds: [new MessageEmbed({
+                            color: Colors.Error,
+                            description: `Użytkownik <@${member.id}> nie posiada roli <@&${role.id}>!`
+                        })]
+                    })
+                    return
+                }
+
+                await member.roles.remove(role.id)
+
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Success,
+                        description: `Użytkownik <@${member.id}> zabrał sobie rolę <@&${role.id}>`
+                    })]
+                })
+            }
+        },
+
+        {
+            name: 'wypisz role',
+            description: 'Wypisuje możliwe do nadania sobie role',
+            aliases: ['show roles'],
+            channelType: ChannelType.commands,
+
+            execute: async function (message) {
+                const { guild, channel } = message
+                const roles = await AddableRoles.getRoles(guild)
+
+                await channel.send({
+                    embeds: [new MessageEmbed({
+                        color: Colors.Info,
+                        description: roles.map(role => role).join('\n') || 'Brak.'
+                    })]
+                })
+            }
+        },
+
+        {
             name: 'art',
             description: 'Wyświetla losowy obrazke z anime',
             aliases: ['obrazek', 'fanart'],
@@ -250,51 +314,6 @@ export class Helper implements Module {
         },
 
         {
-            name: 'zdejmij role',
-            description: 'Zdejmuje użytkownikowi role',
-            aliases: ['zdejmij role'],
-            requireArgs: true,
-            usage: '<nazwa roli>',
-            channelType: ChannelType.commands,
-
-            execute: async (message, args) => {
-                const { guild, channel, member } = message
-                const identificator = args.join(' ')
-                const roles = await AddableRoles.getRoles(guild)
-                const role = roles.find(role => role.id == identificator || role.name.toLowerCase() == identificator.toLowerCase())
-
-                if (!role) {
-                    await channel.send({
-                        embeds: [new MessageEmbed({
-                            color: Colors.Error,
-                            description: 'Nie znaleziono podanej roli!'
-                        })]
-                    })
-                    return
-                }
-
-                if (!member.roles.cache.has(role.id)) {
-                    await channel.send({
-                        embeds: [new MessageEmbed({
-                            color: Colors.Error,
-                            description: `Użytkownik <@${member.id}> nie posiada roli <@&${role.id}>!`
-                        })]
-                    })
-                    return
-                }
-
-                await member.roles.remove(role.id)
-
-                await channel.send({
-                    embeds: [new MessageEmbed({
-                        color: Colors.Success,
-                        description: `Użytkownik <@${member.id}> zabrał sobie rolę <@&${role.id}>`
-                    })]
-                })
-            }
-        },
-
-        {
             name: 'zgłoś',
             description: 'Pozwala na zgłoszenie wiadomości użytkownika',
             aliases: ['raport', 'report', 'zgloś', 'zgłos', 'zglos'],
@@ -438,25 +457,6 @@ export class Helper implements Module {
                             { name: 'Kanały głosowe', value: Utils.getChannelCount(guild, 'GUILD_VOICE').toFixed(), inline: true },
                             { name: `Role:[${roles.length}]`, value: roles.join(', ').length > 1024 ? roles.join(', ').substring(0, 1023) : roles.join(', '), inline: true }
                         ]
-                    })]
-                })
-            }
-        },
-
-        {
-            name: 'wypisz role',
-            description: 'Wypisuje możliwe do nadania sobie role',
-            aliases: ['show roles'],
-            channelType: ChannelType.commands,
-
-            execute: async function (message) {
-                const { guild, channel } = message
-                const roles = await AddableRoles.getRoles(guild)
-
-                await channel.send({
-                    embeds: [new MessageEmbed({
-                        color: Colors.Info,
-                        description: roles.map(role => role).join('\n') || 'Brak.'
                     })]
                 })
             }

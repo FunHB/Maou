@@ -9,8 +9,8 @@ import { RoleEntity } from './entity/Role'
 import { UserEntity } from './entity/User'
 
 export class DatabaseManager {
-    public static connection: Connection
-    public static connectionManager: ConnectionManager
+    private static connection: Connection
+    private static connectionManager: ConnectionManager
 
     public static async connect(): Promise<void> {
         const config = new Config()

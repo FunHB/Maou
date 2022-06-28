@@ -53,6 +53,9 @@ export default class Bot {
         })
 
         this.client.on('guildMemberRemove', async member => {
+            const user = await UserManager.getUserOrCreate(member.id)
+            await DatabaseManager.remove(user)
+
             const farewellMessage = await DatabaseManager.getEntity(MessageEntity, { guild: member.guild.id, type: MessageType.farewell })
             if (!farewellMessage || farewellMessage.value === 'off') return
             await member.guild.systemChannel.send(farewellMessage.value.replace(/({user})/g, member.nickname || member.user.username))
