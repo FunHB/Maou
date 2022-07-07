@@ -275,7 +275,7 @@ export class Helper implements Module {
                     return
                 }
 
-                const channelName = (member.nickname || member.user.username).replace('-', ' ').replace(/([\p{P}\p{S}])/gm, '')
+                const channelName = (member.nickname || member.user.username).replace('-', ' ').replace(/([\p{P}\p{S}])/gm, '').toLowerCase()
 
                 const recrutationRole = await DatabaseManager.getEntity(RoleEntity, { guild: guild.id, type: RoleType.recrutation })
                 const recrutationChannel = await guild.channels.create(channelName, {
