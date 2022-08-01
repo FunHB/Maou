@@ -366,6 +366,16 @@ export class Moderations implements Module {
         },
 
         {
+            name: 'ping',
+            description: 'Pinga Maou Subs!',
+            precondition: RequireAdminOrMod,
+
+            execute: async (message) => {
+                await message.channel.send('<@&861332905564307496>')
+            }
+        },
+
+        {
             name: 'resolve',
             description: 'rozwiązuje zgłoszenie!\nDecyzje:\n\t**zatwierdź** Aliasy: `approve`, `zatwierdz`, `ok`\n\t**odrzuć** Aliasy: `reject`, `odrzuc`, `nah`\nPrzy zatwierdzeniu wymagane jest podanie czasu trwania!',
             requireArgs: true,
