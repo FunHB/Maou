@@ -20,10 +20,10 @@ export class ChannelEntity {
     @PrimaryGeneratedColumn('uuid')
     public _id: string
 
-    @Column('varchar', { length: 18 })
+    @Column('varchar', { length: 19 })
     public id: string
 
-    @Column('varchar', { length: 18 })
+    @Column('varchar', { length: 19 })
     public guild: string
 
     @Column('varchar')

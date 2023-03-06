@@ -13,10 +13,10 @@ export class PenaltyEntity {
     @PrimaryGeneratedColumn('uuid')
     public _id: string
 
-    @Column('varchar', { length: 18 })
+    @Column('varchar', { length: 19 })
     public user: string
 
-    @Column('varchar', { length: 18 })
+    @Column('varchar', { length: 19 })
     public guild: string
 
     @Column('varchar')

@@ -17,7 +17,7 @@ export class RoleEntity {
     @Column('varchar')
     public id: string
 
-    @Column('varchar', { length: 18 })
+    @Column('varchar', { length: 19 })
     public guild: string
 
     @Column('varchar')
