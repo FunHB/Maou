@@ -71,7 +71,7 @@ export class Profile implements Module {
             name: 'top',
             description: 'Pokazuje najlepszych użytkowników',
             aliases: ['topka'],
-            usage: '[typ topki]\ntypy: `poziom`, `posty`, `postym`',
+            usage: '[typ topki]\ntypy: `poziom`, `posty`, `postym`, `polecenia`',
 
             execute: async (message, args) => {
                 const { channel } = message

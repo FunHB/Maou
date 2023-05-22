@@ -90,7 +90,7 @@ export class UserManager {
     }
 
     public static async getTopUsers(type: TopType, limit?: number): Promise<UserEntity[]> {
-        const orderType = ['exp', 'totalMessages', 'messagesInMonth']
+        const orderType = ['exp', 'totalMessages', 'messagesInMonth', 'totalCommands']
         const order: { [key: string]: string } = {}
         const typeCode = checkType(type)
 
@@ -107,7 +107,7 @@ export class UserManager {
 
 
     public static getTopName(type: TopType): string {
-        const topNames = ['Poziomów', 'Wiadomości', 'Wiadomości w miesiącu']
+        const topNames = ['Poziomów', 'Wiadomości', 'Wiadomości w miesiącu', 'Poleceń']
         return topNames[checkType(type)]
     }
 
@@ -115,7 +115,8 @@ export class UserManager {
         const topInfo = [
             `**${position}**: <@${user.id}>: ${user.level} **LVL** (${user.exp.toFixed(0)} **EXP**)`,
             `**${position}**: <@${user.id}>: ${user.totalMessages} **Wiadomości**`,
-            `**${position}**: <@${user.id}>: ${user.messagesInMonth} **Wiadomości**`
+            `**${position}**: <@${user.id}>: ${user.messagesInMonth} **Wiadomości**`,
+            `**${position}**: <@${user.id}>: ${user.totalCommands} **Poleceń**`
         ]
         return topInfo[checkType(type)]
     }
